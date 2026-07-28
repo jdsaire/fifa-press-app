@@ -1,0 +1,18 @@
+<div class="card event-card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">@EventName</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@EventDate.ToString("MMMM d, yyyy")</h6>
+        <p class="card-text">@Location</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string EventName { get; set; } = string.Empty;
+
+    [Parameter]
+    public DateTime EventDate { get; set; }
+
+    [Parameter]
+    public string Location { get; set; } = string.Empty;
+}
