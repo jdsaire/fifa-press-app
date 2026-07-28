@@ -1,0 +1,15 @@
+@page "/"
+@using EventEase.Models
+
+<PageTitle>Events</PageTitle>
+
+<h1>Upcoming Events</h1>
+
+@foreach (var ev in events)
+{
+    <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
+}
+
+@code {
+    private List<EventModel> events = MockEventData.GetSampleEvents();
+}

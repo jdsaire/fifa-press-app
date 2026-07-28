@@ -1,8 +1,8 @@
 <div class="card event-card mb-3">
     <div class="card-body">
-        <h5 class="card-title">@EventName</h5>
-        <h6 class="card-subtitle mb-2 text-muted">@EventDate.ToString("MMMM d, yyyy")</h6>
-        <p class="card-text">@Location</p>
+        <input class="form-control mb-2" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
+        <input type="date" class="form-control mb-2" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
+        <input class="form-control" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
     </div>
 </div>
 
@@ -11,8 +11,38 @@
     public string EventName { get; set; } = string.Empty;
 
     [Parameter]
+    public EventCallback<string> EventNameChanged { get; set; }
+
+    [Parameter]
     public DateTime EventDate { get; set; }
 
     [Parameter]
+    public EventCallback<DateTime> EventDateChanged { get; set; }
+
+    [Parameter]
     public string Location { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> LocationChanged { get; set; }
+
+    private async Task OnNameInput(ChangeEventArgs e)
+    {
+        EventName = e.Value?.ToString() ?? string.Empty;
+        await EventNameChanged.InvokeAsync(EventName);
+    }
+
+    private async Task OnDateInput(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var parsed))
+        {
+            EventDate = parsed;
+            await EventDateChanged.InvokeAsync(EventDate);
+        }
+    }
+
+    private async Task OnLocationInput(ChangeEventArgs e)
+    {
+        Location = e.Value?.ToString() ?? string.Empty;
+        await LocationChanged.InvokeAsync(Location);
+    }
 }
