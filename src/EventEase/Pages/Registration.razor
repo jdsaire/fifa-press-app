@@ -2,6 +2,7 @@
 @using EventEase.Models
 @using EventEase.Services
 @inject SessionTracker Session
+@inject AttendanceTracker Attendance
 
 <PageTitle>Register</PageTitle>
 
@@ -57,5 +58,6 @@ else
     private void HandleValidSubmit()
     {
         Session.Register(Id);
+        Attendance.RegisterAttendee(Id, registration.Name, registration.Email);
     }
 }
