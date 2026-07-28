@@ -1,8 +1,22 @@
 <div class="card event-card mb-3">
     <div class="card-body">
-        <input class="form-control mb-2" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
-        <input type="date" class="form-control mb-2" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
-        <input class="form-control" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
+        <input class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
+        @if (nameError is not null)
+        {
+            <div class="text-danger small mb-2">@nameError</div>
+        }
+
+        <input type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
+        @if (dateError is not null)
+        {
+            <div class="text-danger small mb-2">@dateError</div>
+        }
+
+        <input class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
+        @if (locationError is not null)
+        {
+            <div class="text-danger small">@locationError</div>
+        }
     </div>
 </div>
 
@@ -25,9 +39,22 @@
     [Parameter]
     public EventCallback<string> LocationChanged { get; set; }
 
+    private string? nameError;
+    private string? dateError;
+    private string? locationError;
+
+    protected override void OnParametersSet()
+    {
+        nameError = string.IsNullOrWhiteSpace(EventName) ? "Event name is required." : null;
+        dateError = EventDate == default ? "A valid date is required." : null;
+        locationError = string.IsNullOrWhiteSpace(Location) ? "Location is required." : null;
+    }
+
     private async Task OnNameInput(ChangeEventArgs e)
     {
-        EventName = e.Value?.ToString() ?? string.Empty;
+        var value = e.Value?.ToString() ?? string.Empty;
+        nameError = string.IsNullOrWhiteSpace(value) ? "Event name is required." : null;
+        EventName = value;
         await EventNameChanged.InvokeAsync(EventName);
     }
 
@@ -35,14 +62,21 @@
     {
         if (DateTime.TryParse(e.Value?.ToString(), out var parsed))
         {
+            dateError = null;
             EventDate = parsed;
             await EventDateChanged.InvokeAsync(EventDate);
+        }
+        else
+        {
+            dateError = "A valid date is required.";
         }
     }
 
     private async Task OnLocationInput(ChangeEventArgs e)
     {
-        Location = e.Value?.ToString() ?? string.Empty;
+        var value = e.Value?.ToString() ?? string.Empty;
+        locationError = string.IsNullOrWhiteSpace(value) ? "Location is required." : null;
+        Location = value;
         await LocationChanged.InvokeAsync(Location);
     }
 }
