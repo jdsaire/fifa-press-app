@@ -10,6 +10,10 @@
     <p>You're registering for:</p>
     <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
 }
+else
+{
+    <p class="text-danger">No event matches this ID. It may have been removed.</p>
+}
 
 <NavLink class="btn btn-outline-secondary btn-sm mt-3" href="/">Back to events</NavLink>
 

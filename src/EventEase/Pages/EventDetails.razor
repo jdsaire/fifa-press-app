@@ -10,6 +10,10 @@
     <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
     <NavLink class="btn btn-primary btn-sm me-2" href="@($"register/{selectedEvent.Id}")">Register</NavLink>
 }
+else
+{
+    <p class="text-danger">No event matches this ID. It may have been removed.</p>
+}
 
 <NavLink class="btn btn-outline-secondary btn-sm mt-3" href="/">Back to events</NavLink>
 
