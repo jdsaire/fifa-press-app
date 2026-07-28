@@ -7,7 +7,11 @@
 
 @foreach (var ev in events)
 {
-    <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
+    <div class="event-list-item mb-4">
+        <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
+        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{ev.Id}")">View Details</NavLink>
+        <NavLink class="btn btn-primary btn-sm" href="@($"register/{ev.Id}")">Register</NavLink>
+    </div>
 }
 
 @code {

@@ -1,0 +1,26 @@
+@page "/register/{Id:int}"
+@using EventEase.Models
+
+<PageTitle>Register</PageTitle>
+
+<h1>Register for Event</h1>
+
+@if (selectedEvent is not null)
+{
+    <p>You're registering for:</p>
+    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
+}
+
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="/">Back to events</NavLink>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private EventModel? selectedEvent;
+
+    protected override void OnParametersSet()
+    {
+        selectedEvent = MockEventData.GetSampleEvents().FirstOrDefault(e => e.Id == Id);
+    }
+}
