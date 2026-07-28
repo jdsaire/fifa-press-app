@@ -9,6 +9,29 @@
 {
     <p>You're registering for:</p>
     <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
+
+    @if (registrationComplete)
+    {
+        <p class="text-success">You're registered for @selectedEvent.Name!</p>
+    }
+    else
+    {
+        <EditForm Model="registration" OnValidSubmit="HandleValidSubmit" class="mt-3">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-2">
+                <label>Name</label>
+                <InputText class="form-control" @bind-Value="registration.Name" />
+            </div>
+            <div class="mb-2">
+                <label>Email</label>
+                <InputText class="form-control" @bind-Value="registration.Email" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </EditForm>
+    }
 }
 else
 {
@@ -22,9 +45,16 @@ else
     public int Id { get; set; }
 
     private EventModel? selectedEvent;
+    private RegistrationModel registration = new();
+    private bool registrationComplete;
 
     protected override void OnParametersSet()
     {
         selectedEvent = MockEventData.GetSampleEvents().FirstOrDefault(e => e.Id == Id);
+    }
+
+    private void HandleValidSubmit()
+    {
+        registrationComplete = true;
     }
 }
