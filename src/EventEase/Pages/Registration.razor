@@ -1,5 +1,7 @@
 @page "/register/{Id:int}"
 @using EventEase.Models
+@using EventEase.Services
+@inject SessionTracker Session
 
 <PageTitle>Register</PageTitle>
 
@@ -10,7 +12,7 @@
     <p>You're registering for:</p>
     <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
 
-    @if (registrationComplete)
+    @if (Session.IsRegistered(Id))
     {
         <p class="text-success">You're registered for @selectedEvent.Name!</p>
     }
@@ -46,7 +48,6 @@ else
 
     private EventModel? selectedEvent;
     private RegistrationModel registration = new();
-    private bool registrationComplete;
 
     protected override void OnParametersSet()
     {
@@ -55,6 +56,6 @@ else
 
     private void HandleValidSubmit()
     {
-        registrationComplete = true;
+        Session.Register(Id);
     }
 }

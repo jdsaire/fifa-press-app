@@ -1,5 +1,7 @@
 @page "/"
 @using EventEase.Models
+@using EventEase.Services
+@inject SessionTracker Session
 
 <PageTitle>Events</PageTitle>
 
@@ -9,6 +11,10 @@
 {
     <div class="event-list-item mb-4" @key="ev.Id">
         <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
+        @if (Session.IsRegistered(ev.Id))
+        {
+            <span class="badge bg-success me-2">Registered</span>
+        }
         <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{ev.Id}")">View Details</NavLink>
         <NavLink class="btn btn-primary btn-sm" href="@($"register/{ev.Id}")">Register</NavLink>
     </div>
