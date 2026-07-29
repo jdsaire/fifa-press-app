@@ -1,3 +1,5 @@
+@* @page marks this file as reachable at a web address ("/" = the home
+   route) rather than just being a reusable piece other files include. *@
 @page "/"
 @using EventEase.Models
 @using EventEase.Services
@@ -9,6 +11,9 @@
 
 @foreach (var ev in events)
 {
+    @* @key="ev.Id" tells Blazor to match each card up by the event's own ID
+       instead of by position in the list, so a card that hasn't changed
+       isn't needlessly redrawn just because the list around it shifted. *@
     <div class="event-list-item mb-4" @key="ev.Id">
         <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
         @if (Session.IsRegistered(ev.Id))

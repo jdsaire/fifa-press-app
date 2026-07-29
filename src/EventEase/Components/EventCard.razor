@@ -1,3 +1,5 @@
+@* Each field below shows its current value and an inline error message
+   directly beneath it when invalid, instead of silently accepting bad input. *@
 <div class="card event-card mb-3">
     <div class="card-body">
         <input class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
@@ -21,6 +23,11 @@
 </div>
 
 @code {
+    // Each parameter is paired with a matching "...Changed" EventCallback.
+    // That X / XChanged pairing is what lets a parent page write
+    // @bind-EventName="ev.Name" and get two-way binding for free: the parent's
+    // value flows in here, and calling EventNameChanged.InvokeAsync (below)
+    // flows edits back out to the parent.
     [Parameter]
     public string EventName { get; set; } = string.Empty;
 
@@ -43,6 +50,11 @@
     private string? dateError;
     private string? locationError;
 
+    // Blazor calls OnParametersSet automatically whenever this component
+    // receives new parameter values — both when it first appears and every
+    // time the parent's data changes. Re-validating here (not just in the
+    // input handlers below) means the error state is always in sync with
+    // whatever value the component actually has, not just what was typed.
     protected override void OnParametersSet()
     {
         nameError = string.IsNullOrWhiteSpace(EventName) ? "Event name is required." : null;
@@ -50,6 +62,9 @@
         locationError = string.IsNullOrWhiteSpace(Location) ? "Location is required." : null;
     }
 
+    // The three handlers below share one pattern: re-check validity, update
+    // the local value, then invoke the matching "...Changed" callback so the
+    // parent page's own copy of the data updates too.
     private async Task OnNameInput(ChangeEventArgs e)
     {
         var value = e.Value?.ToString() ?? string.Empty;

@@ -1,3 +1,6 @@
+@* {Id:int} is a route parameter: whatever number appears in that spot of
+   the actual address (e.g. /events/3) is captured into the Id property
+   below, constrained to integers only. *@
 @page "/events/{Id:int}"
 @using EventEase.Models
 @using EventEase.Services
@@ -20,6 +23,9 @@
 }
 else
 {
+    @* Reached when the address shape matches (e.g. /events/9999) but no
+       event in the mock data has that ID — the router alone can't catch
+       this, since as far as routing is concerned the address is valid. *@
     <p class="text-danger">No event matches this ID. It may have been removed.</p>
 }
 

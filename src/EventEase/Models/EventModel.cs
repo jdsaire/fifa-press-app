@@ -1,5 +1,6 @@
 namespace EventEase.Models;
 
+// The shape of one event. No logic lives here — just data.
 public class EventModel
 {
     public int Id { get; set; }

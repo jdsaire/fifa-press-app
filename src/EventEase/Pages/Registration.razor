@@ -1,3 +1,5 @@
+@* Same {Id:int} route-parameter pattern as EventDetails.razor — this page
+   is reachable at /register/3, /register/7, and so on. *@
 @page "/register/{Id:int}"
 @using EventEase.Models
 @using EventEase.Services
@@ -19,6 +21,9 @@
     }
     else
     {
+        @* OnValidSubmit (not a plain submit handler) only fires once
+           DataAnnotationsValidator confirms every rule on RegistrationModel
+           passed — an invalid form never reaches HandleValidSubmit below. *@
         <EditForm Model="registration" OnValidSubmit="HandleValidSubmit" class="mt-3">
             <DataAnnotationsValidator />
             <ValidationSummary />
@@ -55,6 +60,10 @@ else
         selectedEvent = MockEventData.GetSampleEvents().FirstOrDefault(e => e.Id == Id);
     }
 
+    // Two independent services updated from one successful submit:
+    // SessionTracker (per-user — "did I sign up?") and AttendanceTracker
+    // (per-event — "who's coming?"). Deliberately kept separate; see
+    // Services/README.md and learning-mode/03 for why.
     private void HandleValidSubmit()
     {
         Session.Register(Id);

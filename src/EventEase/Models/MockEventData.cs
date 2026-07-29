@@ -1,5 +1,7 @@
 namespace EventEase.Models;
 
+// Every event in this app comes from here — invented sample data, not a
+// database or an outside service.
 public static class MockEventData
 {
     private static readonly string[] Cities =
