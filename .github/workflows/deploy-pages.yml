@@ -1,0 +1,99 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish Blazor WebAssembly app
+        run: dotnet publish src/EventEase -c Release -o publish --nologo
+
+      # GitHub Pages project sites serve under /frontend_c4_blazor_eventease/,
+      # not "/". This rewrites <base href> only in the CI-produced publish
+      # output — the tracked source at src/EventEase/wwwroot/index.html is
+      # never touched, so local `dotnet run` and Codespaces keep working
+      # against base href "/".
+      - name: Fix base href for GitHub Pages subpath
+        run: |
+          sed -i 's|<base href="/" />|<base href="/frontend_c4_blazor_eventease/" />|' publish/wwwroot/index.html
+
+      # GitHub Pages is a static host with no server-side routing: a direct
+      # request to a deep link like /events/3 would 404 before Blazor ever
+      # gets a chance to run. This adds a 404.html that encodes the requested
+      # path into a query string and redirects to index.html, plus a small
+      # script in index.html that decodes it back via history.replaceState
+      # before Blazor's router boots. Both files exist only in this publish
+      # output, never in the tracked repo source.
+      - name: Add SPA fallback for client-side routing
+        run: |
+          cat > publish/wwwroot/404.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Redirecting…</title>
+            <script>
+              var basePath = "/frontend_c4_blazor_eventease";
+              var path = location.pathname.slice(basePath.length) + location.search + location.hash;
+              location.replace(basePath + "/?redirect=" + encodeURIComponent(path));
+            </script>
+          </head>
+          <body></body>
+          </html>
+          EOF
+
+          cat > /tmp/decode-redirect.html << 'EOF'
+              <script>
+                (function () {
+                  var params = new URLSearchParams(location.search);
+                  var redirect = params.get("redirect");
+                  if (redirect) {
+                    history.replaceState(null, "", location.pathname + redirect);
+                  }
+                })();
+              </script>
+          EOF
+          sed -i '/<base href=/r /tmp/decode-redirect.html' publish/wwwroot/index.html
+
+      # GitHub Pages runs Jekyll by default, which ignores files/folders
+      # starting with an underscore — Blazor's _framework/ folder would be
+      # silently dropped without this.
+      - name: Add .nojekyll
+        run: touch publish/wwwroot/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
