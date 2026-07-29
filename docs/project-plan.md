@@ -17,7 +17,7 @@ Built for the **EventEase App** capstone project (Course 4's three graded Activi
 **Non-functional requirements**
 - Rendering model: Blazor WebAssembly only — no Server or Hybrid constructs.
 - Mock/in-memory data only — no database, no external API, no authentication.
-- Stay within the Module 1–5 scope of the Course 4 syllabus (project setup, components/lifecycle, binding/events/routing/state/forms, rendering models, Copilot-assisted development).
+- Stay within the Module 1–5 scope of the Course 4 syllabus (project setup, components/lifecycle, binding/events/routing/state/forms, rendering models, AI-assisted development).
 
 **Objectives**
 - Deliver a working Blazor WASM app that satisfies all three graded Activities (see [`grading-criteria.md`](grading-criteria.md)).
@@ -35,10 +35,10 @@ At a high level, the app:
 
 Activity 1 established the foundation (component, mock data, binding, routing); Activity 2 debugged and optimized it (input validation, route error handling, list rendering); Activity 3 expanded it with the Registration Form and the two state-tracking services.
 
-## Copilot Assistance Summary
+## AI Coding Assistant Summary
 
-Per the assignment's own instructions, Microsoft Copilot was the AI coding assistant used throughout all three Activities:
+Per the assignment's own instructions, an AI coding assistant was used throughout all three Activities:
 
-- **Activity 1 (Foundation):** Copilot suggested the initial `EventCard` markup/parameter structure, then the `@bind-X` / `XChanged` `EventCallback` pattern used to make its three fields genuinely two-way bindable, and the `@page` route + route-parameter (`{Id:int}`) pattern used to wire `EventList`/`EventDetails`/`Registration` together.
-- **Activity 2 (Debug & Optimize):** Copilot helped identify the three named bugs (unvalidated input, ungraceful routing failures, unoptimized list rendering) and proposed the fixes — validating in `OnParametersSet` plus each input handler, distinguishing a router-level `NotFoundPage` from an app-level "no event matches this ID" check, and applying `@key` to the event list's `@foreach` loop.
-- **Activity 3 (Expansion):** Copilot suggested building the Registration Form with `EditForm` + `DataAnnotationsValidator` instead of manual validation, and recommended keeping `SessionTracker` (per-user) and `AttendanceTracker` (per-event) as two independent services rather than one shared store, to keep each concern separately testable.
+- **Activity 1 (Foundation):** The AI coding assistant suggested the initial `EventCard` markup/parameter structure, then the `@bind-X` / `XChanged` `EventCallback` pattern used to make its three fields genuinely two-way bindable, and the `@page` route + route-parameter (`{Id:int}`) pattern used to wire `EventList`/`EventDetails`/`Registration` together.
+- **Activity 2 (Debug & Optimize):** The AI coding assistant helped identify the three named bugs (unvalidated input, ungraceful routing failures, unoptimized list rendering) and proposed the fixes — validating in `OnParametersSet` plus each input handler, distinguishing a router-level `NotFoundPage` from an app-level "no event matches this ID" check, and applying `@key` to the event list's `@foreach` loop.
+- **Activity 3 (Expansion):** The AI coding assistant suggested building the Registration Form with `EditForm` + `DataAnnotationsValidator` instead of manual validation, and recommended keeping `SessionTracker` (per-user) and `AttendanceTracker` (per-event) as two independent services rather than one shared store, to keep each concern separately testable.

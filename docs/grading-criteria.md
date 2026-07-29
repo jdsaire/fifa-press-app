@@ -32,6 +32,6 @@ This repository — [`jdsaire/frontend_c4_blazor_eventease`](https://github.com/
 - **Session state management:** [`SessionTracker.cs`](../src/EventEase/Services/SessionTracker.cs) — `IsRegistered`/`Register` (lines 12, 14), registered as an app-lifetime singleton in [`Program.cs:11`](../src/EventEase/Program.cs); read back on [`EventList.razor:14`](../src/EventEase/Pages/EventList.razor) and [`EventDetails.razor:14`](../src/EventEase/Pages/EventDetails.razor) to show a "Registered" badge after navigation.
 - **Attendance Tracker:** [`AttendanceTracker.cs`](../src/EventEase/Services/AttendanceTracker.cs) — `RegisterAttendee`/`GetAttendeeCount` (lines 12–21, 23–24), a distinct service/store from `SessionTracker` (per the project's own guardrail against merging them), registered in [`Program.cs:12`](../src/EventEase/Program.cs); count displayed on [`EventDetails.razor:18`](../src/EventEase/Pages/EventDetails.razor).
 
-## 6. Copilot Assistance Summary (5 pts)
+## 6. AI Coding Assistant Summary (5 pts)
 
-[`project-plan.md`](project-plan.md#copilot-assistance-summary) — a per-Activity summary of how Copilot assisted at each step of development.
+[`project-plan.md`](project-plan.md#ai-coding-assistant-summary) — a per-Activity summary of how the AI coding assistant assisted at each step of development.

@@ -31,16 +31,16 @@ A "Registered" badge follows you back to the Events and Event Details pages afte
 - **Language:** C#
 - **Framework:** Blazor WebAssembly (client-side, `.NET 10`)
 - **Editor used for development:** Visual Studio Code
-- **AI coding assistant used for development (per assignment requirements):** Microsoft Copilot
+- **AI coding assistant used for development (per assignment requirements):** an AI coding assistant
 
 ## Documentation
 
 - [`docs/setup-guide.md`](docs/setup-guide.md) — beginner walkthrough: install .NET, run the app.
-- [`docs/project-plan.md`](docs/project-plan.md) — requirements, objectives, design outline, Copilot assistance summary.
+- [`docs/project-plan.md`](docs/project-plan.md) — requirements, objectives, design outline, AI coding assistant summary.
 - [`docs/grading-criteria.md`](docs/grading-criteria.md) — how each of the 6 grading criteria is satisfied in the code.
 - [`docs/EventEase-Flowchart.md`](docs/EventEase-Flowchart.md) — preliminary design flowchart, drafted before implementation.
 - [`learning-mode/`](learning-mode/) — a plain-language walkthrough of what was built and why, one file per Activity.
 
 ## Course Attribution
 
-Built as the Course 4 capstone project for the Coursera **Microsoft Front-End Developer** Professional Certificate. Per the assignment's own instructions, Microsoft Copilot was used as the AI coding assistant across all three graded Activities — generating the foundation, debugging and optimizing it, then expanding it with advanced features.
+Built as the Course 4 capstone project for the Coursera **Microsoft Front-End Developer** Professional Certificate. Per the assignment's own instructions, an AI coding assistant was used across all three graded Activities — generating the foundation, debugging and optimizing it, then expanding it with advanced features.
