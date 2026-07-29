@@ -10,13 +10,11 @@ New to Blazor or .NET? [`docs/setup-guide.md`](docs/setup-guide.md) walks throug
 
 ## How to Use It
 
-From the repo root:
+The fastest way to see it: **https://jdsaire.github.io/frontend_c4_blazor_eventease/** — no installation needed.
 
-```
-dotnet run --project src/EventEase
-```
+To run it yourself instead — GitHub Codespaces or a local terminal — see [`docs/how-to-run.md`](docs/how-to-run.md).
 
-Open the printed `http://localhost:...` URL. You'll see:
+However you get there, you'll see:
 
 | Page | Route | What it does |
 |---|---|---|
@@ -36,10 +34,12 @@ A "Registered" badge follows you back to the Events and Event Details pages afte
 ## Documentation
 
 - [`docs/setup-guide.md`](docs/setup-guide.md) — beginner walkthrough: install .NET, run the app.
+- [`docs/how-to-run.md`](docs/how-to-run.md) — every way to see the app running: the live URL, GitHub Codespaces, or a local terminal.
 - [`docs/project-plan.md`](docs/project-plan.md) — requirements, objectives, design outline, AI coding assistant summary.
 - [`docs/grading-criteria.md`](docs/grading-criteria.md) — how each of the 6 grading criteria is satisfied in the code.
 - [`docs/EventEase-Flowchart.md`](docs/EventEase-Flowchart.md) — preliminary design flowchart, drafted before implementation.
-- [`learning-mode/`](learning-mode/) — a plain-language walkthrough of what was built and why, one file per Activity.
+- [`learning-mode/`](learning-mode/) — a plain-language walkthrough of how the app works and why, one file per build stage.
+- [Glossary of Blazor/front-end terms](learning-mode/Glossary.md) — for readers new to front-end development.
 
 ## Course Attribution
 
