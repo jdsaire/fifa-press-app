@@ -69,7 +69,12 @@ jobs:
                   var params = new URLSearchParams(location.search);
                   var redirect = params.get("redirect");
                   if (redirect) {
-                    history.replaceState(null, "", location.pathname + redirect);
+                    // location.pathname here is "/frontend_c4_blazor_eventease/"
+                    // (trailing slash, since we're at the site root). Strip it
+                    // before appending redirect (which already starts with "/")
+                    // to avoid producing a double slash.
+                    var base = location.pathname.replace(/\/$/, "");
+                    history.replaceState(null, "", base + redirect);
                   }
                 })();
               </script>
