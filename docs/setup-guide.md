@@ -2,6 +2,8 @@
 
 You don't need any prior experience with GitHub, Blazor, or .NET to get this running. Follow these steps in order.
 
+This guide covers installing the toolchain on your own machine. If you'd rather see the app without installing anything at all — including a no-install GitHub Codespaces option — see [`how-to-run.md`](how-to-run.md) instead.
+
 ## 1. Download the code
 
 You don't need to install Git or know any Git commands.
