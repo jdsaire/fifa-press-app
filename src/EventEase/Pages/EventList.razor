@@ -9,7 +9,10 @@
 
 <h1>Upcoming Events</h1>
 
-@foreach (var ev in events)
+<input type="search" class="form-control mb-3" placeholder="Search by name or location"
+       value="@searchTerm" @oninput="OnSearchInput" aria-label="Search events by name or location" />
+
+@foreach (var ev in PagedEvents)
 {
     @* @key="ev.Id" tells Blazor to match each card up by the event's own ID
        instead of by position in the list, so a card that hasn't changed
@@ -25,6 +28,45 @@
     </div>
 }
 
+@if (TotalPages > 1)
+{
+    @* Numbered pages, not Prev/Next — the dataset is small enough (at most 5
+       pages at 10/page) that every page number can just be shown at once. *@
+    <nav aria-label="Event list pages" class="mt-3">
+        @for (var i = 1; i <= TotalPages; i++)
+        {
+            var pageNumber = i;
+            <button type="button"
+                    class="btn btn-sm me-1 @(pageNumber == currentPage ? "btn-primary" : "btn-outline-primary")"
+                    aria-current="@(pageNumber == currentPage ? "page" : null)"
+                    @onclick="() => currentPage = pageNumber">
+                @pageNumber
+            </button>
+        }
+    </nav>
+}
+
 @code {
-    private List<EventModel> events = MockEventData.GetSampleEvents();
+    private const int PageSize = 10;
+    private readonly List<EventModel> allEvents = MockEventData.GetSampleEvents();
+    private string searchTerm = string.Empty;
+    private int currentPage = 1;
+
+    private List<EventModel> FilteredEvents =>
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? allEvents
+            : allEvents.Where(ev =>
+                ev.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                ev.Location.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredEvents.Count / (double)PageSize));
+
+    private List<EventModel> PagedEvents =>
+        FilteredEvents.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        currentPage = 1;
+    }
 }
