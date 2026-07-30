@@ -6,24 +6,27 @@
         @if (isEditing)
         {
             <label for="@NameInputId">Event name</label>
-            <input id="@NameInputId" class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
+            <input id="@NameInputId" class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name"
+                   aria-describedby="@(nameError is not null ? NameErrorId : null)" />
             @if (nameError is not null)
             {
-                <div class="text-danger small mb-2">@nameError</div>
+                <div id="@NameErrorId" class="text-danger small mb-2" role="alert">@nameError</div>
             }
 
             <label for="@DateInputId">Date</label>
-            <input id="@DateInputId" type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
+            <input id="@DateInputId" type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput"
+                   aria-describedby="@(dateError is not null ? DateErrorId : null)" />
             @if (dateError is not null)
             {
-                <div class="text-danger small mb-2">@dateError</div>
+                <div id="@DateErrorId" class="text-danger small mb-2" role="alert">@dateError</div>
             }
 
             <label for="@LocationInputId">Location</label>
-            <input id="@LocationInputId" class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
+            <input id="@LocationInputId" class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location"
+                   aria-describedby="@(locationError is not null ? LocationErrorId : null)" />
             @if (locationError is not null)
             {
-                <div class="text-danger small">@locationError</div>
+                <div id="@LocationErrorId" class="text-danger small" role="alert">@locationError</div>
             }
 
             <p class="text-muted small mb-2">Changes here aren't saved.</p>
@@ -78,6 +81,9 @@
     private string NameInputId => $"event-name-{instanceId}";
     private string DateInputId => $"event-date-{instanceId}";
     private string LocationInputId => $"event-location-{instanceId}";
+    private string NameErrorId => $"event-name-error-{instanceId}";
+    private string DateErrorId => $"event-date-error-{instanceId}";
+    private string LocationErrorId => $"event-location-error-{instanceId}";
 
     private string? nameError;
     private string? dateError;
