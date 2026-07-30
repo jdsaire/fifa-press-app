@@ -18,6 +18,7 @@
     @if (Session.IsRegistered(Id))
     {
         <p class="text-success" role="status" tabindex="-1" @ref="confirmationRef">You're registered for @selectedEvent.Name!</p>
+        <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleCancel">Cancel registration</button>
     }
     else
     {
@@ -68,9 +69,23 @@ else
     // Services/README.md and learning-mode/03 for why.
     private void HandleValidSubmit()
     {
-        Session.Register(Id);
+        Session.Register(Id, registration.Name, registration.Email);
         Attendance.RegisterAttendee(Id, registration.Name, registration.Email);
         shouldFocusConfirmation = true;
+    }
+
+    // Undoes HandleValidSubmit: removes the same attendee entry that was
+    // added at registration time, then clears the per-session flag, so
+    // SessionTracker and AttendanceTracker never disagree about who's in.
+    private void HandleCancel()
+    {
+        var existingRegistration = Session.GetRegistration(Id);
+        if (existingRegistration is not null)
+        {
+            Attendance.RemoveAttendee(Id, existingRegistration.Value.Name, existingRegistration.Value.Email);
+        }
+
+        Session.Unregister(Id);
     }
 
     // Moves focus to the confirmation message right after it renders, so a

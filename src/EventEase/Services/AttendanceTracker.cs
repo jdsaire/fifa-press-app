@@ -22,4 +22,15 @@ public class AttendanceTracker
 
     public int GetAttendeeCount(int eventId) =>
         attendeesByEvent.TryGetValue(eventId, out var attendees) ? attendees.Count : 0;
+
+    // Counterpart to RegisterAttendee, used when a registration is cancelled —
+    // removes exactly the entry that registration added, keeping the count
+    // consistent with SessionTracker's own record of who is still registered.
+    public void RemoveAttendee(int eventId, string name, string email)
+    {
+        if (attendeesByEvent.TryGetValue(eventId, out var attendees))
+        {
+            attendees.RemoveAll(a => a.Name == name && a.Email == email);
+        }
+    }
 }
