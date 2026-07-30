@@ -29,12 +29,12 @@
             <ValidationSummary />
 
             <div class="mb-2">
-                <label>Name</label>
-                <InputText class="form-control" @bind-Value="registration.Name" />
+                <label for="registration-name">Name</label>
+                <InputText id="registration-name" class="form-control" @bind-Value="registration.Name" />
             </div>
             <div class="mb-2">
-                <label>Email</label>
-                <InputText class="form-control" @bind-Value="registration.Email" />
+                <label for="registration-email">Email</label>
+                <InputText id="registration-email" class="form-control" @bind-Value="registration.Email" />
             </div>
 
             <button type="submit" class="btn btn-primary">Register</button>
