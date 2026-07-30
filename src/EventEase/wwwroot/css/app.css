@@ -3,7 +3,8 @@ html, body {
 }
 
 h1:focus {
-    outline: none;
+    outline: 2px solid #258cfb;
+    outline-offset: 2px;
 }
 
 a, .btn-link {
