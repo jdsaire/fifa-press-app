@@ -3,7 +3,23 @@ html, body {
 }
 
 h1:focus {
-    outline: none;
+    outline: 2px solid #258cfb;
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 1100;
+    padding: 0.5rem 1rem;
+    background: #1b6ec2;
+    color: #fff;
+}
+
+.skip-link:focus {
+    left: 0.5rem;
+    top: 0.5rem;
 }
 
 a, .btn-link {
@@ -29,11 +45,11 @@ a, .btn-link {
 }
 
 .invalid {
-    outline: 1px solid red;
+    outline: 1px solid #dc3545;
 }
 
 .validation-message {
-    color: red;
+    color: #dc3545;
 }
 
 #blazor-error-ui {

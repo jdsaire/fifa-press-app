@@ -1,23 +1,43 @@
-@* Each field below shows its current value and an inline error message
-   directly beneath it when invalid, instead of silently accepting bad input. *@
+@* Read-only by default: name as a heading, date as a <time> element, location
+   as text. An inline "Edit" toggle switches to the original editable inputs
+   so the underlying two-way binding stays demonstrable. *@
 <div class="card event-card mb-3">
     <div class="card-body">
-        <input class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
-        @if (nameError is not null)
+        @if (isEditing)
         {
-            <div class="text-danger small mb-2">@nameError</div>
-        }
+            <label for="@NameInputId">Event name</label>
+            <input id="@NameInputId" class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name"
+                   aria-describedby="@(nameError is not null ? NameErrorId : null)" />
+            @if (nameError is not null)
+            {
+                <div id="@NameErrorId" class="text-danger small mb-2" role="alert">@nameError</div>
+            }
 
-        <input type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
-        @if (dateError is not null)
-        {
-            <div class="text-danger small mb-2">@dateError</div>
-        }
+            <label for="@DateInputId">Date</label>
+            <input id="@DateInputId" type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput"
+                   aria-describedby="@(dateError is not null ? DateErrorId : null)" />
+            @if (dateError is not null)
+            {
+                <div id="@DateErrorId" class="text-danger small mb-2" role="alert">@dateError</div>
+            }
 
-        <input class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
-        @if (locationError is not null)
+            <label for="@LocationInputId">Location</label>
+            <input id="@LocationInputId" class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location"
+                   aria-describedby="@(locationError is not null ? LocationErrorId : null)" />
+            @if (locationError is not null)
+            {
+                <div id="@LocationErrorId" class="text-danger small" role="alert">@locationError</div>
+            }
+
+            <p class="text-muted small mb-2">Changes here aren't saved.</p>
+            <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => isEditing = false">Done editing</button>
+        }
+        else
         {
-            <div class="text-danger small">@locationError</div>
+            <h3>@EventName</h3>
+            <p class="mb-1"><time datetime="@EventDate.ToString("yyyy-MM-dd")">@EventDate.ToString("MMMM d, yyyy")</time></p>
+            <p class="mb-2">@Location</p>
+            <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => isEditing = true">Edit</button>
         }
     </div>
 </div>
@@ -46,6 +66,25 @@
     [Parameter]
     public EventCallback<string> LocationChanged { get; set; }
 
+    // Controls the default presentation: read-only content everywhere the
+    // card is browsed, with editing still one click away so the two-way
+    // binding above remains demonstrable.
+    [Parameter]
+    public bool ReadOnly { get; set; } = true;
+
+    private bool isEditing;
+    private bool hasInitializedEditingState;
+
+    // Unique per component instance so label "for"/id pairing doesn't collide
+    // when many EventCards render on the same page (e.g. the event list).
+    private readonly string instanceId = Guid.NewGuid().ToString("N");
+    private string NameInputId => $"event-name-{instanceId}";
+    private string DateInputId => $"event-date-{instanceId}";
+    private string LocationInputId => $"event-location-{instanceId}";
+    private string NameErrorId => $"event-name-error-{instanceId}";
+    private string DateErrorId => $"event-date-error-{instanceId}";
+    private string LocationErrorId => $"event-location-error-{instanceId}";
+
     private string? nameError;
     private string? dateError;
     private string? locationError;
@@ -57,6 +96,12 @@
     // whatever value the component actually has, not just what was typed.
     protected override void OnParametersSet()
     {
+        if (!hasInitializedEditingState)
+        {
+            isEditing = !ReadOnly;
+            hasInitializedEditingState = true;
+        }
+
         nameError = string.IsNullOrWhiteSpace(EventName) ? "Event name is required." : null;
         dateError = EventDate == default ? "A valid date is required." : null;
         locationError = string.IsNullOrWhiteSpace(Location) ? "Location is required." : null;

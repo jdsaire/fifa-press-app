@@ -6,18 +6,23 @@
 @inject SessionTracker Session
 @inject AttendanceTracker Attendance
 
-<PageTitle>Register</PageTitle>
+<PageTitle>@PageHeading</PageTitle>
 
-<h1>Register for Event</h1>
+<nav aria-label="breadcrumb" class="mb-2">
+    <NavLink href="">Events</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+</nav>
+
+<h1>@PageHeading</h1>
 
 @if (selectedEvent is not null)
 {
     <p>You're registering for:</p>
-    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
+    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" ReadOnly="true" />
 
     @if (Session.IsRegistered(Id))
     {
-        <p class="text-success">You're registered for @selectedEvent.Name!</p>
+        <p class="text-success" role="status" tabindex="-1" @ref="confirmationRef">You're registered for @selectedEvent.Name!</p>
+        <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleCancel">Cancel registration</button>
     }
     else
     {
@@ -29,12 +34,12 @@
             <ValidationSummary />
 
             <div class="mb-2">
-                <label>Name</label>
-                <InputText class="form-control" @bind-Value="registration.Name" />
+                <label for="registration-name">Name</label>
+                <InputText id="registration-name" class="form-control" @bind-Value="registration.Name" />
             </div>
             <div class="mb-2">
-                <label>Email</label>
-                <InputText class="form-control" @bind-Value="registration.Email" />
+                <label for="registration-email">Email</label>
+                <InputText id="registration-email" class="form-control" @bind-Value="registration.Email" />
             </div>
 
             <button type="submit" class="btn btn-primary">Register</button>
@@ -43,10 +48,10 @@
 }
 else
 {
-    <p class="text-danger">No event matches this ID. It may have been removed.</p>
+    <p class="text-danger">No event matches this ID.</p>
 }
 
-<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="/">Back to events</NavLink>
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="">Back to events</NavLink>
 
 @code {
     [Parameter]
@@ -54,6 +59,10 @@ else
 
     private EventModel? selectedEvent;
     private RegistrationModel registration = new();
+    private ElementReference confirmationRef;
+    private bool shouldFocusConfirmation;
+
+    private string PageHeading => selectedEvent is not null ? $"Register for {selectedEvent.Name}" : "Event Not Found";
 
     protected override void OnParametersSet()
     {
@@ -66,7 +75,36 @@ else
     // Services/README.md and learning-mode/03 for why.
     private void HandleValidSubmit()
     {
-        Session.Register(Id);
+        Session.Register(Id, registration.Name, registration.Email);
         Attendance.RegisterAttendee(Id, registration.Name, registration.Email);
+        shouldFocusConfirmation = true;
+    }
+
+    // Undoes HandleValidSubmit: removes the same attendee entry that was
+    // added at registration time, then clears the per-session flag, so
+    // SessionTracker and AttendanceTracker never disagree about who's in.
+    private void HandleCancel()
+    {
+        var existingRegistration = Session.GetRegistration(Id);
+        if (existingRegistration is not null)
+        {
+            Attendance.RemoveAttendee(Id, existingRegistration.Value.Name, existingRegistration.Value.Email);
+        }
+
+        Session.Unregister(Id);
+    }
+
+    // Moves focus to the confirmation message right after it renders, so a
+    // keyboard/screen-reader user's focus follows the form that just
+    // disappeared instead of landing nowhere. role="status" above means the
+    // same message is also announced to assistive technology as a live
+    // region, independent of focus.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldFocusConfirmation)
+        {
+            shouldFocusConfirmation = false;
+            await confirmationRef.FocusAsync();
+        }
     }
 }

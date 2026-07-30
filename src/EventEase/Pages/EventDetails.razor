@@ -7,18 +7,22 @@
 @inject SessionTracker Session
 @inject AttendanceTracker Attendance
 
-<PageTitle>Event Details</PageTitle>
+<PageTitle>@PageHeading</PageTitle>
 
-<h1>Event Details</h1>
+<nav aria-label="breadcrumb" class="mb-2">
+    <NavLink href="">Events</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+</nav>
+
+<h1>@PageHeading</h1>
 
 @if (selectedEvent is not null)
 {
-    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
+    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" ReadOnly="true" />
     @if (Session.IsRegistered(selectedEvent.Id))
     {
         <span class="badge bg-success me-2">Registered</span>
     }
-    <p class="text-muted">@Attendance.GetAttendeeCount(selectedEvent.Id) people registered</p>
+    <p class="text-muted">@FormatAttendeeCount(Attendance.GetAttendeeCount(selectedEvent.Id))</p>
     <NavLink class="btn btn-primary btn-sm me-2" href="@($"register/{selectedEvent.Id}")">Register</NavLink>
 }
 else
@@ -26,16 +30,21 @@ else
     @* Reached when the address shape matches (e.g. /events/9999) but no
        event in the mock data has that ID — the router alone can't catch
        this, since as far as routing is concerned the address is valid. *@
-    <p class="text-danger">No event matches this ID. It may have been removed.</p>
+    <p class="text-danger">No event matches this ID.</p>
 }
 
-<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="/">Back to events</NavLink>
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="">Back to events</NavLink>
 
 @code {
     [Parameter]
     public int Id { get; set; }
 
     private EventModel? selectedEvent;
+
+    private string PageHeading => selectedEvent?.Name ?? "Event Not Found";
+
+    private static string FormatAttendeeCount(int count) =>
+        count == 1 ? "1 person registered" : $"{count} people registered";
 
     protected override void OnParametersSet()
     {
