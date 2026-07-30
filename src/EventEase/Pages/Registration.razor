@@ -17,7 +17,7 @@
 
     @if (Session.IsRegistered(Id))
     {
-        <p class="text-success">You're registered for @selectedEvent.Name!</p>
+        <p class="text-success" role="status" tabindex="-1" @ref="confirmationRef">You're registered for @selectedEvent.Name!</p>
     }
     else
     {
@@ -54,6 +54,8 @@ else
 
     private EventModel? selectedEvent;
     private RegistrationModel registration = new();
+    private ElementReference confirmationRef;
+    private bool shouldFocusConfirmation;
 
     protected override void OnParametersSet()
     {
@@ -68,5 +70,20 @@ else
     {
         Session.Register(Id);
         Attendance.RegisterAttendee(Id, registration.Name, registration.Email);
+        shouldFocusConfirmation = true;
+    }
+
+    // Moves focus to the confirmation message right after it renders, so a
+    // keyboard/screen-reader user's focus follows the form that just
+    // disappeared instead of landing nowhere. role="status" above means the
+    // same message is also announced to assistive technology as a live
+    // region, independent of focus.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldFocusConfirmation)
+        {
+            shouldFocusConfirmation = false;
+            await confirmationRef.FocusAsync();
+        }
     }
 }
