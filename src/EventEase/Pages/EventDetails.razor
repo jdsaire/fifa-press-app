@@ -30,7 +30,7 @@ else
     @* Reached when the address shape matches (e.g. /events/9999) but no
        event in the mock data has that ID — the router alone can't catch
        this, since as far as routing is concerned the address is valid. *@
-    <p class="text-danger">No event matches this ID. It may have been removed.</p>
+    <p class="text-danger">No event matches this ID.</p>
 }
 
 <NavLink class="btn btn-outline-secondary btn-sm mt-3" href="">Back to events</NavLink>
@@ -41,7 +41,7 @@ else
 
     private EventModel? selectedEvent;
 
-    private string PageHeading => selectedEvent?.Name ?? "Event Details";
+    private string PageHeading => selectedEvent?.Name ?? "Event Not Found";
 
     private static string FormatAttendeeCount(int count) =>
         count == 1 ? "1 person registered" : $"{count} people registered";

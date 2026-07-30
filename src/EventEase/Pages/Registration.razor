@@ -48,7 +48,7 @@
 }
 else
 {
-    <p class="text-danger">No event matches this ID. It may have been removed.</p>
+    <p class="text-danger">No event matches this ID.</p>
 }
 
 <NavLink class="btn btn-outline-secondary btn-sm mt-3" href="">Back to events</NavLink>
@@ -62,7 +62,7 @@ else
     private ElementReference confirmationRef;
     private bool shouldFocusConfirmation;
 
-    private string PageHeading => selectedEvent is not null ? $"Register for {selectedEvent.Name}" : "Register for Event";
+    private string PageHeading => selectedEvent is not null ? $"Register for {selectedEvent.Name}" : "Event Not Found";
 
     protected override void OnParametersSet()
     {

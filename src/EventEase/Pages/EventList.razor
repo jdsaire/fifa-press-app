@@ -6,28 +6,35 @@
 @inject SessionTracker Session
 @inject AttendanceTracker Attendance
 
-<PageTitle>Events</PageTitle>
+<PageTitle>Upcoming Events</PageTitle>
 
 <h1>Upcoming Events</h1>
 
 <input type="search" class="form-control mb-3" placeholder="Search by name or location"
        value="@searchTerm" @oninput="OnSearchInput" aria-label="Search events by name or location" />
 
-@foreach (var ev in PagedEvents)
+@if (FilteredEvents.Count == 0)
 {
-    @* @key="ev.Id" tells Blazor to match each card up by the event's own ID
-       instead of by position in the list, so a card that hasn't changed
-       isn't needlessly redrawn just because the list around it shifted. *@
-    <div class="event-list-item mb-4" @key="ev.Id">
-        <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" ReadOnly="true" />
-        <p class="text-muted small mb-2">@FormatAttendeeCount(Attendance.GetAttendeeCount(ev.Id))</p>
-        @if (Session.IsRegistered(ev.Id))
-        {
-            <span class="badge bg-success me-2">Registered</span>
-        }
-        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{ev.Id}")">View Details</NavLink>
-        <NavLink class="btn btn-primary btn-sm" href="@($"register/{ev.Id}")">Register</NavLink>
-    </div>
+    <p class="text-muted">@EmptyStateMessage</p>
+}
+else
+{
+    @foreach (var ev in PagedEvents)
+    {
+        @* @key="ev.Id" tells Blazor to match each card up by the event's own ID
+           instead of by position in the list, so a card that hasn't changed
+           isn't needlessly redrawn just because the list around it shifted. *@
+        <div class="event-list-item mb-4" @key="ev.Id">
+            <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" ReadOnly="true" />
+            <p class="text-muted small mb-2">@FormatAttendeeCount(Attendance.GetAttendeeCount(ev.Id))</p>
+            @if (Session.IsRegistered(ev.Id))
+            {
+                <span class="badge bg-success me-2">Registered</span>
+            }
+            <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{ev.Id}")">View Details</NavLink>
+            <NavLink class="btn btn-primary btn-sm" href="@($"register/{ev.Id}")">Register</NavLink>
+        </div>
+    }
 }
 
 @if (TotalPages > 1)
@@ -74,4 +81,7 @@
 
     private static string FormatAttendeeCount(int count) =>
         count == 1 ? "1 person registered" : $"{count} people registered";
+
+    private string EmptyStateMessage =>
+        string.IsNullOrWhiteSpace(searchTerm) ? "No events to show." : "No events match your search.";
 }
