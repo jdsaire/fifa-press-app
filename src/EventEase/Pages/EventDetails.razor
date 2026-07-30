@@ -22,7 +22,7 @@
     {
         <span class="badge bg-success me-2">Registered</span>
     }
-    <p class="text-muted">@Attendance.GetAttendeeCount(selectedEvent.Id) people registered</p>
+    <p class="text-muted">@FormatAttendeeCount(Attendance.GetAttendeeCount(selectedEvent.Id))</p>
     <NavLink class="btn btn-primary btn-sm me-2" href="@($"register/{selectedEvent.Id}")">Register</NavLink>
 }
 else
@@ -42,6 +42,9 @@ else
     private EventModel? selectedEvent;
 
     private string PageHeading => selectedEvent?.Name ?? "Event Details";
+
+    private static string FormatAttendeeCount(int count) =>
+        count == 1 ? "1 person registered" : $"{count} people registered";
 
     protected override void OnParametersSet()
     {
