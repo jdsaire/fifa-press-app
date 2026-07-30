@@ -13,7 +13,7 @@
 @if (selectedEvent is not null)
 {
     <p>You're registering for:</p>
-    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
+    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" ReadOnly="true" />
 
     @if (Session.IsRegistered(Id))
     {

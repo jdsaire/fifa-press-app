@@ -15,7 +15,7 @@
        instead of by position in the list, so a card that hasn't changed
        isn't needlessly redrawn just because the list around it shifted. *@
     <div class="event-list-item mb-4" @key="ev.Id">
-        <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
+        <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" ReadOnly="true" />
         @if (Session.IsRegistered(ev.Id))
         {
             <span class="badge bg-success me-2">Registered</span>

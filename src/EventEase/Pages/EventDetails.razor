@@ -13,7 +13,7 @@
 
 @if (selectedEvent is not null)
 {
-    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" />
+    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" ReadOnly="true" />
     @if (Session.IsRegistered(selectedEvent.Id))
     {
         <span class="badge bg-success me-2">Registered</span>
