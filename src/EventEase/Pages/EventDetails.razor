@@ -7,9 +7,13 @@
 @inject SessionTracker Session
 @inject AttendanceTracker Attendance
 
-<PageTitle>Event Details</PageTitle>
+<PageTitle>@PageHeading</PageTitle>
 
-<h1>Event Details</h1>
+<nav aria-label="breadcrumb" class="mb-2">
+    <NavLink href="">Events</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+</nav>
+
+<h1>@PageHeading</h1>
 
 @if (selectedEvent is not null)
 {
@@ -36,6 +40,8 @@ else
     public int Id { get; set; }
 
     private EventModel? selectedEvent;
+
+    private string PageHeading => selectedEvent?.Name ?? "Event Details";
 
     protected override void OnParametersSet()
     {

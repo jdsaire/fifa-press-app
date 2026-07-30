@@ -6,9 +6,13 @@
 @inject SessionTracker Session
 @inject AttendanceTracker Attendance
 
-<PageTitle>Register</PageTitle>
+<PageTitle>@PageHeading</PageTitle>
 
-<h1>Register for Event</h1>
+<nav aria-label="breadcrumb" class="mb-2">
+    <NavLink href="">Events</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+</nav>
+
+<h1>@PageHeading</h1>
 
 @if (selectedEvent is not null)
 {
@@ -57,6 +61,8 @@ else
     private RegistrationModel registration = new();
     private ElementReference confirmationRef;
     private bool shouldFocusConfirmation;
+
+    private string PageHeading => selectedEvent is not null ? $"Register for {selectedEvent.Name}" : "Register for Event";
 
     protected override void OnParametersSet()
     {
