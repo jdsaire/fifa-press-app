@@ -5,19 +5,22 @@
     <div class="card-body">
         @if (isEditing)
         {
-            <input class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
+            <label for="@NameInputId">Event name</label>
+            <input id="@NameInputId" class="form-control mb-1" value="@EventName" @oninput="OnNameInput" placeholder="Event name" />
             @if (nameError is not null)
             {
                 <div class="text-danger small mb-2">@nameError</div>
             }
 
-            <input type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
+            <label for="@DateInputId">Date</label>
+            <input id="@DateInputId" type="date" class="form-control mb-1" value="@EventDate.ToString("yyyy-MM-dd")" @oninput="OnDateInput" />
             @if (dateError is not null)
             {
                 <div class="text-danger small mb-2">@dateError</div>
             }
 
-            <input class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
+            <label for="@LocationInputId">Location</label>
+            <input id="@LocationInputId" class="form-control mb-1" value="@Location" @oninput="OnLocationInput" placeholder="Location" />
             @if (locationError is not null)
             {
                 <div class="text-danger small">@locationError</div>
@@ -68,6 +71,13 @@
 
     private bool isEditing;
     private bool hasInitializedEditingState;
+
+    // Unique per component instance so label "for"/id pairing doesn't collide
+    // when many EventCards render on the same page (e.g. the event list).
+    private readonly string instanceId = Guid.NewGuid().ToString("N");
+    private string NameInputId => $"event-name-{instanceId}";
+    private string DateInputId => $"event-date-{instanceId}";
+    private string LocationInputId => $"event-location-{instanceId}";
 
     private string? nameError;
     private string? dateError;
