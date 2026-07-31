@@ -34,10 +34,10 @@ Normally, connecting "data" to "what's on screen" is a one-way street unless you
 
 The way `EventCard` sets this up is a naming pattern worth recognizing, because you'll see it everywhere in Blazor code: alongside the `EventName` parameter, there's a second one called `EventNameChanged`, typed as an **event callback** ([Glossary.md](Glossary.md#event-callback)) — a way for a component to report "this changed" back out to whoever is using it. `EventDate`/`EventDateChanged` and `Location`/`LocationChanged` follow the identical pattern. Whenever someone types into one of the card's boxes, the component updates its own copy of the value and immediately calls the matching `...Changed` callback to pass the new value back out.
 
-On the page side, at [`EventList.razor:13`](../src/EventEase/Pages/EventList.razor), you'll see the shorthand this pattern unlocks:
+On the page side, at [`EventList.razor:28`](../src/EventEase/Pages/EventList.razor), you'll see the shorthand this pattern unlocks:
 
 ```razor
-<EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" />
+<EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" ReadOnly="true" />
 ```
 
 `@bind-X` is Blazor recognizing the `X` / `XChanged` pair automatically and wiring both directions for you in one line. Type a new name into that card, and the page's own copy of that event's data changes right along with it — no extra code needed on the page's side at all.
