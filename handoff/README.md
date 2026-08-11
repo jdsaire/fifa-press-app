@@ -15,5 +15,7 @@ Records of each build run against this repo: the plan approved before the work s
   only — no application behavior changed. *(Relocated post-completion to
   [`ux-ui/01-design-research/`](../ux-ui/01-design-research/); see `v5/Completion-Report-v5.md`
   addendum.)*
+- [`v6/`](v6/) — injects the completed ideation mandate (eight gate deliverables) as a new
+  `ux-ui/02-ideation/` folder. Documentation only — no application behavior changed.
 
 Each version folder has its own README with more detail on what that run covered.
