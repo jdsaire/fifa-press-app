@@ -7,5 +7,8 @@ Records of each build run against this repo: the plan approved before the work s
 - [`v3/`](v3/) — commits the usability/accessibility evaluation spec, then executes its 19-item
   remediation scope. Application behavior does change here — component contracts, page markup, and
   stylesheet rules across 13 source files.
+- [`v4/`](v4/) — re-skins the documentation layer as the FIFA Press App, dropping the EventEase
+  framing. No application behavior changed — every `src/` path, class, and line-number citation
+  stayed byte-accurate throughout.
 
 Each version folder has its own README with more detail on what that run covered.
