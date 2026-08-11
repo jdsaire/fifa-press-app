@@ -10,5 +10,8 @@ Records of each build run against this repo: the plan approved before the work s
 - [`v4/`](v4/) — re-skins the documentation layer as the FIFA Press App, dropping the EventEase
   framing. No application behavior changed — every `src/` path, class, and line-number citation
   stayed byte-accurate throughout.
+- [`v5/`](v5/) — injects the completed UX Research mandate (eight gate deliverables, two simulated
+  datasets, a glossary) as a new `Design Research/` folder. Documentation and data only — no
+  application behavior changed.
 
 Each version folder has its own README with more detail on what that run covered.

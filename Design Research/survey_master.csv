@@ -1,0 +1,32 @@
+SIMULATED_NOT_EVIDENCE,,,,,,,,,,,,,,,
+respondent_id,archetype,confederation,outlet_size,role,years_experience,q1_two_token_correct,q2_guidance_reading,q3_ask_frequency,q4_wait_time,q5_visibility_during_wait,q6_speed_vs_reason,q7_reason_detail_wanted,q8_access_changed_post_confirm,q9_how_found_out,q10_notice_speed_wanted,q11_umux_requirements,q12_umux_easy
+R01,mid_size_national,UEFA,small,reporter,3,No,Skimmed it,3-5 times,2-4 weeks,Rarely,b_reason_with_delay,c_full_context,Yes,Found out at the gate,Within minutes,3,3
+R02,mid_size_national,UEFA,small,reporter,7,No,Read most of it,1-2 times,1-2 months,Sometimes,b_reason_with_delay,b_quota_stated,Yes,Federation told me,Same day,4,3
+R03,mid_size_national,CONMEBOL,small,producer,2,Not sure,Didn't read it,6 or more,Never got a clear final answer,Never,b_reason_with_delay,c_full_context,Not sure,Never told officially,Within 24 hours,2,2
+R04,mid_size_national,CAF,small,reporter,5,No,Skimmed it,3-5 times,2-4 weeks,Rarely,a_speed_no_reason,a_generic_message,Yes,Found out at the gate,Within minutes,3,2
+R05,mid_size_national,AFC,small,reporter,10,Yes,Read it closely,1-2 times,Under 2 weeks,Often,b_reason_with_delay,c_full_context,No,Hasn't happened to me,Same day,5,4
+R06,mid_size_national,CONCACAF,small,camera_operator,4,No,Skimmed it,3-5 times,1-2 months,Rarely,b_reason_with_delay,b_quota_stated,Yes,Colleague told me,Within 24 hours,3,3
+R07,mid_size_national,UEFA,small,reporter,1,No,Didn't read it,6 or more,Over 2 months,Never,b_reason_with_delay,c_full_context,Yes,Found out at the gate,Within minutes,2,2
+R08,mid_size_national,CONMEBOL,small,reporter,6,Not sure,Read most of it,1-2 times,2-4 weeks,Sometimes,b_reason_with_delay,b_quota_stated,Yes,Official message,Same day,4,3
+R09,freelance,UEFA,individual,freelance_reporter,2,No,Skimmed it,6 or more,Never got a clear final answer,Never,b_reason_with_delay,d_full_decision_record,Not sure,Never told officially,Within minutes,2,2
+R10,freelance,CAF,individual,freelance_photographer,8,No,Read it closely,3-5 times,Over 2 months,Rarely,b_reason_with_delay,c_full_context,Yes,Found out at the gate,Within minutes,2,3
+R11,freelance,AFC,individual,freelance_reporter,3,Not sure,Didn't read it,6 or more,1-2 months,Never,a_speed_no_reason,a_generic_message,No,Hasn't happened to me,Any time before my next match,3,2
+R12,freelance,CONCACAF,individual,freelance_producer,1,No,Didn't read it,6 or more,Never got a clear final answer,Never,b_reason_with_delay,d_full_decision_record,Yes,Never told officially,Within minutes,1,2
+R13,freelance,CONMEBOL,individual,freelance_reporter,5,Yes,Read most of it,1-2 times,2-4 weeks,Sometimes,b_reason_with_delay,c_full_context,Yes,Colleague told me,Same day,3,3
+R14,freelance,UEFA,individual,freelance_photographer,12,Yes,Read it closely,Not once,Under 2 weeks,Always,b_reason_with_delay,b_quota_stated,No,Hasn't happened to me,It doesn't need to be fast only clear,5,5
+R15,large_broadcaster,UEFA,large,crew_coordinator,9,Yes,Read it closely,1-2 times,Under 2 weeks,Often,b_reason_with_delay,c_full_context,Yes,Official message,Within 24 hours,4,3
+R16,large_broadcaster,CONMEBOL,large,producer,11,No,Read most of it,3-5 times,2-4 weeks,Sometimes,b_reason_with_delay,c_full_context,Yes,Federation told me,Same day,3,3
+R17,large_broadcaster,AFC,large,crew_coordinator,6,Yes,Read most of it,1-2 times,1-2 months,Often,a_speed_no_reason,a_generic_message,Yes,Official message,Within minutes,4,4
+R18,large_broadcaster,CONCACAF,large,technical_lead,15,Yes,Read it closely,Not once,Under 2 weeks,Always,b_reason_with_delay,d_full_decision_record,No,Hasn't happened to me,Within 24 hours,5,4
+R19,wire_photo_agency,UEFA,medium,photo_editor,7,No,Skimmed it,6 or more,Under 2 weeks,Sometimes,b_reason_with_delay,c_full_context,Yes,Found out at the gate,Within minutes,3,2
+R20,wire_photo_agency,CONMEBOL,medium,staff_photographer,4,No,Skimmed it,6 or more,2-4 weeks,Rarely,a_speed_no_reason,b_quota_stated,Yes,Found out at the gate,Within minutes,2,2
+R21,wire_photo_agency,AFC,medium,staff_photographer,9,Not sure,Read most of it,3-5 times,Under 2 weeks,Sometimes,b_reason_with_delay,c_full_context,Yes,Colleague told me,Within minutes,3,3
+R22,wire_photo_agency,CONCACAF,medium,photo_editor,13,Yes,Read it closely,1-2 times,Under 2 weeks,Often,b_reason_with_delay,c_full_context,No,Hasn't happened to me,Within 24 hours,4,4
+R23,non_rights_broadcaster,UEFA,small,digital_producer,3,No,Didn't read it,6 or more,Never got a clear final answer,Never,a_speed_no_reason,a_generic_message,Not sure,Never told officially,Any time before my next match,2,1
+R24,non_rights_broadcaster,CONMEBOL,small,reporter,5,Not sure,Skimmed it,3-5 times,Over 2 months,Rarely,b_reason_with_delay,b_quota_stated,Yes,Never told officially,Within minutes,2,2
+R25,non_rights_broadcaster,AFC,small,producer,2,No,Didn't read it,6 or more,Over 2 months,Never,b_reason_with_delay,c_full_context,Yes,Found out at the gate,Within 24 hours,1,1
+R26,host_city_local,UEFA,small,local_reporter,4,No,Skimmed it,3-5 times,1-2 months,Rarely,b_reason_with_delay,b_quota_stated,Yes,Federation told me,Same day,3,3
+R27,host_city_local,CONCACAF,small,local_reporter,6,Yes,Read most of it,1-2 times,2-4 weeks,Sometimes,b_reason_with_delay,c_full_context,No,Hasn't happened to me,Same day,4,3
+R28,host_city_local,CONCACAF,small,local_producer,1,No,Didn't read it,6 or more,Never got a clear final answer,Never,a_speed_no_reason,a_generic_message,Yes,Never told officially,Within minutes,2,2
+R29,digital_creator,UEFA,individual,digital_creator,2,Not sure,Didn't read it,6 or more,Over 2 months,Never,b_reason_with_delay,d_full_decision_record,Not sure,Never told officially,Any time before my next match,2,1
+R30,digital_creator,CONMEBOL,individual,digital_creator,1,No,Didn't read it,6 or more,Never got a clear final answer,Never,b_reason_with_delay,c_full_context,Yes,Found out at the gate,Within minutes,1,2
