@@ -11,6 +11,10 @@ came first and which builds on which.
   the accreditation-to-matchday journey: eight gate deliverables, two simulated datasets, and a
   methodological disclosure. Not evidence about real journalists — see its own README for what it
   can and cannot establish.
+- [`02-ideation/`](02-ideation/README.md) — a simulated eight-gate ideation mandate that turns
+  `01-design-research/`'s one open design question into a single buildable concept, Access Record:
+  eight gate deliverables and a ranked idea pool of thirty-two, each traceable to a decision. Not a
+  validated concept — see its own README for what it can and cannot establish.
 
 **From now on, every new UX dossier lands here** as the next numbered folder, rather than as its
 own top-level directory at repo root.
