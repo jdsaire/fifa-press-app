@@ -1,4 +1,4 @@
-# Completion Report: C4 EventEase Build
+# Completion Report: C4 EventEase Build — "EventEase" was this repository's project name at the time; it has since been adapted into the FIFA Press App
 
 **Commits (in order, on `main`):**
 - `b5c0046` — "chore: scaffold Blazor WebAssembly project"
