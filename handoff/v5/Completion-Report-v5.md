@@ -109,3 +109,38 @@ left them:
   Research mandate (`Design Research/`), the item `handoff/v4/Completion-Report-v4.md` named as
   its own explicit next step. `ux-ui/evaluation-spec/`'s own historical EventEase mentions remain
   untouched, confirmed out of scope, exactly as v4 left it.
+
+---
+
+## Addendum — post-completion restructuring (single commit, direct to `main`)
+
+Requested and applied after this report was originally written and after PR #2 (this run's PR) was
+merged. Scope: a folder move and rename, not a new mandate.
+
+**What changed:**
+- `Design Research/` (repo root) → `ux-ui/01-design-research/`.
+- `ux-ui/evaluation-spec/` → `ux-ui/00-initial-evaluation/`.
+- New `ux-ui/README.md` added, indexing both dossiers and stating the standing convention: every
+  future UX dossier lands under `ux-ui/` as the next numbered folder, not as its own top-level
+  directory.
+- Root `README.md`'s Documentation section repointed to `ux-ui/README.md` and to
+  `ux-ui/01-design-research/GLOSSARY.md`.
+- `ux-ui/01-design-research/README.md` updated: its cross-link to the evaluation dossier and its
+  link to this `handoff/v5/` folder were repathed for the new nesting depth; its "relationship"
+  section now also points to the new `ux-ui/README.md` index.
+- `handoff/README.md` and `handoff/v5/README.md` each received one contextual clause noting the
+  relocation, without rewriting the historical description of what v5 originally did.
+
+**What did not change:** the ten frozen gate/dataset files' own internal `**Repo path:**` citations
+(e.g. `00_SCOPE.md`'s header still reads `/Design Research/00_SCOPE.md`) were left untouched. Per
+this run's own content-freeze invariant, a physical move is not grounds to edit frozen research
+content — only README.md files were in scope for this restructuring, per explicit instruction. This
+is a known, accepted discrepancy: those path citations now describe where the files used to live,
+not where they live. `ux-ui/00-initial-evaluation/`'s own audit content (title, prose, "Audited
+version" line) was left untouched for the same reason — the rename is a location change, not a
+correction to the audit's own record. `handoff/v3/`, `handoff/v4/`, and `handoff/v5/CC-PLAN-v5.md`
+were left untouched as frozen historical records of decisions made under the prior naming.
+`src/`, `.github/`, `docs/`, and `learning-mode/` remain untouched, as in every prior run.
+
+**Process note:** per explicit instruction, this was a single commit pushed directly to `main` —
+no working branch, no PR.

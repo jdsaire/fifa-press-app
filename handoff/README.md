@@ -11,7 +11,9 @@ Records of each build run against this repo: the plan approved before the work s
   framing. No application behavior changed — every `src/` path, class, and line-number citation
   stayed byte-accurate throughout.
 - [`v5/`](v5/) — injects the completed UX Research mandate (eight gate deliverables, two simulated
-  datasets, a glossary) as a new `Design Research/` folder. Documentation and data only — no
-  application behavior changed.
+  datasets, a glossary) as a new `Design Research/` folder at repo root. Documentation and data
+  only — no application behavior changed. *(Relocated post-completion to
+  [`ux-ui/01-design-research/`](../ux-ui/01-design-research/); see `v5/Completion-Report-v5.md`
+  addendum.)*
 
 Each version folder has its own README with more detail on what that run covered.

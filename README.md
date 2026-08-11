@@ -40,8 +40,8 @@ A "Registered" badge follows you back to the Matches and Match Details pages aft
 - [`docs/Original-Build-Flowchart.md`](docs/Original-Build-Flowchart.md) — preliminary design flowchart from the original build, drafted before implementation.
 - [`learning-mode/`](learning-mode/) — a plain-language walkthrough of how the app works and why, one file per build stage.
 - [Glossary of Blazor/front-end terms](learning-mode/Glossary.md) — for readers new to front-end development.
-- [`Design Research/`](Design%20Research/README.md) — a simulated guerrilla UX research pass behind the accreditation-flow design decisions: eight gate deliverables, two simulated datasets, and a methodological disclosure. Not evidence about real journalists — see its README for what it can and cannot establish.
-- [Glossary of UX research and accreditation terms](Design%20Research/GLOSSARY.md) — for readers new to UX research, football accreditation, or both.
+- [`ux-ui/`](ux-ui/README.md) — every UX dossier for this app: research, evaluation, and whatever mandate tracks land here next.
+- [Glossary of UX research and accreditation terms](ux-ui/01-design-research/GLOSSARY.md) — for readers new to UX research, football accreditation, or both.
 
 ## Course Attribution
 

@@ -34,18 +34,19 @@ back to its source and labelled by how much weight it can actually carry. Start 
 completed, to define every research, software, and football-administration term a reader outside
 those worlds might not know.
 
-## Relationship to `ux-ui/evaluation-spec/`
+## Relationship to `ux-ui/00-initial-evaluation/`
 
-[`../ux-ui/evaluation-spec/`](../ux-ui/evaluation-spec/) is a separate, earlier, unrelated mandate
+[`../00-initial-evaluation/`](../00-initial-evaluation/) is a separate, earlier, unrelated mandate
 track: a usability and accessibility audit of the EventEase-era app as it existed in this repo
 before the FIFA Press App reframing. That folder asks whether the app that was built is usable.
 This folder asks what a research process — run without access to real users — can responsibly say
 about what the accreditation experience should tell a journalist. Neither folder's findings extend
-into the other.
+into the other. The two now sit side by side under [`ux-ui/`](../README.md), which indexes every
+UX dossier for this app.
 
 ## A note on two files this folder does not link
 
 The source study references `FIFA_app_P-Research.txt` and `P-Fifa-Repo-Kickoff.txt` for the
 project's original framing. Neither file exists in this repository at the time of this folder's
 addition, so no link to them is made here. This is a documented gap, not an oversight — see this
-run's Completion Report in [`handoff/v5/`](../handoff/v5/) for the resolution.
+run's Completion Report in [`handoff/v5/`](../../handoff/v5/) for the resolution.
