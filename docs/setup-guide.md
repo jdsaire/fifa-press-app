@@ -9,7 +9,7 @@ This guide covers installing the toolchain on your own machine. If you'd rather 
 You don't need to install Git or know any Git commands.
 1. Click the green **Code** button at the top of this repository's GitHub page.
 2. Choose **Download ZIP**.
-3. Find the downloaded ZIP file (usually in your Downloads folder) and unzip/extract it. You'll get a folder named `frontend_c4_blazor_eventease-main`.
+3. Find the downloaded ZIP file (usually in your Downloads folder) and unzip/extract it. You'll get a folder named `fifa-press-app-main`.
 
 ## 2. Install the tools you need
 
@@ -21,7 +21,7 @@ This project is written in C# and runs on Blazor WebAssembly, part of Microsoft'
 ## 3. Open the project
 
 1. Open Visual Studio Code.
-2. Go to **File → Open Folder…** and select the `frontend_c4_blazor_eventease-main` folder you unzipped in Step 1.
+2. Go to **File → Open Folder…** and select the `fifa-press-app-main` folder you unzipped in Step 1.
 3. In the file explorer on the left, expand `src/EventEase` to see the project files.
 
 ## 4. Run the app
@@ -33,4 +33,4 @@ This project is written in C# and runs on Blazor WebAssembly, part of Microsoft'
    ```
 3. Wait for a line like `Now listening on: http://localhost:5000` (the exact port may differ), then open that URL in your browser.
 
-You should see the Events page with a list of mock events. See the main [README](../README.md#how-to-use-it) for what each page does.
+You should see the Matches page with a list of mock World Cup matches. See the main [README](../README.md#how-to-use-it) for what each page does.

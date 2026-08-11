@@ -1,14 +1,14 @@
 # Learning Mode
 
-A plain-language walkthrough of how this app was built and why, written for a reader with some general programming background but no prior experience with Blazor, front-end frameworks, or web development specifically.
+A plain-language walkthrough of how the FIFA Press App was built and why, written for a reader with some general programming background but no prior experience with Blazor, front-end frameworks, or web development specifically.
 
 ## What's here
 
 | File | Covers |
 |---|---|
-| [`01-Building-the-Foundation.md`](01-Building-the-Foundation.md) | What Blazor WebAssembly is, the reusable `EventCard` component, the mock event data, two-way data binding, and routing between the three pages. |
+| [`01-Building-the-Foundation.md`](01-Building-the-Foundation.md) | What Blazor WebAssembly is, the reusable `EventCard` component, the mock match data, two-way data binding, and routing between the three pages. |
 | [`02-Fixing-What-Broke.md`](02-Fixing-What-Broke.md) | Three real problems testing turned up — unvalidated input, a crash on a bad web address, a list that got slow — and exactly what fixed each one. |
-| [`03-Adding-Signups-and-Headcounts.md`](03-Adding-Signups-and-Headcounts.md) | The registration form and its validation, and the two separate trackers behind "who signed up for what" versus "how many people are coming." |
+| [`03-Adding-Signups-and-Headcounts.md`](03-Adding-Signups-and-Headcounts.md) | The registration form and its validation, and the two separate trackers behind "who requested access to what" versus "how many requests each match has." |
 | [`Glossary.md`](Glossary.md) | Every term used across the three files above, defined in plain language, with a note on where it appears in the project. |
 
 ## How to read this

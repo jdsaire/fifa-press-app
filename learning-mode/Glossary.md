@@ -16,7 +16,7 @@ A self-contained, reusable chunk of a Blazor app that bundles its own markup (wh
 
 ## Component parameter
 
-A piece of information a component receives from whatever is using it, marked with `[Parameter]` in the component's C#. It's how `EventCard` can show a different event every time instead of always showing the same hardcoded one. Covered in [01, "Meet the Building Block."](01-Building-the-Foundation.md#meet-the-building-block-the-eventcard-component)
+A piece of information a component receives from whatever is using it, marked with `[Parameter]` in the component's C#. It's how `EventCard` can show a different match every time instead of always showing the same hardcoded one. Covered in [01, "Meet the Building Block."](01-Building-the-Foundation.md#meet-the-building-block-the-eventcard-component)
 
 ## `.csproj`
 
@@ -28,7 +28,7 @@ A Blazor feature that lets a component have its own private stylesheet — a `.r
 
 ## Data annotation
 
-A rule attached directly to a class's property, written as a bracketed tag right above it — `[Required]`, `[EmailAddress]` — that Blazor's form tools can read and enforce automatically. `RegistrationModel.cs` uses these for the signup form's name and email fields. Covered in [03, "The Registration Form, and How It Refuses Bad Input."](03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input)
+A rule attached directly to a class's property, written as a bracketed tag right above it — `[Required]`, `[EmailAddress]` — that Blazor's form tools can read and enforce automatically. `RegistrationModel.cs` uses these for the access-request form's name and email fields. Covered in [03, "The Registration Form, and How It Refuses Bad Input."](03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input)
 
 ## Dependency injection
 
@@ -36,7 +36,7 @@ The mechanism that lets a page ask for a shared service ("I need one of these") 
 
 ## `EditForm`
 
-Blazor's built-in component for building a form with validation baked in. Paired with `DataAnnotationsValidator` (which checks the form's data against its data annotations) and `ValidationSummary` (which lists what's wrong), it's what `Registration.razor` uses to build the signup form. Covered in [03, "The Registration Form."](03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input)
+Blazor's built-in component for building a form with validation baked in. Paired with `DataAnnotationsValidator` (which checks the form's data against its data annotations) and `ValidationSummary` (which lists what's wrong), it's what `Registration.razor` uses to build the access-request form. Covered in [03, "The Registration Form."](03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input)
 
 ## Event callback
 
@@ -44,11 +44,11 @@ A component's way of reporting "this changed" back out to whatever page is using
 
 ## `@key`
 
-A hint you give Blazor inside a loop that produces a list of items, telling it to match each item up by a stable identity (an event's own ID, for example) instead of by its position in the list. It stops Blazor from redrawing items that haven't actually changed just because something else in the list moved. Covered in [02, "The List Got Slow With More Events."](02-Fixing-What-Broke.md#problem-3-the-list-got-slow-with-more-events)
+A hint you give Blazor inside a loop that produces a list of items, telling it to match each item up by a stable identity (a match's own ID, for example) instead of by its position in the list. It stops Blazor from redrawing items that haven't actually changed just because something else in the list moved. Covered in [02, "The List Got Slow With More Events."](02-Fixing-What-Broke.md#problem-3-the-list-got-slow-with-more-events)
 
 ## Mock data
 
-Data that's invented for building and testing an app, standing in for whatever a real system would eventually supply. Every event in this app comes from `MockEventData.cs`, not a database or any outside source. Covered in [01, "Where the Event Data Actually Comes From."](01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data)
+Data that's invented for building and testing an app, standing in for whatever a real system would eventually supply. Every match in this app comes from `MockEventData.cs`, not a database or any outside source. Covered in [01, "Where the Event Data Actually Comes From."](01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data)
 
 ## NuGet
 
@@ -80,7 +80,7 @@ An ordinary C# class that isn't tied to any single page — created once when th
 
 ## State
 
-Information a service remembers that outlives any single page visit — for as long as the browser tab stays open, but no longer. It's why a "Registered" badge still shows up after navigating away from the registration page and back. Covered in [03, "Why Keeping Them Separate Was a Deliberate Choice."](03-Adding-Signups-and-Headcounts.md#why-keeping-them-separate-was-a-deliberate-choice)
+Information a service remembers that outlives any single page visit — for as long as the browser tab stays open, but no longer. It's why a "Registered" badge still shows up after navigating away from the access-request page and back. Covered in [03, "Why Keeping Them Separate Was a Deliberate Choice."](03-Adding-Signups-and-Headcounts.md#why-keeping-them-separate-was-a-deliberate-choice)
 
 ## Two-way data binding
 
