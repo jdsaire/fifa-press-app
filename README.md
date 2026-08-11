@@ -18,11 +18,11 @@ However you get there, you'll see:
 
 | Page | Route | What it does |
 |---|---|---|
-| **Matches** | `/` | Lists all mock World Cup matches as editable cards (name, date, location), each with **View Details** and **Request Access** links. |
+| **Matches** | `/` | Lists all mock World Cup matches as editable cards (name, date, location), each with **View Details** and **Register** links — "Register" is this app's built-in wording for submitting a facility-access request. |
 | **Match Details** | `/events/{id}` | Shows a single match, whether you've already requested access, and how many people have requested access to it. |
-| **Request Access** | `/register/{id}` | A validated form (name, email) — submitting marks you as having requested access to that match and updates the request count. |
+| **Register** | `/register/{id}` | A validated form (name, email) — submitting marks you as having requested access to that match and updates the request count. |
 
-An "Access Requested" badge follows you back to the Matches and Match Details pages after you submit, and stays until you close the tab (state is in-memory only).
+A "Registered" badge follows you back to the Matches and Match Details pages after you submit, and stays until you close the tab (state is in-memory only).
 
 ## Tech Stack
 

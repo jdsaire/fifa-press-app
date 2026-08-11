@@ -71,6 +71,6 @@ However you got here, try this walkthrough — it exercises everything covered i
 
 1. **View the match list** — the home page, showing every mock World Cup match as a card.
 2. **Open a detail page** — click "View Details" on any match.
-3. **Request Access** — click "Request Access," fill in a name and a real-looking email, submit. Notice the "Access Requested" badge appear back on the list and detail pages.
-4. **Submit an invalid form** — go to another match's access-request page and try submitting with the name or email left blank, or an email that doesn't look like one.
+3. **Register (request access)** — click "Register," fill in a name and a real-looking email, submit. Notice the "Registered" badge appear back on the list and detail pages.
+4. **Submit an invalid form** — go to another match's registration page and try submitting with the name or email left blank, or an email that doesn't look like one.
 5. **Visit a deliberately bad URL** — try an address like `.../events/9999` (a number with no matching match) or something completely made up like `.../nonsense`, and see the two different graceful messages each one produces.
