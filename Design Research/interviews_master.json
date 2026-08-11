@@ -1,0 +1,109 @@
+{
+  "_disclosure": "SIMULATED — NOT EVIDENCE. All participants and verbatims below are synthetic, authored against RUN1_EVIDENCE-BASE.md pain points per 01_RESEARCH-PLAN.md sample design. No real person, outlet, federation or FIFA staff member is represented.",
+  "participants": [
+    {
+      "participant_id": "P01",
+      "archetype_profile": {
+        "archetype": "mid_size_national",
+        "confederation": "CAF",
+        "role": "reporter, national daily",
+        "years_experience": 5,
+        "moment_carried": "mid-tournament quota reallocation after elimination"
+      },
+      "responses": [
+        {"question": "Warm-up", "verbatim": "I cover the national team, mostly. So my whole trip is built around — well, around them still being in it, right? First thing is always the federation, they give you the code, you can't even see the form without it."},
+        {"question": "C1 - The application, start to finish", "verbatim": "It took... I want to say five weeks? Maybe six. I submitted end of January and I didn't hear anything solid until March. In between I emailed the federation media office twice, and both times it was just 'we're waiting too, we'll let you know.' Which — okay, but waiting for what?"},
+        {"question": "C2 - A refusal", "verbatim": "Not me personally that time, but a colleague, younger guy, freelance. He got a line, one line, 'application not successful.' That's it. He called me like — what do I do now, is there someone to write to? And honestly I didn't know either."},
+        {"question": "C3 - Access changing mid-tournament", "verbatim": "Yes. Our team went out in the round of 16 and — I want to say two days later, my match ticket requests just stopped going through. Nobody told me anything changed, I just tried to request the quarter-final and it wouldn't let me. I had to ask around, another journalist told me it's because the quota resets when your team's out. Found that out from him, not from anyone official."},
+        {"question": "C3 probe - cost", "verbatim": "I'd already booked the flight to the next city. Didn't cost me the match exactly, I found a workaround through the wire pool, but it cost me two days of scrambling instead of just knowing."},
+        {"question": "C4 - The gate", "verbatim": "Gate's fine, honestly, that part's fine. Card, scan, bag check. It's everything before the gate that's the problem."},
+        {"question": "C5 - What should have been said", "verbatim": "Something the day our team lost. Even just — 'your access level may change, here's what to expect.' I don't need a paragraph. I need to know it's coming before I find out by my request failing."},
+        {"question": "C5 disconfirming probe", "verbatim": "Honestly the gate stuff, the scanning — leave that alone, it works. Don't need more messages there. It's the in-between bits, the silence, that's where it falls apart."},
+        {"question": "Closing", "verbatim": "One thing? Tell me when something about my status changes. Don't make me discover it by trying to do something and failing."}
+      ]
+    },
+    {
+      "participant_id": "P02",
+      "archetype_profile": {
+        "archetype": "mid_size_national",
+        "confederation": "AFC",
+        "role": "TV reporter",
+        "years_experience": 9,
+        "moment_carried": "matchday access denial, two-token confusion"
+      },
+      "responses": [
+        {"question": "Warm-up", "verbatim": "Nine years doing this now. First tournament I thought the accreditation card was basically a ticket to everything. Learned fast it isn't."},
+        {"question": "C1 - The application, start to finish", "verbatim": "This last one was actually smooth on paper — federation was organized, key came through in about three weeks. I read the guidelines this time, cover to cover, because I got burned before."},
+        {"question": "C2 - A refusal", "verbatim": "Not this cycle, but 2018 I had a photographer on my crew rejected and there was nothing — no appeal, no contact, we just moved on without him. Still annoys me thinking about it."},
+        {"question": "C3 - Access changing mid-tournament", "verbatim": "Nothing changed on the accreditation side for me this time. But my ticket requests, sure, those come and go depending on how popular the match is."},
+        {"question": "C4 - The gate", "verbatim": "Okay, so — this is the thing. Quarter-final, I've got my accreditation, I'm walking to what I think is my zone, and they turn me back. Turns out the card gets you into the media centre, that's it. You need the separate match ticket for the mixed zone and I hadn't requested one because I genuinely thought the accreditation covered it."},
+        {"question": "C4 probe - did it match expectations", "verbatim": "No. Nowhere in the sign-up flow did it click for me that these were two separate things. I'd read the guidelines! It's in there somewhere but it doesn't land until you're standing at the barrier being told no."},
+        {"question": "C4 probe - phone or card", "verbatim": "Both, physical card for the gate, app for requesting tickets. When the venue wifi dies — and it does — the app is useless and you're stuck with whatever you already printed."},
+        {"question": "C5 - What should have been said", "verbatim": "Right when I get my accreditation approved, before anything else: 'This gets you into the media centre. You need a separate ticket, one per match, for everything else.' Not buried in a PDF. On the confirmation screen."},
+        {"question": "Closing", "verbatim": "If I could change one thing — make it impossible to misunderstand what the badge actually does. Everything downstream depends on getting that part right."}
+      ]
+    },
+    {
+      "participant_id": "P03",
+      "archetype_profile": {
+        "archetype": "freelance",
+        "confederation": "UEFA",
+        "role": "freelance reporter",
+        "years_experience": 2,
+        "moment_carried": "rejected application, no visible appeal route"
+      },
+      "responses": [
+        {"question": "Warm-up", "verbatim": "I'm freelance, so I don't have a federation behind me really pushing for me. I pitch to outlets and try to get accredited under whichever one will have me."},
+        {"question": "C1 - The application, start to finish", "verbatim": "Honestly confusing from the start. I wasn't sure if I needed a key from a federation or if I could apply directly since I wasn't attached to one outlet the whole time."},
+        {"question": "C2 - A refusal", "verbatim": "Yeah. Got a message, maybe two sentences, said the application wasn't successful. No reason. I wrote back asking why, and — nothing. No reply at all. Not even an automated one."},
+        {"question": "C2 probe - what did you do next", "verbatim": "I tried to find some kind of contact, a form, anything. Ended up just asking in a journalists' group chat if anyone knew someone. That's not a process, that's luck."},
+        {"question": "C2 probe - what would have made it useful", "verbatim": "Even 'quota was full for your category' would have told me something. Was it me? Was it just numbers? I genuinely don't know if I did something wrong or if there was just no room."},
+        {"question": "C3 - Access changing mid-tournament", "verbatim": "Never got that far, obviously, since I wasn't accredited that cycle. Previous one I covered, nothing changed for me mid-tournament that I noticed."},
+        {"question": "C4 - The gate", "verbatim": "Can't speak to that one this time around either."},
+        {"question": "C5 - What should have been said", "verbatim": "A reason. Just a reason. And maybe — is there anything I can do next time, or was this a one-off. Anything that isn't just a closed door."},
+        {"question": "Closing", "verbatim": "The one thing — give people a reason when you say no. That's it. That's the whole ask."}
+      ]
+    },
+    {
+      "participant_id": "P04",
+      "archetype_profile": {
+        "archetype": "large_broadcaster",
+        "confederation": "CONCACAF",
+        "role": "crew coordinator, rights-holding broadcaster",
+        "years_experience": 15,
+        "moment_carried": "crew-level reallocation and credential logistics"
+      },
+      "responses": [
+        {"question": "Warm-up", "verbatim": "I coordinate accreditation for the whole crew — camera, sound, producers, on-air talent. Different process for us, goes through Media Partnerships, not the federation route."},
+        {"question": "C1 - The application, start to finish", "verbatim": "It's actually pretty well handled on our side. We've got a dedicated contact, things move fast, we get updates without having to chase. I know that's not everyone's experience."},
+        {"question": "C2 - A refusal", "verbatim": "Not for us directly — I've heard about it happening to smaller outlets but our process barely touches that world."},
+        {"question": "C3 - Access changing mid-tournament", "verbatim": "Sometimes a crew member's specific zone access shifts if we reassign who's covering what, but that's internal, that's us managing our own people, not the organiser doing anything to us."},
+        {"question": "C4 - The gate", "verbatim": "Smooth, honestly. Big crew, but the process for us is well-oiled at this point."},
+        {"question": "C5 - What should have been said", "verbatim": "For us specifically? Nothing's really missing. I hear what you're describing for the smaller outlets and I believe it, but more messaging on our side would just be noise. We already have someone to call."},
+        {"question": "C5 disconfirming probe", "verbatim": "Honestly, don't touch our track. If you're adding notifications and status screens, make sure it's opt-in or scoped to the people who actually need it, because for us it'd just be one more thing to click past."},
+        {"question": "Closing", "verbatim": "One thing to change, tournament-wide? Fix it for the outlets that don't have someone like me doing this full-time. We're fine."}
+      ]
+    },
+    {
+      "participant_id": "P05",
+      "archetype_profile": {
+        "archetype": "wire_photo_agency",
+        "confederation": "UEFA",
+        "role": "staff photographer, international wire agency",
+        "years_experience": 11,
+        "moment_carried": "matchday position and credential at the turnstile"
+      },
+      "responses": [
+        {"question": "Warm-up", "verbatim": "Agency route, so we apply directly, not through a federation. Different headache — ours is all about positions, not whether we get in at all."},
+        {"question": "C1 - The application, start to finish", "verbatim": "Straightforward for the base accreditation. The real fight is match by match, getting a photo position that isn't a terrible angle."},
+        {"question": "C2 - A refusal", "verbatim": "Not this cycle. I've had individual position requests refused, which stings differently — you're in, you're just not where you need to be."},
+        {"question": "C3 - Access changing mid-tournament", "verbatim": "Position requests get bumped constantly as the tournament goes on and demand shifts for bigger matches. It's expected in our world, we don't take it personally the way I think other people might."},
+        {"question": "C4 - The gate", "verbatim": "Card and bib, standard. The complication is when your position assignment changes and the person at the gate hasn't been told — they're looking at a list that doesn't match what you were sent."},
+        {"question": "C4 probe - specific moment", "verbatim": "Semi-final, I'd been moved from one end to the other maybe two hours before kickoff, got the notice on the app. Got to the gate, guy checking me in was working off a printed list from that morning. Had to call my editor, my editor had to call someone, twenty minutes standing there while kickoff's getting closer."},
+        {"question": "C4 probe - phone or card", "verbatim": "That one was entirely an app problem colliding with a paper problem. The digital update existed, it just hadn't reached the ground."},
+        {"question": "C5 - What should have been said", "verbatim": "Not to me — to the gate staff. Whatever system updates my position needs to update theirs in real time, or at least fast enough that a two-hour-old change isn't still showing wrong at kickoff minus twenty."},
+        {"question": "Closing", "verbatim": "One thing: make sure the people checking badges are looking at the same information I am. Doesn't matter how good my app looks if the barrier still runs on yesterday's list."}
+      ]
+    }
+  ]
+}
