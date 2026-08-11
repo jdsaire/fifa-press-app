@@ -1,4 +1,4 @@
-# Preliminary Flowchart — EventEase App (Course 4, Blazor)
+# Preliminary Flowchart — EventEase App (Course 4, Blazor) — "EventEase" was this repository's project name at the time; it has since been adapted into the FIFA Press App
 
 **Project:** `c4-capstone-guidelines.json` — EventEase App, three graded Activities (30 pts total)
 **Rendering model:** Blazor WebAssembly (client-side)
@@ -122,4 +122,4 @@ flowchart TD
 
 ---
 
-*Course 4 · Blazor for Front-End Development · EventEase App capstone (Activities 1–3) · Preliminary flowchart drafted before implementation, per the project's Gate-based workflow.*
+*Course 4 · Blazor for Front-End Development · EventEase App capstone (Activities 1–3) · Preliminary flowchart drafted before implementation, per the project's Gate-based workflow. This repository has since been adapted into the FIFA Press App — see the root [README](../README.md) for its current framing.*

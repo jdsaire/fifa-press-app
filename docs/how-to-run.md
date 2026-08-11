@@ -1,10 +1,10 @@
-# How to Run EventEase
+# How to Run the FIFA Press App
 
 Three ways to see this app, from easiest to most involved. All three end up showing you the same app.
 
 ## Path 1: View It Live — No Setup Required
 
-**https://jdsaire.github.io/frontend_c4_blazor_eventease/**
+**https://jdsaire.github.io/fifa-press-app/**
 
 This is the app itself, hosted for free by GitHub Pages — a way to publish a built app as a public website, automatically updated every time the `main` branch changes. Just open the link in any browser. Nothing to install, nothing to run.
 
@@ -69,8 +69,8 @@ That's your cue to open the URL. To stop the app, go back to the terminal and pr
 
 However you got here, try this walkthrough — it exercises everything covered in [`learning-mode/`](../learning-mode/):
 
-1. **View the event list** — the home page, showing every mock event as a card.
-2. **Open a detail page** — click "View Details" on any event.
-3. **Register** — click "Register," fill in a name and a real-looking email, submit. Notice the "Registered" badge appear back on the list and detail pages.
-4. **Submit an invalid form** — go to another event's registration page and try submitting with the name or email left blank, or an email that doesn't look like one.
-5. **Visit a deliberately bad URL** — try an address like `.../events/9999` (a number with no matching event) or something completely made up like `.../nonsense`, and see the two different graceful messages each one produces.
+1. **View the match list** — the home page, showing every mock World Cup match as a card.
+2. **Open a detail page** — click "View Details" on any match.
+3. **Request Access** — click "Request Access," fill in a name and a real-looking email, submit. Notice the "Access Requested" badge appear back on the list and detail pages.
+4. **Submit an invalid form** — go to another match's access-request page and try submitting with the name or email left blank, or an email that doesn't look like one.
+5. **Visit a deliberately bad URL** — try an address like `.../events/9999` (a number with no matching match) or something completely made up like `.../nonsense`, and see the two different graceful messages each one produces.
