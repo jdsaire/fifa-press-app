@@ -62,7 +62,7 @@ All three are **baseline-free**: no measurement of the 2026 incumbent exists (se
 
 ---
 
-## 5. Handoff to the Claude Code phase
+## 5. Handoff to the build phase
 
 **Read, in this order:**
 1. `06_DESIGN-BRIEF.md` (this file) — the HMW, the principles, and the boundary.
