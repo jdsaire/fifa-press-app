@@ -22,14 +22,14 @@ This project is written in C# and runs on Blazor WebAssembly, part of Microsoft'
 
 1. Open Visual Studio Code.
 2. Go to **File → Open Folder…** and select the `fifa-press-app-main` folder you unzipped in Step 1.
-3. In the file explorer on the left, expand `src/EventEase` to see the project files.
+3. In the file explorer on the left, expand `src/FifaPressApp` to see the project files.
 
 ## 4. Run the app
 
 1. In Visual Studio Code: **Terminal → New Terminal**.
 2. Type and press Enter:
    ```
-   dotnet run --project src/EventEase
+   dotnet run --project src/FifaPressApp
    ```
 3. Wait for a line like `Now listening on: http://localhost:5000` (the exact port may differ), then open that URL in your browser.
 
