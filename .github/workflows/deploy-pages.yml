@@ -27,16 +27,16 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Publish Blazor WebAssembly app
-        run: dotnet publish src/EventEase -c Release -o publish --nologo
+        run: dotnet publish src/FifaPressApp -c Release -o publish --nologo
 
-      # GitHub Pages project sites serve under /frontend_c4_blazor_eventease/,
+      # GitHub Pages project sites serve under /fifa-press-app/,
       # not "/". This rewrites <base href> only in the CI-produced publish
-      # output — the tracked source at src/EventEase/wwwroot/index.html is
+      # output — the tracked source at src/FifaPressApp/wwwroot/index.html is
       # never touched, so local `dotnet run` and Codespaces keep working
       # against base href "/".
       - name: Fix base href for GitHub Pages subpath
         run: |
-          sed -i 's|<base href="/" />|<base href="/frontend_c4_blazor_eventease/" />|' publish/wwwroot/index.html
+          sed -i 's|<base href="/" />|<base href="/fifa-press-app/" />|' publish/wwwroot/index.html
 
       # GitHub Pages is a static host with no server-side routing: a direct
       # request to a deep link like /events/3 would 404 before Blazor ever
@@ -54,7 +54,7 @@ jobs:
             <meta charset="utf-8">
             <title>Redirecting…</title>
             <script>
-              var basePath = "/frontend_c4_blazor_eventease";
+              var basePath = "/fifa-press-app";
               var path = location.pathname.slice(basePath.length) + location.search + location.hash;
               location.replace(basePath + "/?redirect=" + encodeURIComponent(path));
             </script>
@@ -69,7 +69,7 @@ jobs:
                   var params = new URLSearchParams(location.search);
                   var redirect = params.get("redirect");
                   if (redirect) {
-                    // location.pathname here is "/frontend_c4_blazor_eventease/"
+                    // location.pathname here is "/fifa-press-app/"
                     // (trailing slash, since we're at the site root). Strip it
                     // before appending redirect (which already starts with "/")
                     // to avoid producing a double slash.
