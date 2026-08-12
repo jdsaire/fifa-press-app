@@ -17,5 +17,8 @@ Records of each build run against this repo: the plan approved before the work s
   addendum.)*
 - [`v6/`](v6/) — injects the completed ideation mandate (eight gate deliverables) as a new
   `ux-ui/02-ideation/` folder. Documentation only — no application behavior changed.
+- [`v7/`](v7/) — renames the source folder and namespace from `EventEase` to `FifaPressApp`, and
+  corrects `.github/workflows/deploy-pages.yml`'s six hardcoded references to a different
+  repository's name. Mechanical rename only — no application behavior, CSS, or content changed.
 
 Each version folder has its own README with more detail on what that run covered.
