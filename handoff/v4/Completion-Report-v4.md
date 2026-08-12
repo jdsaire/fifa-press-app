@@ -1,5 +1,9 @@
 # Completion Report: v4 FIFA Press App Documentation Reskin
 
+*(`src/` was first touched three runs later, in v7, which renamed `src/EventEase/` to
+`src/FifaPressApp/`. Every `src/EventEase/...` citation below is preserved byte-exact as this
+report's historical record of what existed at v4 time.)*
+
 **Commits (in order, on `deploy/v4-fifa-press-app-reskin`, after v3's `fc49574e`):**
 
 - `7f71495` — "docs(readme): reframe root README as the FIFA Press App"

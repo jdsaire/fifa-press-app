@@ -6,6 +6,8 @@ This is the Course 4 (Blazor for Front-End Development) capstone build: the Even
 
 This plan is the task-1 deliverable the XML requires before any code is written: repo create-vs-adopt decision, confirmed tree, full commit sequence, git identity, and verification steps. Approving this plan authorized task 2 (scaffold) through the first Activity 1 commit — it did **not** pre-approve past Gate 1 (task 6), Gate 2 (task 10), or Gate 3 (task 14). Those remained separate, explicit approval points per the XML's own hard rule ("repeating checkpoint, separate from and in addition to the single task-1 overall-plan approval").
 
+*(`src/EventEase/` was renamed to `src/FifaPressApp/` in v7. Every `src/EventEase` path/file citation below is preserved byte-exact as this plan's historical record.)*
+
 ## Preflight findings (task 0)
 
 All required conditions confirmed live:

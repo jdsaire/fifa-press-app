@@ -6,6 +6,8 @@ Run 1 built the EventEase Blazor WASM capstone (14 commits, HEAD `f702868`) — 
 
 This run (v2) is a documentation-and-accessibility overhaul on the already-working app: fix the AI-attribution wording repo-wide, fully regenerate the three walkthroughs for a non-technical-but-programming-literate reader plus a Glossary, add per-folder READMEs and inspector comments across `/src` and the main folders, restructure `handoff/` into versioned subfolders, and — per the patch — actually publish the app to GitHub Pages so it's viewable with zero setup. **Zero application behavior changes.** The task-0/1 job was to verify every live-state assumption the core prompt and patch made (HEAD, Copilot hit list, runtime facts, Pages state), and produce the full commit-by-commit plan before writing anything.
 
+*(`src/EventEase/` was renamed to `src/FifaPressApp/` in v7. Every `src/EventEase`/`EventEase.csproj` citation below is preserved byte-exact as this plan's historical record.)*
+
 ## Preflight (task 0) — all confirmed
 
 - `gh` authenticated as `jdsaire`, working.

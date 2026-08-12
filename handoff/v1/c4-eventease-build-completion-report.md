@@ -1,5 +1,7 @@
 # Completion Report: C4 EventEase Build — "EventEase" was this repository's project name at the time; it has since been adapted into the FIFA Press App
 
+*(`src/EventEase/` was renamed to `src/FifaPressApp/` in v7. Every `src/EventEase` path citation below is preserved byte-exact as this report's historical record.)*
+
 **Commits (in order, on `main`):**
 - `b5c0046` — "chore: scaffold Blazor WebAssembly project"
 - `ea743f2` — "feat(activity1): scaffold EventCard component with name, date, location fields"

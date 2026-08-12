@@ -3,7 +3,8 @@
 Re-skins this repository's documentation layer (`README.md`, `docs/`, `learning-mode/`,
 `handoff/`) from the EventEase/Course-4-capstone narrative to the FIFA Press App: an original
 adaptation for journalists covering the 2026 World Cup. `src/`, `.github/workflows/`, and `ux-ui/`
-were not touched — every technical fact stayed byte-accurate to the untouched app.
+were not touched — every technical fact stayed byte-accurate to the untouched app. (`src/` was
+first touched three runs later, in v7, which renamed `src/EventEase/` to `src/FifaPressApp/`.)
 
 - [`CC-PLAN-v4.md`](CC-PLAN-v4.md) — the plan approved before this run started: file-by-file
   treatment table, flowchart rename target, commit sequence, verification steps.
