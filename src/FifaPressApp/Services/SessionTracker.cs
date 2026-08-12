@@ -1,4 +1,4 @@
-namespace EventEase.Services;
+namespace FifaPressApp.Services;
 
 /// <summary>
 /// Per-user/per-session state: which events the current user has registered for.

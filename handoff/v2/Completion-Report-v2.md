@@ -1,5 +1,7 @@
 # Completion Report: v2 Accessibility Overhaul
 
+*(`src/EventEase/` was renamed to `src/FifaPressApp/` in v7. The `src/EventEase` citations in "Outcome" below are preserved byte-exact as this report's historical record.)*
+
 **Commits (in order, on `main`, after run 1's `f702868`):**
 - `ca1eccf` — "docs: standardize AI coding assistant terminology across documentation"
 - `be1a8d7` — "docs: rewrite Activity 1 walkthrough for a non-technical reader"

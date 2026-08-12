@@ -1,4 +1,4 @@
-namespace EventEase.Models;
+namespace FifaPressApp.Models;
 
 // The shape of one event. No logic lives here — just data.
 public class EventModel

@@ -1,5 +1,7 @@
 # Completion Report: v3 UX and Accessibility Remediation
 
+*(`EventEase.csproj` was renamed to `FifaPressApp.csproj` in v7. The citation in the results table below is preserved byte-exact as this report's historical record.)*
+
 **Commits (in order, on this run's dedicated working branch, after v2's `0653b4e`, bundled
 in [PR #1](https://github.com/jdsaire/frontend_c4_blazor_eventease/pull/1)):**
 

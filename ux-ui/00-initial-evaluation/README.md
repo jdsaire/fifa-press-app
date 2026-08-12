@@ -1,5 +1,7 @@
 # Evaluation Spec
 
+*(This audit was run against the app under its original name, EventEase — later adapted into the FIFA Press App, with its source folder renamed from `src/EventEase/` to `src/FifaPressApp/` in v7. "EventEase" below names the app as it existed at audit time and is preserved as historical record.)*
+
 A usability and accessibility audit of the EventEase app.
 
 The rest of this repository explains **how the app is built** — the tech stack, the Blazor

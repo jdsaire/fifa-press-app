@@ -25,7 +25,7 @@ Codespaces gives you a full copy of Visual Studio Code running in your browser, 
    ```
 4. Run the app:
    ```
-   dotnet run --project src/EventEase
+   dotnet run --project src/FifaPressApp
    ```
 5. A notification should appear offering to open the forwarded port. If it doesn't, open the **Ports** panel (next to the terminal) and look for port `5126`, then click its globe icon to open it in a browser tab. You may need to set that port's visibility to "Public" if you want to share the link with someone else.
 
@@ -44,7 +44,7 @@ For a fuller beginner walkthrough of this same path, including installing an edi
 3. Download this repo (green **Code** button → **Download ZIP**, then unzip — or `git clone` if you have Git installed) and open a terminal inside the unzipped/cloned folder.
 4. Run:
    ```
-   dotnet run --project src/EventEase
+   dotnet run --project src/FifaPressApp
    ```
 5. Open `http://localhost:5126` in any browser.
 

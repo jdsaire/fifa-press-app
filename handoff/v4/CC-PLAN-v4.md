@@ -12,6 +12,11 @@ were not touched. This is the precondition for a later run that injects the Rese
 (explicitly out of scope here). Work landed on `deploy/v4-fifa-press-app-reskin`, ending in an open
 PR against `main`, left unmerged for the repository owner to review.
 
+*(`src/` was first touched three runs later, in v7, which renamed `src/EventEase/` to
+`src/FifaPressApp/`. Every `src/EventEase/...` / `EventEase.csproj` citation below — including the
+FROZEN FACT table — is preserved byte-exact as this plan's historical record of what existed at v4
+time.)*
+
 ## Preflight results (Task 0 + Task 1 research)
 
 - **GitHub access**: confirmed — `gh` authenticated as `jdsaire`, repo `jdsaire/fifa-press-app`

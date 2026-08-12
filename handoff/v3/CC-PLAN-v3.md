@@ -1,5 +1,7 @@
 # Plan: DEPLOY-C4-UX-DeployA-CommitAndRedesign-v1_0 — Task 0/1
 
+*(`EventEase.csproj` was renamed to `FifaPressApp.csproj` in v7. The citations below are preserved byte-exact as this plan's historical record.)*
+
 ## Context
 
 Run v2 shipped a documentation-and-accessibility-narrative overhaul with zero application behavior

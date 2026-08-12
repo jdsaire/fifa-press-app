@@ -1,5 +1,8 @@
 # Remediation Scope
 
+*(Written when the app's source folder was `src/EventEase/` — renamed to `src/FifaPressApp/` in
+v7. The `src/EventEase` citation below is preserved byte-exact as historical record.)*
+
 The fixes this audit calls for, sequenced into commit-sized units.
 
 This is the hand-off artefact: the next development run executes this list. Each entry names the

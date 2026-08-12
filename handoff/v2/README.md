@@ -2,6 +2,8 @@
 
 A documentation-and-accessibility pass on top of v1's already-working app. No `.razor` markup, `.cs` logic, or `.csproj` changed — the app behaves identically to how it did at the end of v1. What changed:
 
+*(`src/EventEase/` was renamed to `src/FifaPressApp/` in v7; the citation below is preserved byte-exact as this file's historical record.)*
+
 - Replaced every mention of a specific AI tool in the documentation with the generic term "AI coding assistant."
 - Fully regenerated the three `learning-mode/` walkthroughs for a reader with general programming experience but no prior Blazor or front-end background, renamed to describe their scope, cross-linked to each other, plus a new `Glossary.md`.
 - Added a README to every folder under `src/EventEase/`, and inspector-facing comments to the key source files, explaining what's there and why without touching any actual logic.
