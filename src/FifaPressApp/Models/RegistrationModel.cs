@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace EventEase.Models;
+namespace FifaPressApp.Models;
 
 // The shape of one signup attempt. The bracketed attributes below are data
 // annotations — rules Blazor's EditForm can check automatically, without a
