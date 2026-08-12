@@ -8,7 +8,7 @@ This is possible because of a technology called **WebAssembly** (often shortened
 
 That's the "WebAssembly" half of "Blazor WebAssembly." The other big idea is how the app's screen gets built in the first place. A plain web page is usually one file with everything in it. Blazor instead breaks the screen into **components** ([Glossary.md](Glossary.md#component)) — self-contained, reusable chunks that each bundle their own markup (what shows up) and their own C# (what it does), living together in a single `.razor` file ([Glossary.md](Glossary.md#razor-file--razor-syntax)). A page gets built by assembling components, the way a plain web page is normally assembled out of `<div>`s — except each one of these can hold its own logic and its own little pocket of memory.
 
-This app has exactly one component built this way so far: `EventCard`, at [`../src/EventEase/Components/EventCard.razor`](../src/EventEase/Components/EventCard.razor). It's worth understanding well, because everything else in this file builds on it.
+This app has exactly one component built this way so far: `EventCard`, at [`../src/FifaPressApp/Components/EventCard.razor`](../src/FifaPressApp/Components/EventCard.razor). It's worth understanding well, because everything else in this file builds on it.
 
 ## Meet the Building Block: the EventCard Component
 
@@ -20,9 +20,9 @@ Here's the part that makes it genuinely reusable rather than just flexible: this
 
 ## Where the Event Data Actually Comes From (the Mock Data)
 
-None of the matches in this app are real, and none of them come from anywhere outside the app itself. `EventModel`, at [`../src/EventEase/Models/EventModel.cs`](../src/EventEase/Models/EventModel.cs), is a plain C# class with four properties: an ID number, a name, a date, and a location — nothing more than a shape for "one match's worth of data."
+None of the matches in this app are real, and none of them come from anywhere outside the app itself. `EventModel`, at [`../src/FifaPressApp/Models/EventModel.cs`](../src/FifaPressApp/Models/EventModel.cs), is a plain C# class with four properties: an ID number, a name, a date, and a location — nothing more than a shape for "one match's worth of data."
 
-`MockEventData`, at [`../src/EventEase/Models/MockEventData.cs`](../src/EventEase/Models/MockEventData.cs), is where that shape gets filled in with made-up sample values — this is what "**mock data**" means ([Glossary.md](Glossary.md#mock-data)): data invented for building and testing, standing in for whatever a real system would eventually supply. There's no database here and no outside service being called. Every time the app starts, it calls one method and gets back the same list of pretend matches, held only in the browser's memory for as long as the tab stays open.
+`MockEventData`, at [`../src/FifaPressApp/Models/MockEventData.cs`](../src/FifaPressApp/Models/MockEventData.cs), is where that shape gets filled in with made-up sample values — this is what "**mock data**" means ([Glossary.md](Glossary.md#mock-data)): data invented for building and testing, standing in for whatever a real system would eventually supply. There's no database here and no outside service being called. Every time the app starts, it calls one method and gets back the same list of pretend matches, held only in the browser's memory for as long as the tab stays open.
 
 ## Two-Way Data Binding, Explained Before Any Syntax
 
@@ -34,7 +34,7 @@ Normally, connecting "data" to "what's on screen" is a one-way street unless you
 
 The way `EventCard` sets this up is a naming pattern worth recognizing, because you'll see it everywhere in Blazor code: alongside the `EventName` parameter, there's a second one called `EventNameChanged`, typed as an **event callback** ([Glossary.md](Glossary.md#event-callback)) — a way for a component to report "this changed" back out to whoever is using it. `EventDate`/`EventDateChanged` and `Location`/`LocationChanged` follow the identical pattern. Whenever someone types into one of the card's boxes, the component updates its own copy of the value and immediately calls the matching `...Changed` callback to pass the new value back out.
 
-On the page side, at [`EventList.razor:28`](../src/EventEase/Pages/EventList.razor), you'll see the shorthand this pattern unlocks:
+On the page side, at [`EventList.razor:28`](../src/FifaPressApp/Pages/EventList.razor), you'll see the shorthand this pattern unlocks:
 
 ```razor
 <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" ReadOnly="true" />
@@ -48,11 +48,11 @@ A traditional website has a different file for every page, and clicking a link a
 
 Three components in this app are marked as full pages, each with a `@page` directive at the very top of the file naming its web address:
 
-- [`EventList.razor`](../src/EventEase/Pages/EventList.razor) — `@page "/"`, the address you land on first. Loops over every mock match and shows one `EventCard` per match.
-- [`EventDetails.razor`](../src/EventEase/Pages/EventDetails.razor) — `@page "/events/{Id:int}"`. The `{Id:int}` part is a **route parameter**: whatever number appears in that spot of the actual address (`/events/3`, `/events/7`) gets captured and handed to the page as an `Id` value it can use to look up the right match.
-- [`Registration.razor`](../src/EventEase/Pages/Registration.razor) — `@page "/register/{Id:int}"`, the same pattern, for requesting facility access to a specific match.
+- [`EventList.razor`](../src/FifaPressApp/Pages/EventList.razor) — `@page "/"`, the address you land on first. Loops over every mock match and shows one `EventCard` per match.
+- [`EventDetails.razor`](../src/FifaPressApp/Pages/EventDetails.razor) — `@page "/events/{Id:int}"`. The `{Id:int}` part is a **route parameter**: whatever number appears in that spot of the actual address (`/events/3`, `/events/7`) gets captured and handed to the page as an `Id` value it can use to look up the right match.
+- [`Registration.razor`](../src/FifaPressApp/Pages/Registration.razor) — `@page "/register/{Id:int}"`, the same pattern, for requesting facility access to a specific match.
 
-A component called a **router** ([Glossary.md](Glossary.md#router)) — set up once, in [`App.razor`](../src/EventEase/App.razor) — is what watches the current address and decides which of these three pages to show. Moving between them is done with `NavLink`, a clickable link that updates the address and lets the router take it from there — you'll find one under every match card ("View Details," "Register" — this app's built-in wording for requesting facility access) and on the details/access-request pages themselves ("Back to events").
+A component called a **router** ([Glossary.md](Glossary.md#router)) — set up once, in [`App.razor`](../src/FifaPressApp/App.razor) — is what watches the current address and decides which of these three pages to show. Moving between them is done with `NavLink`, a clickable link that updates the address and lets the router take it from there — you'll find one under every match card ("View Details," "Register" — this app's built-in wording for requesting facility access) and on the details/access-request pages themselves ("Back to events").
 
 ## What Still Doesn't Work Yet — and Where That Gets Fixed
 
