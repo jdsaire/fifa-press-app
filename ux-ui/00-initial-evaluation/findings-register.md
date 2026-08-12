@@ -1,5 +1,9 @@
 # Findings Register
 
+*(Findings recorded under the app's original name, EventEase, including its then source folder
+`src/EventEase/` — since renamed to the FIFA Press App / `src/FifaPressApp/` in v7. Every
+`src/EventEase/...` path citation below is preserved byte-exact as historical record.)*
+
 The canonical list of every issue found in the EventEase interface, with a stable ID for each.
 Every other file in this folder refers back to these IDs.
 

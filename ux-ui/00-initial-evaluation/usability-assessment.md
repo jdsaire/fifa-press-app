@@ -1,5 +1,8 @@
 # Usability Assessment
 
+*(Assessed under the app's original name, EventEase — since renamed to the FIFA Press App /
+`src/FifaPressApp/` in v7. Preserved as historical record.)*
+
 An assessment of how usable EventEase is, based on what can be established from the interface
 itself.
 

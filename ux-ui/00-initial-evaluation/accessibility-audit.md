@@ -1,5 +1,8 @@
 # Accessibility Audit
 
+*(Audited under the app's original name, EventEase — since renamed to the FIFA Press App /
+`src/FifaPressApp/` in v7. Preserved as historical record.)*
+
 EventEase assessed against **WCAG 2.2 Level AA** — the Web Content Accessibility Guidelines
 published by the W3C, and the level referenced by most accessibility legislation worldwide.
 

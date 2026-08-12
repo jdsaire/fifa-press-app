@@ -1,5 +1,8 @@
 # Usability Test Protocol
 
+*(Written under the app's original name, EventEase — since renamed to the FIFA Press App /
+`src/FifaPressApp/` in v7. Preserved as historical record.)*
+
 The list of things EventEase has to get right, written as checks that can be run against the app.
 Results of running them are in [`protocol-results.md`](protocol-results.md).
 

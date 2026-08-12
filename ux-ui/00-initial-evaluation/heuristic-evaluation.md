@@ -1,5 +1,8 @@
 # Heuristic Evaluation
 
+*(Assessed under the app's original name, EventEase — since renamed to the FIFA Press App /
+`src/FifaPressApp/` in v7. Preserved as historical record.)*
+
 EventEase assessed against Jakob Nielsen's ten usability heuristics — the most widely used
 checklist in interface design, published in 1994 and still standard.
 
