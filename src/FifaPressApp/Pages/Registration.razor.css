@@ -1,0 +1,19 @@
+.request__meta {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-bottom: var(--space-3);
+}
+
+.request__loading {
+    color: var(--color-stale-text);
+}
+
+.request__error {
+    color: var(--color-danger);
+}
+
+.request__mocked {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-top: var(--space-3);
+}

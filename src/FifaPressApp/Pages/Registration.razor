@@ -1,110 +1,124 @@
-@* Same {Id:int} route-parameter pattern as EventDetails.razor — this page
-   is reachable at /register/3, /register/7, and so on. *@
-@page "/register/{Id:int}"
-@using FifaPressApp.Models
-@using FifaPressApp.Services
-@inject SessionTracker Session
-@inject AttendanceTracker Attendance
+@* Request access — the app's only write surface.
+   ------------------------------------------------------------------------
+   Renamed throughout from "Register", and the route moved with it. "Register"
+   read as account creation, which is not what this does: nothing here creates a
+   person, it asks for access to one match. The rename was the single
+   highest-value naming change in the whole concept and it was unanimous.
+
+   On success this returns to My Access rather than showing a confirmation
+   screen of its own. The confirmation *is* the change appearing in the record —
+   a separate "thanks, we got that" page would be a second place where a state
+   movement is announced, and the record is meant to be the only one.
+
+   There is no cancel affordance, and its absence is deliberate. Reversing a
+   request is a write that appends a withdrawal to the record, not an undo that
+   erases anything, and no surface for it has been specified. Adding one here
+   would be inventing scope rather than completing it. *@
+
+@page "/request/{Id:int}"
+@inject IAccessDataProvider Access
+@inject NavigationManager Navigation
 
 <PageTitle>@PageHeading</PageTitle>
 
 <nav aria-label="breadcrumb" class="mb-2">
-    <NavLink href="">Events</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+    <NavLink href="matches">Matches</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
 </nav>
 
 <h1>@PageHeading</h1>
 
-@if (selectedEvent is not null)
+@if (!loaded)
 {
-    <p>You're registering for:</p>
-    <EventCard @bind-EventName="selectedEvent.Name" @bind-EventDate="selectedEvent.Date" @bind-Location="selectedEvent.Location" ReadOnly="true" />
-
-    @if (Session.IsRegistered(Id))
-    {
-        <p class="text-success" role="status" tabindex="-1" @ref="confirmationRef">You're registered for @selectedEvent.Name!</p>
-        <button type="button" class="btn btn-outline-danger btn-sm" @onclick="HandleCancel">Cancel registration</button>
-    }
-    else
-    {
-        @* OnValidSubmit (not a plain submit handler) only fires once
-           DataAnnotationsValidator confirms every rule on RegistrationModel
-           passed — an invalid form never reaches HandleValidSubmit below. *@
-        <EditForm Model="registration" OnValidSubmit="HandleValidSubmit" class="mt-3">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="mb-2">
-                <label for="registration-name">Name</label>
-                <InputText id="registration-name" class="form-control" @bind-Value="registration.Name" />
-            </div>
-            <div class="mb-2">
-                <label for="registration-email">Email</label>
-                <InputText id="registration-email" class="form-control" @bind-Value="registration.Email" />
-            </div>
-
-            <button type="submit" class="btn btn-primary">Register</button>
-        </EditForm>
-    }
+    <p class="request__loading">Loading this match…</p>
+}
+else if (fixture is null)
+{
+    <p class="request__error" role="alert">No match has this number.</p>
 }
 else
 {
-    <p class="text-danger">No event matches this ID.</p>
+    <p>You are requesting access to:</p>
+
+    <EventCard EventName="@fixture.DisplayLabel"
+               EventDate="fixture.KickoffLocal"
+               Location="@($"{fixture.Venue}, {fixture.City}")"
+               ReadOnly="true"
+               AllowEdit="false" />
+
+    <p class="request__meta">
+        @fixture.PhaseLabel ·
+        <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
+        @fixture.TimeZoneLabel
+    </p>
+
+    <RequestAccessForm @bind-Name="name"
+                       @bind-Email="email"
+                       Submitting="submitting"
+                       ErrorMessage="@errorMessage"
+                       OnSubmit="SubmitAsync" />
+
+    <p class="request__mocked">
+        Simulated request. Nothing is sent anywhere in this version — submitting
+        writes a change to the simulated record and returns you to it.
+    </p>
 }
 
-<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="">Back to events</NavLink>
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">Back to matches</NavLink>
 
 @code {
+    /// <summary>The match number, taken from the address.</summary>
     [Parameter]
     public int Id { get; set; }
 
-    private EventModel? selectedEvent;
-    private RegistrationModel registration = new();
-    private ElementReference confirmationRef;
-    private bool shouldFocusConfirmation;
+    private Fixture? fixture;
+    private string name = string.Empty;
+    private string email = string.Empty;
+    private bool loaded;
+    private bool submitting;
+    private string? errorMessage;
 
-    private string PageHeading => selectedEvent is not null ? $"Register for {selectedEvent.Name}" : "Event Not Found";
+    private string PageHeading => fixture is null
+        ? "Match not found"
+        : $"Request access to match {fixture.MatchNumber}";
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        selectedEvent = MockEventData.GetSampleEvents().FirstOrDefault(e => e.Id == Id);
-    }
+        loaded = false;
 
-    // Two independent services updated from one successful submit:
-    // SessionTracker (per-user — "did I sign up?") and AttendanceTracker
-    // (per-event — "who's coming?"). Deliberately kept separate; see
-    // Services/README.md and learning-mode/03 for why.
-    private void HandleValidSubmit()
-    {
-        Session.Register(Id, registration.Name, registration.Email);
-        Attendance.RegisterAttendee(Id, registration.Name, registration.Email);
-        shouldFocusConfirmation = true;
-    }
-
-    // Undoes HandleValidSubmit: removes the same attendee entry that was
-    // added at registration time, then clears the per-session flag, so
-    // SessionTracker and AttendanceTracker never disagree about who's in.
-    private void HandleCancel()
-    {
-        var existingRegistration = Session.GetRegistration(Id);
-        if (existingRegistration is not null)
+        try
         {
-            Attendance.RemoveAttendee(Id, existingRegistration.Value.Name, existingRegistration.Value.Email);
+            fixture = (await Access.GetFixtureAsync(Id)).Value;
+        }
+        catch (Exception)
+        {
+            fixture = null;
         }
 
-        Session.Unregister(Id);
+        loaded = true;
     }
 
-    // Moves focus to the confirmation message right after it renders, so a
-    // keyboard/screen-reader user's focus follows the form that just
-    // disappeared instead of landing nowhere. role="status" above means the
-    // same message is also announced to assistive technology as a live
-    // region, independent of focus.
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task SubmitAsync()
     {
-        if (shouldFocusConfirmation)
+        submitting = true;
+        errorMessage = null;
+
+        try
         {
-            shouldFocusConfirmation = false;
-            await confirmationRef.FocusAsync();
+            // The write returns the change it produced. There is no separate
+            // success flag to check, because the change is the outcome — and a
+            // write that could report success without producing one would be
+            // exactly the second write path this record forbids.
+            await Access.RequestMatchAccessAsync(MockAccessDataProvider.DemoCredentialId, Id);
+
+            // Straight back to the record, where the change is now the newest
+            // entry. What was typed stays in the fields until this navigation
+            // completes, so a failure leaves the form recoverable.
+            Navigation.NavigateTo("");
+        }
+        catch (Exception)
+        {
+            submitting = false;
+            errorMessage = "That request could not be recorded. Your details are still here — try again.";
         }
     }
 }

@@ -1,0 +1,21 @@
+.request-form {
+    margin-top: var(--space-3);
+}
+
+.request-form__field {
+    margin-bottom: var(--space-3);
+}
+
+.request-form__field label {
+    display: block;
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+}
+
+.request-form__error {
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
+    margin-top: var(--space-1);
+    margin-bottom: 0;
+}

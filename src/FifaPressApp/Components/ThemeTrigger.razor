@@ -1,0 +1,96 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@* The theme control.
+   ------------------------------------------------------------------------
+   Lives in a slim strip of its own above the content column, right-aligned, at
+   every breakpoint — see MainLayout.razor.css for why it is not tucked into the
+   sidebar header, which was the cheaper option and the wrong one.
+
+   Until the module has loaded, this renders a disabled button rather than
+   nothing at all, so the strip does not change height underneath the content
+   the moment the app finishes starting. *@
+
+<button type="button"
+        class="theme-trigger"
+        disabled="@(!isReady)"
+        aria-live="polite"
+        title="@ButtonLabel"
+        @onclick="ToggleAsync">
+    <span class="theme-trigger__icon" aria-hidden="true">@(current == "dark" ? "☾" : "☀")</span>
+    <span class="theme-trigger__label">@ButtonLabel</span>
+</button>
+
+@code {
+    private IJSObjectReference? module;
+    private string current = "light";
+    private bool isReady;
+
+    private string ButtonLabel => current == "dark" ? "Switch to light theme" : "Switch to dark theme";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/theme.js");
+
+            // An explicit choice wins if one was made. Otherwise the system
+            // preference decides, and no attribute is set at all — the
+            // stylesheet's own media query handles it, which is why the app
+            // renders in the right theme before this code ever runs.
+            var stored = await module.InvokeAsync<string?>("getStoredTheme");
+            current = stored ?? await module.InvokeAsync<string>("getSystemTheme");
+
+            if (stored is not null)
+            {
+                await module.InvokeVoidAsync("applyTheme", stored);
+            }
+
+            isReady = true;
+            StateHasChanged();
+        }
+        catch (JSException)
+        {
+            // Without the module the app still renders in the system theme;
+            // only the ability to override it is lost. That is worth degrading
+            // quietly rather than surfacing as an error.
+            isReady = false;
+        }
+    }
+
+    private async Task ToggleAsync()
+    {
+        if (module is null)
+        {
+            return;
+        }
+
+        current = current == "dark" ? "light" : "dark";
+
+        // Applied and stored together. Storing it is what makes the choice
+        // outlast the session; applying it is what makes it outlast a system
+        // preference change during one.
+        await module.InvokeVoidAsync("applyTheme", current);
+        await module.InvokeVoidAsync("storeTheme", current);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The page is going away; nothing to release.
+            }
+        }
+    }
+}

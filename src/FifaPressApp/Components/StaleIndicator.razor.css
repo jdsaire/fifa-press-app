@@ -1,0 +1,20 @@
+.stale-indicator {
+    color: var(--color-stale-text);
+    font-size: var(--font-size-small);
+    margin-bottom: var(--space-2);
+}
+
+/* An older state is not a different layout — the headline above it stays
+   exactly where it was. What changes is this line, which gains weight and a
+   left rule so the difference is visible at a glance rather than only on a
+   careful read. A stale headline that renders identically to a fresh one is
+   the single failure this whole app exists to prevent. */
+.stale-indicator--old {
+    font-weight: 600;
+    border-left: 3px solid var(--color-stale-text);
+    padding-left: var(--space-2);
+}
+
+.stale-indicator__stamp {
+    font-weight: 400;
+}

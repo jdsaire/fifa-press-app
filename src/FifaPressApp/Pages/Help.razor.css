@@ -1,0 +1,42 @@
+.help__intro {
+    font-size: var(--font-size-heading-3);
+    margin-bottom: var(--space-4);
+}
+
+/* Organised by where the person is in the process rather than by topic,
+   because the question someone brings to this page is almost always tied to a
+   stage: "nothing has happened yet", "I have been approved, now what",
+   "I am at the gate and it will not scan". */
+.help__section {
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-stale-text);
+}
+
+.help__section:last-of-type {
+    border-bottom: none;
+}
+
+.help__section h2 {
+    font-size: var(--font-size-heading-1);
+    margin-bottom: var(--space-3);
+}
+
+.help__section h3 {
+    font-size: var(--font-size-heading-3);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-1);
+}
+
+.help__section ul {
+    padding-left: 1.25rem;
+}
+
+.help__section li {
+    margin-bottom: var(--space-2);
+}
+
+.help__mocked {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+}

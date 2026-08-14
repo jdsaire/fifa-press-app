@@ -1,0 +1,20 @@
+.foreseeable-badge {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    color: var(--color-text);
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-1) var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+/* Outlined rather than filled, and no colour of its own. A conditional change
+   is not an alert and not a success — giving it a status colour would tell the
+   reader an outcome the app does not know. */
+.foreseeable-badge__mark {
+    font-size: 1.2em;
+    line-height: 1;
+}

@@ -1,0 +1,98 @@
+/* A single column at every width, on purpose. The headline and the change
+   history are sequential by nature — newest-effective-first — and a two-column
+   split at desktop would imply they can be read in either order. */
+
+.my-access__matches {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.my-access__matches li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: space-between;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-stale-text);
+}
+
+.my-access__matches li:last-child {
+    border-bottom: none;
+}
+
+.my-access__match-status {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+}
+
+.my-access__match-status--granted {
+    color: var(--color-success);
+}
+
+.my-access__match-status--revoked {
+    color: var(--color-danger);
+}
+
+.my-access__changes-heading {
+    font-size: var(--font-size-heading-1);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-3);
+}
+
+/* Silence gets a box of its own rather than blank space below the headline.
+   An empty area reads as "nothing loaded"; a stated absence reads as "checked,
+   and nothing moved". */
+.my-access__no-changes {
+    border: 1px dashed var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+    color: var(--color-text);
+}
+
+.my-access__empty,
+.my-access__error {
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.my-access__error {
+    border-color: var(--color-danger);
+}
+
+.my-access__refresh-failed {
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
+    margin-bottom: var(--space-3);
+}
+
+.my-access__identity {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-stale-text);
+}
+
+.my-access__identity h2 {
+    font-size: var(--font-size-heading-3);
+}
+
+.my-access__identity dt {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    font-weight: 700;
+}
+
+.my-access__identity dd {
+    margin-bottom: var(--space-2);
+}
+
+.my-access__mocked {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+}
+
+.my-access__help-link {
+    margin-top: var(--space-3);
+}

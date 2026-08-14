@@ -23,5 +23,10 @@ Records of each build run against this repo: the plan approved before the work s
 - [`v8/`](v8/) — injects the completed UI-prototyping mandate (nine gate deliverables) as a new
   `ux-ui/03-ui-prototyping/` folder, then enables GitHub Pages (source: GitHub Actions).
   Documentation and a settings change only — no application behavior changed.
+- [`v9/`](v9/) — builds the Access Record concept as a frontend vertical slice from v8's dossier:
+  four entities, a data-provider interface with one in-memory implementation, six pages, six
+  components, and a token-based dual-theme stylesheet. The first run since v3 in which application
+  behavior changes substantially — the app stops being an event-registration demo. Frontend only:
+  no API, no database, no authentication.
 
 Each version folder has its own README with more detail on what that run covered.

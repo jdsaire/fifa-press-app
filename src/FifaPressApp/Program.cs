@@ -16,4 +16,16 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSingleton<SessionTracker>();
 builder.Services.AddSingleton<AttendanceTracker>();
 
+// Registered against the interface, not the class. Every page and component
+// asks for IAccessDataProvider and never names MockAccessDataProvider, so
+// swapping in an implementation that talks to a real service is a change to
+// this one line rather than a change to every caller.
+//
+// It gets its own HttpClient rather than the scoped one above: this provider is
+// a singleton, and a singleton holding a scoped dependency is the kind of
+// lifetime mismatch that works until it suddenly doesn't.
+builder.Services.AddSingleton<IAccessDataProvider>(_ =>
+    new MockAccessDataProvider(
+        new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }));
+
 await builder.Build().RunAsync();
