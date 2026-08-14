@@ -1,0 +1,171 @@
+@* Sign in — a form, not authentication.
+   ------------------------------------------------------------------------
+   There is no credential store behind this, no session, no authorization, and
+   nothing on the other side of it. A login form that implies an account system
+   it does not have is a lie told by the interface, so this page says what it is
+   ON THE SCREEN — before any interaction, not buried in a repo file that the
+   person filling in the form will never read.
+
+   Everything in this app is reachable without signing in, and this page must
+   not imply otherwise by presenting itself as a barrier in front of the record.
+
+   Adopted from this project's own reference login: the on-screen honesty about
+   simulation, the autocomplete attributes, the password input type, idiomatic
+   EditForm/EditContext/DataAnnotationsValidator validation, aria-live on field
+   errors and role="alert" on the form-level one, a single generic failure
+   message that does not reveal which field was wrong, and allow-list validation
+   on the identifier only.
+
+   NOT adopted, deliberately: published demo credentials (there is no store, so
+   there is nothing to publish and printing placeholders would imply one
+   exists), any signed-in state or session provider, sign-out, redirect on
+   success, and the reference's injection blocklist — that list rejects
+   apostrophes and the substring " or ", which would turn away a journalist
+   called O'Neill. An allow-list that rejects real names is a bug, not stricter
+   defence, and the reference's own service says as much. *@
+
+@page "/signin"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.RegularExpressions
+
+<PageTitle>Sign in</PageTitle>
+
+<h1>Sign in</h1>
+
+@* Visible before any interaction, and first on the page. *@
+<div class="signin__notice" role="note">
+    <p>
+        <strong>This form is a demonstration, not a way in.</strong>
+        There is no account system behind it and no credentials exist. Nothing
+        you type here is sent, stored, or checked against anything.
+    </p>
+    <p>
+        You do not need it: every part of this app —
+        <a href="">your access record</a>, <a href="matches">the match list</a>,
+        and <a href="help">help</a> — is fully reachable without signing in.
+    </p>
+</div>
+
+<EditForm EditContext="editContext" OnValidSubmit="HandleSubmit" class="signin__form">
+    <DataAnnotationsValidator />
+
+    <div class="signin__field">
+        <label for="signin-identifier">Email or credential number</label>
+        <InputText id="signin-identifier"
+                   class="form-control"
+                   autocomplete="username"
+                   inputmode="@IdentifierInputMode"
+                   @bind-Value="model.Identifier"
+                   @bind-Value:event="oninput" />
+        <ValidationMessage For="@(() => model.Identifier)" class="signin__error" aria-live="polite" />
+    </div>
+
+    <div class="signin__field">
+        <label for="signin-password">Password</label>
+        @* type="password" and current-password, and nothing else touches this
+           value: it is never trimmed, pattern-checked, rewritten, logged, or
+           put in a query string. Allow-list rewriting is right for a username
+           and wrong for a password, which has to compare byte for byte. *@
+        <InputText id="signin-password"
+                   type="password"
+                   class="form-control"
+                   autocomplete="current-password"
+                   @bind-Value="model.Password" />
+        <ValidationMessage For="@(() => model.Password)" class="signin__error" aria-live="polite" />
+    </div>
+
+    @if (formError is not null)
+    {
+        <p class="signin__error" role="alert">@formError</p>
+    }
+
+    <button type="submit" class="btn btn-primary">Sign in</button>
+</EditForm>
+
+@if (submitted)
+{
+    @* Submission is inert: it validates, and then says so. *@
+    <div class="signin__result" role="status">
+        <p>
+            <strong>Sign-in is not implemented in this version.</strong>
+            Your details were checked for shape only and then discarded — nothing
+            was sent and nothing was kept.
+        </p>
+        <p>
+            Everything this app does is available without an account:
+            <a href="">read your access record and what changed</a>,
+            <a href="matches">browse the match schedule</a>, or
+            <a href="help">read what this service does not do</a>.
+        </p>
+    </div>
+}
+
+@code {
+    private readonly SignInModel model = new();
+    private EditContext editContext = default!;
+    private string? formError;
+    private bool submitted;
+
+    protected override void OnInitialized() => editContext = new EditContext(model);
+
+    /// <summary>
+    /// Nudges the on-screen keyboard toward an email layout once the value
+    /// looks like an address, and leaves it alone for a credential number.
+    /// </summary>
+    private string? IdentifierInputMode =>
+        model.Identifier.Contains('@') ? "email" : null;
+
+    private void HandleSubmit()
+    {
+        // One message for any failure. Saying which of the two was wrong would
+        // be telling an attacker which half they had right — and here there is
+        // nothing to be right about anyway.
+        formError = null;
+        submitted = true;
+    }
+
+    private sealed class SignInModel
+    {
+        [Required(ErrorMessage = "Enter your email or credential number.")]
+        [StringLength(120, MinimumLength = 3, ErrorMessage = "This must be between 3 and 120 characters.")]
+        [PermissiveIdentifier]
+        public string Identifier { get; set; } = string.Empty;
+
+        // Length bound only. No allow-list, no pattern, no sanitising.
+        [Required(ErrorMessage = "Enter your password.")]
+        [StringLength(200, MinimumLength = 1, ErrorMessage = "Enter your password.")]
+        public string Password { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// An allow-list wide enough for real names and real credential numbers:
+    /// any letter in any script, any digit, spaces, and the handful of marks
+    /// that legitimately appear in both — hyphen, apostrophe, period,
+    /// underscore and the at sign.
+    ///
+    /// <para>
+    /// The apostrophe is here on purpose. A list that rejects it rejects
+    /// O'Neill, D'Angelo and Ba'ath, which is not a stricter defence — it is a
+    /// form that turns away the people it exists to serve.
+    /// </para>
+    /// </summary>
+    private sealed class PermissiveIdentifierAttribute : ValidationAttribute
+    {
+        private static readonly Regex AllowedCharacters =
+            new(@"^[\p{L}\p{N} .\-'_@]+$", RegexOptions.CultureInvariant);
+
+        public PermissiveIdentifierAttribute() =>
+            ErrorMessage = "Use letters, numbers, spaces, and the marks . - ' _ @ only.";
+
+        public override bool IsValid(object? value)
+        {
+            if (value is not string text || text.Length == 0)
+            {
+                // Presence is [Required]'s job, not this one's.
+                return true;
+            }
+
+            return AllowedCharacters.IsMatch(text);
+        }
+    }
+}

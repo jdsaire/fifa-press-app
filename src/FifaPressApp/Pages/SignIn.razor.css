@@ -1,0 +1,46 @@
+/* The notice comes before the form in the markup and reads as a statement
+   rather than a warning: it is not an error, it is what this page is. */
+.signin__notice {
+    border: 1px solid var(--color-stale-text);
+    border-left: 4px solid var(--color-link);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.signin__notice p:last-child {
+    margin-bottom: 0;
+}
+
+.signin__form {
+    max-width: 28rem;
+}
+
+.signin__field {
+    margin-bottom: var(--space-3);
+}
+
+.signin__field label {
+    display: block;
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+}
+
+.signin__error {
+    color: var(--color-danger);
+    font-size: var(--font-size-small);
+    display: block;
+    margin-top: var(--space-1);
+}
+
+.signin__result {
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+    margin-top: var(--space-3);
+}
+
+.signin__result p:last-child {
+    margin-bottom: 0;
+}
