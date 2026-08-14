@@ -1,0 +1,16 @@
+@* Marks a change that has NOT happened yet, so a conditional entry is never
+   read as a decision already taken. The wording is deliberately "may" and
+   "depends on" rather than anything that sounds settled — a foreseeable change
+   is conditional precisely because its condition is unresolved, and copy that
+   drifts into sounding like a commitment turns a warning into a promise the
+   service cannot keep. *@
+
+<span class="foreseeable-badge">
+    <span class="foreseeable-badge__mark" aria-hidden="true">•</span>
+    @Label
+</span>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Not decided yet — depends on a match still to be played";
+}

@@ -1,0 +1,94 @@
+@* The headline: what I hold now.
+   ------------------------------------------------------------------------
+   Structurally an EventCard variant — same read-only-by-default presentation,
+   same instance-unique element IDs so two cards on one page cannot collide —
+   with one deliberate difference: there is no edit toggle. EventCard offers one
+   because its data is the user's to change. This data is not. An edit affordance
+   on an entitlement record would imply the holder can alter what they hold,
+   which is the opposite of what the record is for.
+
+   Accreditation and match access are two visually distinct blocks, not one
+   merged status, because they are two different things: the standing credential
+   is approved *until* a date, and match access is per fixture. Collapsing them
+   into a single "status" is the confusion this split exists to prevent. *@
+
+<section class="access-card" aria-labelledby="@HeadingId">
+    <h2 class="access-card__heading" id="@HeadingId">What you hold now</h2>
+
+    <div class="access-card__block">
+        <h3 class="access-card__block-heading">Accreditation</h3>
+
+        <p class="access-card__status access-card__status--@Accreditation.Status.ToString().ToLowerInvariant()">
+            @StatusSentence
+        </p>
+
+        <dl class="access-card__details">
+            <dt>Zones</dt>
+            <dd>
+                @if (Accreditation.ZoneAccess.Count == 0)
+                {
+                    <text>No zones are on your credential.</text>
+                }
+                else
+                {
+                    @string.Join(", ", Accreditation.ZoneAccess)
+                }
+            </dd>
+        </dl>
+    </div>
+
+    <div class="access-card__block">
+        <h3 class="access-card__block-heading">Match access</h3>
+        @if (MatchAccess is not null)
+        {
+            @MatchAccess
+        }
+        else
+        {
+            <p>No match access has been recorded yet.</p>
+        }
+    </div>
+
+    <p class="access-card__mocked">
+        Simulated accreditation record. This version is not connected to any
+        accreditation system, and no credential store exists behind it.
+    </p>
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public Accreditation Accreditation { get; set; } = default!;
+
+    /// <summary>
+    /// The per-fixture block. Supplied by the page so this card stays
+    /// presentational and does not need to know how match access is derived.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? MatchAccess { get; set; }
+
+    // Unique per instance, following EventCard's pattern, so a page rendering
+    // more than one card never produces two elements with the same id.
+    private readonly string instanceId = Guid.NewGuid().ToString("N");
+
+    private string HeadingId => $"access-card-heading-{instanceId}";
+
+    /// <summary>
+    /// Approval is never stated bare. "Approved" on its own invites the reader
+    /// to assume it holds indefinitely, and the date is the part that decides
+    /// whether they can travel.
+    /// </summary>
+    private string StatusSentence => Accreditation.Status switch
+    {
+        AccreditationStatus.Approved when Accreditation.ValidUntil is DateTime until =>
+            $"Approved until {until:d MMMM yyyy}.",
+        AccreditationStatus.Approved =>
+            "Approved. No end date is recorded on your credential.",
+        AccreditationStatus.Pending =>
+            "Not decided yet. Your application is with the accreditation team.",
+        AccreditationStatus.Refused =>
+            "Refused. See the changes below for the reason and what remains open.",
+        AccreditationStatus.Withdrawn =>
+            "Withdrawn. See the changes below for when and why.",
+        _ => "Status unknown.",
+    };
+}

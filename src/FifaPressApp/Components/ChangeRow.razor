@@ -1,0 +1,103 @@
+@* One change in the record.
+   ------------------------------------------------------------------------
+   Four things are not optional here: what changed, why, what to do next, and
+   when. A row missing any of them is malformed rather than merely sparse — the
+   whole difference between this app and the situation it replaces is that
+   "your access changed" arrives with a reason attached. The model refuses to
+   construct without them, so this component can render them unconditionally
+   instead of guarding every field.
+
+   The one conditional block that matters is the superseded value. A change with
+   nothing visible to compare against reads as information; shown beside the
+   value it replaced, it reads as a change. *@
+
+<article class="change-row @(IsForeseeable ? "change-row--foreseeable" : null)">
+    @if (IsForeseeable)
+    {
+        <ForeseeableBadge />
+    }
+
+    <h3 class="change-row__what">@Change.WhatChanged</h3>
+
+    <p class="change-row__when">
+        <time datetime="@Change.EffectiveUtc.ToString("o")">
+            @(IsForeseeable ? "Takes effect" : "Took effect") @Change.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
+        </time>
+    </p>
+
+    @if (Superseded is not null)
+    {
+        @* The replaced value stays visible. It is not deleted, and this is not
+           an audit-trail nicety: a correction that hides what it corrected
+           leaves the reader unable to tell whether anything actually moved. *@
+        <div class="change-row__superseded">
+            <p class="change-row__superseded-label">Replaces an earlier entry:</p>
+            <p class="change-row__superseded-value">@Superseded.WhatChanged</p>
+            <p class="change-row__superseded-when">
+                <time datetime="@Superseded.EffectiveUtc.ToString("o")">
+                    Recorded @Superseded.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
+                </time>
+            </p>
+        </div>
+    }
+
+    @if (Change.ConditionText is not null)
+    {
+        <div class="change-row__condition">
+            <p class="change-row__field-label">The condition</p>
+            <p>@Change.ConditionText</p>
+            @if (DependsOnFixture is not null)
+            {
+                @* Named by round, venue and date — never by the teams playing
+                   in it. This fixture has not kicked off, so who is in it is
+                   something the app is not entitled to know. *@
+                <p class="change-row__dependency">
+                    Depends on the @DependsOnFixture.PhaseLabel fixture at
+                    @DependsOnFixture.Venue, @DependsOnFixture.City, on
+                    <time datetime="@DependsOnFixture.KickoffLocal.ToString("o")">@DependsOnFixture.KickoffLocal.ToString("d MMMM")</time>
+                    (@DependsOnFixture.TimeZoneLabel).
+                </p>
+            }
+        </div>
+    }
+
+    <p class="change-row__field-label">Why</p>
+    <p class="change-row__why">@Change.Reason</p>
+
+    <p class="change-row__field-label">What you can do</p>
+    <p class="change-row__next">@Change.NextStep</p>
+
+    @if (!Change.NextStepIsActionable && Change.DecidedBy is not null)
+    {
+        @* A dead end still owes the reader a name. "Nothing you can do" with
+           nobody attached to it is the silence this record exists to replace. *@
+        <p class="change-row__decided-by">Decided by @Change.DecidedBy</p>
+    }
+
+    <p class="change-row__mocked">
+        Simulated record — no accreditation system is connected in this version.
+    </p>
+</article>
+
+@code {
+    [Parameter, EditorRequired]
+    public Change Change { get; set; } = default!;
+
+    /// <summary>
+    /// The change this one replaces, when it replaces one. Passed in rather
+    /// than looked up here so this component stays presentational and does not
+    /// need the whole record to draw one row.
+    /// </summary>
+    [Parameter]
+    public Change? Superseded { get; set; }
+
+    /// <summary>
+    /// The fixture a conditional change hangs on. Already withheld by the data
+    /// provider if it has not been played, so this component can render
+    /// whatever it is given without checking anything.
+    /// </summary>
+    [Parameter]
+    public Fixture? DependsOnFixture { get; set; }
+
+    private bool IsForeseeable => Change.Urgency == Urgency.Foreseeable;
+}

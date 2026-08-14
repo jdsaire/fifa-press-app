@@ -1,0 +1,92 @@
+.change-row {
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    box-shadow: var(--elevation-card);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.change-row--foreseeable {
+    border-style: dashed;
+}
+
+.change-row__what {
+    font-size: var(--font-size-heading-3);
+    margin-bottom: var(--space-1);
+}
+
+.change-row__when {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-bottom: var(--space-3);
+}
+
+/* Small caps-ish labels rather than bold run-in text, so "Why" and "What you
+   can do" are scannable as a fixed structure. Every row has the same three
+   labelled parts in the same order, which is what lets someone at a barrier
+   find the one they need without reading the rest. */
+.change-row__field-label {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-stale-text);
+    margin-bottom: var(--space-1);
+}
+
+.change-row__why,
+.change-row__next {
+    margin-bottom: var(--space-3);
+}
+
+.change-row__superseded {
+    border-left: 3px solid var(--color-stale-text);
+    padding-left: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.change-row__superseded-label {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    color: var(--color-stale-text);
+    margin-bottom: var(--space-1);
+}
+
+.change-row__superseded-value {
+    text-decoration: line-through;
+    margin-bottom: var(--space-1);
+}
+
+.change-row__superseded-when {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-bottom: 0;
+}
+
+.change-row__condition {
+    border: 1px dashed var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.change-row__dependency {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-bottom: 0;
+}
+
+.change-row__decided-by {
+    font-size: var(--font-size-small);
+    margin-bottom: var(--space-2);
+}
+
+.change-row__mocked {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    border-top: 1px solid var(--color-stale-text);
+    padding-top: var(--space-2);
+    margin-bottom: 0;
+}

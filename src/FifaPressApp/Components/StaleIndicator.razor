@@ -1,0 +1,84 @@
+@* Staleness is a property of every surface that reads cached data, not a
+   state that one screen enters when something goes wrong. So this renders
+   ALWAYS — including when the data is seconds old — because an indicator that
+   only appears when there is a problem teaches people to read its absence as
+   "fine", and absence is exactly what a broken sync looks like too. *@
+
+<p class="stale-indicator @(IsStale ? "stale-indicator--old" : null)" role="status">
+    <span class="stale-indicator__label">@AgeSentence</span>
+    @if (ShowExactTimestamp)
+    {
+        <span class="stale-indicator__stamp">
+            (<time datetime="@LastSyncedUtc.ToString("o")">@LastSyncedUtc.ToString("d MMM, HH:mm")</time> UTC)
+        </span>
+    }
+</p>
+
+@code {
+    /// <summary>When the data being shown was last synchronised.</summary>
+    [Parameter]
+    public DateTime LastSyncedUtc { get; set; }
+
+    /// <summary>
+    /// The moment to measure against. Passed in rather than read from the
+    /// clock so this component shows the same age the rest of the app is
+    /// working from.
+    /// </summary>
+    [Parameter]
+    public DateTime AsOfUtc { get; set; }
+
+    /// <summary>What the age applies to, e.g. "your access record".</summary>
+    [Parameter]
+    public string Subject { get; set; } = "this information";
+
+    [Parameter]
+    public bool ShowExactTimestamp { get; set; } = true;
+
+    /// <summary>
+    /// Past this, the indicator changes its wording and its colour. Below it,
+    /// it still renders — just quietly.
+    /// </summary>
+    [Parameter]
+    public TimeSpan StaleAfter { get; set; } = TimeSpan.FromHours(1);
+
+    private TimeSpan Age => AsOfUtc - LastSyncedUtc;
+
+    private bool IsStale => Age >= StaleAfter;
+
+    /// <summary>
+    /// Written out as an age rather than as a word like "stale", partly because
+    /// a number is harder to skim past, and partly because "stale" has no
+    /// single-word equivalent in the other two languages this service has to
+    /// work in — both translate it as something closer to "spoiled".
+    /// </summary>
+    private string AgeSentence
+    {
+        get
+        {
+            var age = Age;
+
+            if (age < TimeSpan.Zero)
+            {
+                return $"Last updated: {Subject} carries a future timestamp.";
+            }
+
+            var howLong = age.TotalMinutes switch
+            {
+                < 1 => "less than a minute ago",
+                < 2 => "1 minute ago",
+                < 60 => $"{(int)age.TotalMinutes} minutes ago",
+                < 120 => "1 hour ago",
+                < 1440 => $"{(int)age.TotalHours} hours ago",
+                < 2880 => "1 day ago",
+                _ => $"{(int)age.TotalDays} days ago",
+            };
+
+            return IsStale
+                ? $"Last updated {howLong}. {Capitalise(Subject)} may have changed since."
+                : $"Last updated {howLong}.";
+        }
+    }
+
+    private static string Capitalise(string value) =>
+        value.Length == 0 ? value : char.ToUpperInvariant(value[0]) + value[1..];
+}

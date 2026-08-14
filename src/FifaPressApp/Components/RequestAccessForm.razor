@@ -1,0 +1,168 @@
+@* The request form, extracted from Registration.razor so the validated-input
+   pattern lives in one place.
+   ------------------------------------------------------------------------
+   The pattern is EventCard's, not a new one: a parameter paired with its
+   matching "...Changed" callback for two-way binding, per-field errors wired
+   through aria-describedby so a screen reader hears the message attached to the
+   field it belongs to, and element ids made unique per instance so two forms on
+   one page cannot collide.
+
+   No EditForm here on purpose. EditForm earns its place when a model carries
+   data annotations for DataAnnotationsValidator to read — as on the sign-in
+   form, which does. This form's two rules live in the handlers below, and
+   wrapping them in a validator that has nothing to validate would look like
+   validation without doing any.
+
+   Deliberately no cancel affordance. Reversing a submitted request is a write —
+   it appends a withdrawal to the record rather than unwriting anything — and
+   the surface for it is not specified. Its absence here is a decision taken
+   elsewhere, not an oversight to be helpfully filled in. *@
+
+<form class="request-form" @onsubmit="HandleSubmitAsync" @onsubmit:preventDefault="true">
+    <div class="request-form__field">
+        <label for="@NameInputId">Your name</label>
+        <input id="@NameInputId"
+               class="form-control"
+               value="@Name"
+               disabled="@Submitting"
+               autocomplete="name"
+               @oninput="OnNameInput"
+               aria-describedby="@(ShowNameError ? NameErrorId : null)"
+               aria-invalid="@(ShowNameError ? "true" : null)" />
+        @if (ShowNameError)
+        {
+            <div id="@NameErrorId" class="request-form__error" role="alert" aria-live="polite">@nameError</div>
+        }
+    </div>
+
+    <div class="request-form__field">
+        <label for="@EmailInputId">Your email</label>
+        <input id="@EmailInputId"
+               type="email"
+               inputmode="email"
+               class="form-control"
+               value="@Email"
+               disabled="@Submitting"
+               autocomplete="email"
+               @oninput="OnEmailInput"
+               aria-describedby="@(ShowEmailError ? EmailErrorId : null)"
+               aria-invalid="@(ShowEmailError ? "true" : null)" />
+        @if (ShowEmailError)
+        {
+            <div id="@EmailErrorId" class="request-form__error" role="alert" aria-live="polite">@emailError</div>
+        }
+    </div>
+
+    @if (ErrorMessage is not null)
+    {
+        <p class="request-form__error" role="alert">@ErrorMessage</p>
+    }
+
+    <button type="submit" class="btn btn-primary" disabled="@Submitting">
+        @(Submitting ? "Sending request…" : "Request access")
+    </button>
+</form>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> NameChanged { get; set; }
+
+    [Parameter]
+    public string Email { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> EmailChanged { get; set; }
+
+    /// <summary>Raised only once both fields pass.</summary>
+    [Parameter]
+    public EventCallback OnSubmit { get; set; }
+
+    [Parameter]
+    public bool Submitting { get; set; }
+
+    /// <summary>A form-level failure, as opposed to a per-field one.</summary>
+    [Parameter]
+    public string? ErrorMessage { get; set; }
+
+    private readonly string instanceId = Guid.NewGuid().ToString("N");
+
+    private string NameInputId => $"request-name-{instanceId}";
+    private string EmailInputId => $"request-email-{instanceId}";
+    private string NameErrorId => $"request-name-error-{instanceId}";
+    private string EmailErrorId => $"request-email-error-{instanceId}";
+
+    private string? nameError;
+    private string? emailError;
+
+    // A blank form the person has not touched yet is empty, not wrong. Errors
+    // appear once a field has been typed in, or once submit has been pressed —
+    // never as the opening state.
+    private bool nameTouched;
+    private bool emailTouched;
+    private bool submitAttempted;
+
+    private bool ShowNameError => nameError is not null && (nameTouched || submitAttempted);
+    private bool ShowEmailError => emailError is not null && (emailTouched || submitAttempted);
+
+    // Re-validating here as well as in the input handlers keeps the error state
+    // in step with whatever value the component actually holds, not just with
+    // what was last typed into it.
+    protected override void OnParametersSet()
+    {
+        nameError = ValidateName(Name);
+        emailError = ValidateEmail(Email);
+    }
+
+    private async Task OnNameInput(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+        nameTouched = true;
+        nameError = ValidateName(value);
+        Name = value;
+        await NameChanged.InvokeAsync(Name);
+    }
+
+    private async Task OnEmailInput(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+        emailTouched = true;
+        emailError = ValidateEmail(value);
+        Email = value;
+        await EmailChanged.InvokeAsync(Email);
+    }
+
+    private async Task HandleSubmitAsync()
+    {
+        submitAttempted = true;
+        nameError = ValidateName(Name);
+        emailError = ValidateEmail(Email);
+
+        if (nameError is not null || emailError is not null)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync();
+    }
+
+    private static string? ValidateName(string value) =>
+        string.IsNullOrWhiteSpace(value) ? "Enter the name on your credential." : null;
+
+    private static string? ValidateEmail(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "Enter the email address on your credential.";
+        }
+
+        // Presence and shape only. A stricter pattern here rejects real
+        // addresses far more often than it catches typos.
+        var at = value.IndexOf('@');
+        return at > 0 && value.IndexOf('.', at) > at + 1
+            ? null
+            : "That does not look like an email address.";
+    }
+}
