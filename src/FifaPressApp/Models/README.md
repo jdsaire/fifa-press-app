@@ -1,11 +1,18 @@
 # Models/
 
-Holds the plain C# classes that define the *shape* of the app's data — what properties an event or a registration has — separately from anything about how that data gets shown on screen or acted on. None of these files contain any markup or UI logic at all; they're the closest thing in this app to a plain data definition.
+Holds the plain C# classes that define the *shape* of the app's data — what a fixture, a credential, or a logged change has on it — separately from anything about how that data gets shown on screen or acted on. None of these files contain any markup or UI logic at all; they're the closest thing in this app to a plain data definition.
 
-- **`EventModel.cs`** — the shape of one event: an ID, a name, a date, and a location. Every event card, detail page, and registration page is ultimately displaying one of these.
-- **`MockEventData.cs`** — where the app's made-up sample events actually live: a method that returns a list of 50 `EventModel` instances, invented for building and testing rather than pulled from a database or an outside service. See [Glossary.md](../../../learning-mode/Glossary.md#mock-data).
-- **`RegistrationModel.cs`** — the shape of one signup attempt: a name and an email address, each tagged with a rule (required, must look like an email) that the registration form checks against automatically.
+## The access record
 
-Keeping these separate from `Pages/` and `Components/` means the *rules* about what an event or a registration looks like live in exactly one place each, instead of being scattered across every screen that happens to touch that data.
+- **`Fixture.cs`** — one scheduled match: its number, both kickoff times, the phase, the venue and city, and the two team names. The team names are deliberately allowed to be empty, and that's the most important thing in this folder: the published schedule this app reads is a record of a *completed* tournament, so reading it straight through would tell the app who won every match before it was played. A match that hasn't kicked off yet arrives with no teams on it at all.
+- **`Accreditation.cs`** — the standing credential: who holds it, which track they're on, what zones it permits, and the date it's approved *until*. Approval is never recorded as open-ended.
+- **`Change.cs`** — one movement in the record, and the only way anything about access ever changes. Four things are required to create one — what changed, why, what to do next, and when — and the constructor refuses to build one without them, so a change with a blank reason can't exist rather than rendering as an empty line. There is no update method and no delete method: a correction is a *new* change that points at the one it replaces, and a withdrawal is a new change too.
+- **`Track.cs`** — which of the three accreditation tracks a holder is on, and the notification ceiling that follows from it. The ceiling is recomputed every time it's read rather than stored, so it can't drift out of step with the track it came from.
 
-For where this data is used, see [`learning-mode/01-Building-the-Foundation.md`](../../../learning-mode/01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data) (events) and [`learning-mode/03-Adding-Signups-and-Headcounts.md`](../../../learning-mode/03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input) (registration).
+## Retained from the earlier build
+
+- **`EventModel.cs`**, **`MockEventData.cs`**, **`RegistrationModel.cs`** — the shapes the app used before the access record existed. Kept rather than deleted: removing working code is a separate decision from removing the screens that used it. See [Glossary.md](../../../learning-mode/Glossary.md#mock-data).
+
+Keeping these separate from `Pages/` and `Components/` means the *rules* about what a fixture or a change looks like live in exactly one place each, instead of being scattered across every screen that happens to touch that data.
+
+For where this data is used, see [`learning-mode/01-Building-the-Foundation.md`](../../../learning-mode/01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data) (the earlier mock data) and [`learning-mode/03-Adding-Signups-and-Headcounts.md`](../../../learning-mode/03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input) (the request form).
