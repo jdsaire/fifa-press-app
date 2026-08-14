@@ -1,0 +1,105 @@
+Match,Date,Time (ET),Time (Local),Matchup,Group / Phase,Venue,City
+1,11-Jun-26,15:00,13:00,Mexico v South Africa,Group A,Estadio Azteca,Mexico City
+2,11-Jun-26,22:00,20:00,South Korea v Czechia,Group A,Estadio Akron,Guadalajara
+3,12-Jun-26,15:00,15:00,Canada v Bosnia and Herzegovina,Group B,BMO Field,Toronto
+4,12-Jun-26,21:00,18:00,USA v Paraguay,Group D,SoFi Stadium,Los Angeles
+5,13-Jun-26,21:00,21:00,Haiti v Scotland,Group C,Gillette Stadium,Boston
+6,13-Jun-26,24:00,21:00,Australia v Türkiye,Group D,BC Place,Vancouver
+7,13-Jun-26,18:00,18:00,Brazil v Morocco,Group C,MetLife Stadium,New York/New Jersey
+8,13-Jun-26,15:00,12:00,Qatar v Switzerland,Group B,Levi's Stadium,San Francisco Bay Area
+9,14-Jun-26,19:00,19:00,Ivory Coast v Ecuador,Group E,Lincoln Financial Field,Philadelphia
+10,14-Jun-26,13:00,12:00,Germany v Curaçao,Group E,NRG Stadium,Houston
+11,14-Jun-26,16:00,15:00,Netherlands v Japan,Group F,AT&T Stadium,Dallas
+12,14-Jun-26,22:00,20:00,Sweden v Tunisia,Group F,Estadio BBVA,Monterrey
+13,15-Jun-26,18:00,18:00,Saudi Arabia v Uruguay,Group H,Hard Rock Stadium,Miami
+14,15-Jun-26,12:00,12:00,Spain v Cape Verde,Group H,Mercedes-Benz Stadium,Atlanta
+15,15-Jun-26,21:00,18:00,Iran v New Zealand,Group G,SoFi Stadium,Los Angeles
+16,15-Jun-26,15:00,12:00,Belgium v Egypt,Group G,Lumen Field,Seattle
+17,16-Jun-26,15:00,15:00,France v Senegal,Group I,MetLife Stadium,New York/New Jersey
+18,16-Jun-26,18:00,18:00,Iraq v Norway,Group I,Gillette Stadium,Boston
+19,16-Jun-26,21:00,20:00,Argentina v Algeria,Group J,Arrowhead Stadium,Kansas City
+20,16-Jun-26,24:00,21:00,Austria v Jordan,Group J,Levi's Stadium,San Francisco Bay Area
+21,17-Jun-26,19:00,19:00,Ghana v Panama,Group L,BMO Field,Toronto
+22,17-Jun-26,16:00,15:00,England v Croatia,Group L,AT&T Stadium,Dallas
+23,17-Jun-26,13:00,12:00,Portugal v Congo DR,Group K,NRG Stadium,Houston
+24,17-Jun-26,22:00,20:00,Uzbekistan v Colombia,Group K,Estadio Azteca,Mexico City
+25,18-Jun-26,12:00,12:00,Czechia v South Africa,Group A,Mercedes-Benz Stadium,Atlanta
+26,18-Jun-26,15:00,12:00,Switzerland v Bosnia and Herzegovina,Group B,SoFi Stadium,Los Angeles
+27,18-Jun-26,18:00,15:00,Canada v Qatar,Group B,BC Place,Vancouver
+28,18-Jun-26,21:00,19:00,Mexico v South Korea,Group A,Estadio Akron,Guadalajara
+29,19-Jun-26,21:00,21:00,Brazil v Haiti,Group C,Lincoln Financial Field,Philadelphia
+30,19-Jun-26,18:00,18:00,Scotland v Morocco,Group C,Gillette Stadium,Boston
+31,19-Jun-26,23:00,20:00,Türkiye v Paraguay,Group D,Levi's Stadium,San Francisco Bay Area
+32,19-Jun-26,15:00,12:00,USA v Australia,Group D,Lumen Field,Seattle
+33,20-Jun-26,16:00,16:00,Germany v Ivory Coast,Group E,BMO Field,Toronto
+34,20-Jun-26,20:00,19:00,Ecuador v Curaçao,Group E,Arrowhead Stadium,Kansas City
+35,20-Jun-26,13:00,12:00,Netherlands v Sweden,Group F,NRG Stadium,Houston
+36,20-Jun-26,24:00,22:00,Tunisia v Japan,Group F,Estadio BBVA,Monterrey
+37,21-Jun-26,18:00,18:00,Uruguay v Cape Verde,Group H,Hard Rock Stadium,Miami
+38,21-Jun-26,12:00,12:00,Spain v Saudi Arabia,Group H,Mercedes-Benz Stadium,Atlanta
+39,21-Jun-26,15:00,12:00,Belgium v Iran,Group G,SoFi Stadium,Los Angeles
+40,21-Jun-26,21:00,18:00,New Zealand v Egypt,Group G,BC Place,Vancouver
+41,22-Jun-26,20:00,20:00,Norway v Senegal,Group I,MetLife Stadium,New York/New Jersey
+42,22-Jun-26,17:00,17:00,France v Iraq,Group I,Lincoln Financial Field,Philadelphia
+43,22-Jun-26,13:00,12:00,Argentina v Austria,Group J,AT&T Stadium,Dallas
+44,22-Jun-26,23:00,20:00,Jordan v Algeria,Group J,Levi's Stadium,San Francisco Bay Area
+45,23-Jun-26,16:00,16:00,England v Ghana,Group L,Gillette Stadium,Boston
+46,23-Jun-26,19:00,19:00,Panama v Croatia,Group L,BMO Field,Toronto
+47,23-Jun-26,13:00,12:00,Portugal v Uzbekistan,Group K,NRG Stadium,Houston
+48,23-Jun-26,22:00,20:00,Colombia v Congo DR,Group K,Estadio Akron,Guadalajara
+49,24-Jun-26,18:00,18:00,Scotland v Brazil,Group C,Hard Rock Stadium,Miami
+50,24-Jun-26,18:00,18:00,Morocco v Haiti,Group C,Mercedes-Benz Stadium,Atlanta
+51,24-Jun-26,15:00,12:00,Switzerland v Canada,Group B,BC Place,Vancouver
+52,24-Jun-26,15:00,12:00,Bosnia and Herzegovina v Qatar,Group B,Lumen Field,Seattle
+53,24-Jun-26,21:00,19:00,Czechia v Mexico,Group A,Estadio Azteca,Mexico City
+54,24-Jun-26,21:00,19:00,South Africa v South Korea,Group A,Estadio BBVA,Monterrey
+55,25-Jun-26,16:00,16:00,Curaçao v Ivory Coast,Group E,Lincoln Financial Field,Philadelphia
+56,25-Jun-26,16:00,16:00,Ecuador v Germany,Group E,MetLife Stadium,New York/New Jersey
+57,25-Jun-26,19:00,18:00,Japan v Sweden,Group F,AT&T Stadium,Dallas
+58,25-Jun-26,19:00,18:00,Tunisia v Netherlands,Group F,Arrowhead Stadium,Kansas City
+59,25-Jun-26,22:00,19:00,Türkiye v USA,Group D,SoFi Stadium,Los Angeles
+60,25-Jun-26,22:00,19:00,Paraguay v Australia,Group D,Levi's Stadium,San Francisco Bay Area
+61,26-Jun-26,15:00,15:00,Norway v France,Group I,Gillette Stadium,Boston
+62,26-Jun-26,15:00,15:00,Senegal v Iraq,Group I,BMO Field,Toronto
+63,26-Jun-26,23:00,20:00,Egypt v Iran,Group G,Lumen Field,Seattle
+64,26-Jun-26,23:00,20:00,New Zealand v Belgium,Group G,BC Place,Vancouver
+65,26-Jun-26,20:00,19:00,Cape Verde v Saudi Arabia,Group H,NRG Stadium,Houston
+66,26-Jun-26,20:00,18:00,Uruguay v Spain,Group H,Estadio Akron,Guadalajara
+67,27-Jun-26,17:00,17:00,Panama v England,Group L,MetLife Stadium,New York/New Jersey
+68,27-Jun-26,17:00,17:00,Croatia v Ghana,Group L,Lincoln Financial Field,Philadelphia
+69,27-Jun-26,22:00,21:00,Algeria v Austria,Group J,Arrowhead Stadium,Kansas City
+70,27-Jun-26,22:00,21:00,Jordan v Argentina,Group J,AT&T Stadium,Dallas
+71,27-Jun-26,19:30,19:30,Colombia v Portugal,Group K,Hard Rock Stadium,Miami
+72,27-Jun-26,19:30,19:30,Congo DR v Uzbekistan,Group K,Mercedes-Benz Stadium,Atlanta
+73,28-Jun-26,15:00,12:00,South Africa v Canada,Round of 32,SoFi Stadium,Los Angeles
+74,29-Jun-26,16:30,16:30,Germany v Paraguay,Round of 32,Gillette Stadium,Boston
+75,29-Jun-26,21:00,19:00,Netherlands v Morocco,Round of 32,Estadio BBVA,Monterrey
+76,29-Jun-26,13:00,12:00,Brazil v Japan,Round of 32,NRG Stadium,Houston
+77,30-Jun-26,17:00,17:00,France v Sweden,Round of 32,MetLife Stadium,New York/New Jersey
+78,30-Jun-26,13:00,12:00,Ivory Coast v Norway,Round of 32,AT&T Stadium,Dallas
+79,30-Jun-26,21:00,19:00,Mexico v Ecuador,Round of 32,Estadio Azteca,Mexico City
+80,1-Jul-26,12:00,12:00,England v DR Congo,Round of 32,Mercedes-Benz Stadium,Atlanta
+81,1-Jul-26,20:00,17:00,USA v Bosnia and Herzegovina,Round of 32,Levi's Stadium,San Francisco Bay Area
+82,1-Jul-26,16:00,13:00,Belgium v Senegal,Round of 32,Lumen Field,Seattle
+83,2-Jul-26,19:00,19:00,Portugal v Croatia,Round of 32,BMO Field,Toronto
+84,2-Jul-26,15:00,12:00,Spain v Austria,Round of 32,SoFi Stadium,Los Angeles
+85,2-Jul-26,23:00,20:00,Switzerland v Algeria,Round of 32,BC Place,Vancouver
+86,3-Jul-26,18:00,18:00,Argentina v Cape Verde,Round of 32,Hard Rock Stadium,Miami
+87,3-Jul-26,21:30,20:30,Colombia v Ghana,Round of 32,Arrowhead Stadium,Kansas City
+88,3-Jul-26,14:00,13:00,Australia v Egypt,Round of 32,AT&T Stadium,Dallas
+89,4-Jul-26,17:00,17:00,Paraguay v France,Round of 16,Lincoln Financial Field,Philadelphia
+90,4-Jul-26,13:00,12:00,Canada v Morocco,Round of 16,NRG Stadium,Houston
+91,5-Jul-26,16:00,16:00,Brazil v Norway,Round of 16,MetLife Stadium,New York/New Jersey
+92,5-Jul-26,21:00,19:00,Mexico v England,Round of 16,Estadio Azteca,Mexico City
+93,6-Jul-26,15:00,14:00,Portugal v Spain,Round of 16,AT&T Stadium,Dallas
+94,6-Jul-26,20:00,17:00,USA v Belgium,Round of 16,Lumen Field,Seattle
+95,7-Jul-26,12:00,12:00,Argentina v Egypt,Round of 16,Mercedes-Benz Stadium,Atlanta
+96,7-Jul-26,16:00,13:00,Switzerland v Colombia,Round of 16,BC Place,Vancouver
+97,9-Jul-26,16:00,16:00,France v Morocco,Quarter-finals,Gillette Stadium,Boston
+98,10-Jul-26,15:00,12:00,Spain v Belgium,Quarter-finals,SoFi Stadium,Los Angeles
+99,11-Jul-26,17:00,17:00,Norway v England,Quarter-finals,Hard Rock Stadium,Miami
+100,11-Jul-26,21:00,20:00,Argentina v Switzerland,Quarter-finals,Arrowhead Stadium,Kansas City
+101,14-Jul-26,15:00,14:00,France v Spain,Semi-finals,AT&T Stadium,Dallas
+102,15-Jul-26,15:00,15:00,England v Argentina,Semi-finals,Mercedes-Benz Stadium,Atlanta
+103,18-Jul-26,17:00,17:00,France v England,Third Place,Hard Rock Stadium,Miami
+104,19-Jul-26,15:00,15:00,Spain v Argentina,Final,MetLife Stadium,New York/New Jersey
