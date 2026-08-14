@@ -15,6 +15,10 @@ came first and which builds on which.
   `01-design-research/`'s one open design question into a single buildable concept, Access Record:
   eight gate deliverables and a ranked idea pool of thirty-two, each traceable to a decision. Not a
   validated concept — see its own README for what it can and cannot establish.
+- [`03-ui-prototyping/`](03-ui-prototyping/README.md) — a nine-gate specification pass that turns
+  `02-ideation/`'s concept into a buildable interface: benchmarking, information architecture, UI
+  design decisions, tasks and scenarios, screen specifications, a data model, and a build brief for
+  Run 4B. Specification only, no code — see its own README for what it can and cannot establish.
 
 **From now on, every new UX dossier lands here** as the next numbered folder, rather than as its
 own top-level directory at repo root.
