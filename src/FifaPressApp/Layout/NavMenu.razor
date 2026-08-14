@@ -9,10 +9,22 @@
 </div>
 
 <div id="nav-menu" class="@NavMenuCssClass nav-scrollable">
+    @* Three top-level destinations, in this order. Sign in is deliberately not
+       among them: it is a door, not a section, and it gates nothing. *@
     <nav class="nav flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                Home
+                My Access
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="matches">
+                Matches
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="help">
+                Help
             </NavLink>
         </div>
     </nav>

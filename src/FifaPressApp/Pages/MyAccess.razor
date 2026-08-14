@@ -1,0 +1,298 @@
+@* My Access — the primary surface, and the app's front door.
+   ------------------------------------------------------------------------
+   Answers "what do I hold, what changed, and what can I do" without a tap and
+   without a network. The match list used to live at "/" and has been demoted to
+   /matches: landing on fixtures would restate the app this repo already had,
+   and no fixture screen can answer what changed about a person's own access.
+
+   THE LOADING RULE IS THE POINT. The provider resolves reads from local state
+   first, so the headline below is already in hand when this component first
+   renders — there is no await in front of it and no spinner over it. Someone
+   standing at a barrier with no signal must never wait on a network to see what
+   they already had. The schedule, which does need fetching, is loaded
+   afterwards and only enriches labels that are already on screen.
+
+   THE STALE ROW IS THE DELIVERABLE. Every other state here degrades politely.
+   That one, done wrong, actively misleads: a confident headline, a walk to a
+   barrier, a refusal — discovery-by-failure with the app's endorsement on it.
+   So StaleIndicator renders always, never only when something is old. *@
+
+@page "/"
+@inject IAccessDataProvider Access
+
+<PageTitle>My access</PageTitle>
+
+<h1>My access</h1>
+
+@if (loadFailed && record is null)
+{
+    @* Error — fetch failed, no cache. A dead end with no way out is not an
+       acceptable end state, so this routes somewhere a person can act. *@
+    <div class="my-access__error" role="alert">
+        <h2>No access state is available offline</h2>
+        <p>
+            Your record could not be loaded and nothing is stored on this device
+            yet, so this app cannot tell you what you currently hold.
+        </p>
+        <p>
+            Do not rely on this screen at a barrier. Take your credential to the
+            accreditation desk and ask them to read your current state from
+            their own system.
+        </p>
+        <a class="btn btn-primary" href="help">What to do next</a>
+    </div>
+}
+else if (record is null)
+{
+    @* Empty — no record. Deliberately not styled like an empty change list:
+       "we have no record of you" and "nothing has changed" are different
+       facts, and a person who confuses them will wait for a notification that
+       is never coming. *@
+    <div class="my-access__empty">
+        <h2>No accreditation record yet</h2>
+        <p>
+            Nothing has been issued against this credential number. If you have
+            applied, your application is still with the accreditation team and
+            has not reached a decision — that stage has no updates to show, and
+            this screen will fill in once it does.
+        </p>
+        <p><a href="help">What this service does and does not cover</a></p>
+    </div>
+}
+else
+{
+    @* 1. The headline, straight from cache. *@
+    <AccessCard Accreditation="record">
+        <MatchAccess>
+            @if (matchAccess.Count == 0)
+            {
+                <p>No match access has been requested or granted yet.</p>
+            }
+            else
+            {
+                <ul class="my-access__matches">
+                    @foreach (var line in matchAccess)
+                    {
+                        <li @key="line.MatchNumber">
+                            <span class="my-access__match-label">@line.Label</span>
+                            <span class="my-access__match-status my-access__match-status--@line.Status.ToString().ToLowerInvariant()">
+                                @StatusWord(line.Status)
+                            </span>
+                        </li>
+                    }
+                </ul>
+            }
+        </MatchAccess>
+    </AccessCard>
+
+    @* 2. Staleness. Always, not only when old. *@
+    <StaleIndicator LastSyncedUtc="lastSyncedUtc"
+                    AsOfUtc="Access.AsOfUtc"
+                    Subject="your access" />
+
+    @if (loadFailed)
+    {
+        @* Error — fetch failed, cache present. Showing cached data as though
+           the refresh had succeeded is the quiet lie this whole app exists to
+           stop, so the failure is stated rather than swallowed. *@
+        <p class="my-access__refresh-failed" role="alert">
+            The last attempt to refresh this failed. What you see above is the
+            state stored on this device, at the time shown.
+        </p>
+    }
+
+    @* 3 and 4. Changes, newest-effective-first. A change that supersedes an
+       earlier one carries that earlier one inside it rather than leaving it
+       loose in the list — which is what makes it read as a change and not just
+       as two unrelated statements. *@
+    <h2 class="my-access__changes-heading">What changed</h2>
+
+    @if (visibleChanges.Count == 0)
+    {
+        <p class="my-access__no-changes">
+            No changes since
+            <time datetime="@lastSyncedUtc.ToString("o")">@lastSyncedUtc.ToString("d MMMM yyyy, HH:mm")</time> UTC.
+            Silence here means nothing has moved, not that nothing has been checked.
+        </p>
+    }
+    else
+    {
+        @foreach (var change in visibleChanges)
+        {
+            <ChangeRow @key="change.ChangeId"
+                       Change="change"
+                       Superseded="@Superseded(change)"
+                       DependsOnFixture="@DependsOnFixture(change)" />
+        }
+    }
+
+    @* 5. Identity and track — stable, secondary, and never competing with the
+       headline. *@
+    <section class="my-access__identity">
+        <h2>Your credential</h2>
+        <dl>
+            <dt>Name</dt>
+            <dd>@record.HolderName</dd>
+            <dt>Outlet</dt>
+            <dd>@record.Outlet</dd>
+            <dt>Credential number</dt>
+            <dd>@record.CredentialId</dd>
+            <dt>Track</dt>
+            <dd>@TrackName(record.Track.TrackId)</dd>
+        </dl>
+        <p class="my-access__mocked">
+            Simulated holder details. No credential store exists in this version.
+        </p>
+    </section>
+
+    @* 6. Help, always reachable. *@
+    <p class="my-access__help-link">
+        <a href="help">What this service does not do, and who to contact</a>
+    </p>
+}
+
+@code {
+    private Accreditation? record;
+    private IReadOnlyList<Change> allChanges = [];
+    private List<Change> visibleChanges = [];
+    private List<MatchAccessLine> matchAccess = [];
+    private Dictionary<string, Change> byId = [];
+    private Dictionary<int, Fixture> fixtures = [];
+    private DateTime lastSyncedUtc;
+    private bool loadFailed;
+
+    /// <summary>One line in the per-fixture block inside the headline.</summary>
+    private sealed record MatchAccessLine(int MatchNumber, string Label, MatchAccessStatus Status);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Both of these resolve from local state and complete without yielding,
+        // so the first render already has the headline. Nothing below blocks it.
+        try
+        {
+            var accreditation = await Access.GetAccreditationAsync(MockAccessDataProvider.DemoCredentialId);
+            record = accreditation.Value;
+            lastSyncedUtc = accreditation.LastSyncedUtc;
+
+            var changes = await Access.GetChangesAsync(MockAccessDataProvider.DemoCredentialId);
+            allChanges = changes.Value;
+
+            Rebuild();
+        }
+        catch (Exception)
+        {
+            loadFailed = true;
+        }
+
+        // The schedule needs fetching, so it happens after the headline is
+        // already on screen. It only replaces "Match 98" with the round, venue
+        // and date — nothing here is waiting on it.
+        await LoadFixtureLabelsAsync();
+    }
+
+    private void Rebuild()
+    {
+        byId = allChanges.ToDictionary(change => change.ChangeId, StringComparer.Ordinal);
+
+        var superseded = allChanges
+            .Where(change => change.SupersedesChangeId is not null)
+            .Select(change => change.SupersedesChangeId!)
+            .ToHashSet(StringComparer.Ordinal);
+
+        visibleChanges = allChanges.Where(change => !superseded.Contains(change.ChangeId)).ToList();
+
+        matchAccess = visibleChanges
+            .Where(change => change.AffectsMatchNumber is not null)
+            .Select(change => change.AffectsMatchNumber!.Value)
+            .Distinct()
+            .OrderBy(number => number)
+            .Select(number => new MatchAccessLine(number, LabelFor(number), StatusFor(number)))
+            .ToList();
+    }
+
+    private async Task LoadFixtureLabelsAsync()
+    {
+        foreach (var number in matchAccess.Select(line => line.MatchNumber)
+                     .Concat(allChanges.Where(c => c.DependsOnMatchNumber is not null)
+                         .Select(c => c.DependsOnMatchNumber!.Value))
+                     .Distinct()
+                     .ToList())
+        {
+            try
+            {
+                var fixture = (await Access.GetFixtureAsync(number)).Value;
+                if (fixture is not null)
+                {
+                    fixtures[number] = fixture;
+                }
+            }
+            catch (Exception)
+            {
+                // A label that will not load leaves the match number showing,
+                // which is still a true statement about the person's access.
+            }
+        }
+
+        if (record is not null)
+        {
+            Rebuild();
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Whatever the provider handed back. A fixture that has not been played
+    /// arrives with no team names on it, so this renders the round and venue
+    /// instead without needing to know that is why.
+    /// </summary>
+    private string LabelFor(int matchNumber) =>
+        fixtures.TryGetValue(matchNumber, out var fixture)
+            ? $"Match {matchNumber} — {fixture.DisplayLabel}, {fixture.City}"
+            : $"Match {matchNumber}";
+
+    private MatchAccessStatus StatusFor(int matchNumber)
+    {
+        var latest = visibleChanges
+            .Where(change => change.AffectsMatchNumber == matchNumber)
+            .OrderByDescending(change => change.EffectiveUtc)
+            .FirstOrDefault();
+
+        return latest?.Kind switch
+        {
+            ChangeKind.MatchAccessGranted => MatchAccessStatus.Granted,
+            ChangeKind.MatchAccessRevoked => MatchAccessStatus.Revoked,
+            ChangeKind.RequestDecided => MatchAccessStatus.Requested,
+            _ => MatchAccessStatus.NotRequested,
+        };
+    }
+
+    private Change? Superseded(Change change) =>
+        change.SupersedesChangeId is not null && byId.TryGetValue(change.SupersedesChangeId, out var earlier)
+            ? earlier
+            : null;
+
+    private Fixture? DependsOnFixture(Change change) =>
+        change.DependsOnMatchNumber is int number && fixtures.TryGetValue(number, out var fixture)
+            ? fixture
+            : null;
+
+    /// <summary>
+    /// A revoked-but-conditional entry is not yet revoked, and saying so
+    /// plainly here matters more than the word being short.
+    /// </summary>
+    private static string StatusWord(MatchAccessStatus status) => status switch
+    {
+        MatchAccessStatus.Granted => "Access granted",
+        MatchAccessStatus.Revoked => "Access withdrawn",
+        MatchAccessStatus.Requested => "Requested, not yet decided",
+        _ => "Not requested",
+    };
+
+    private static string TrackName(TrackId track) => track switch
+    {
+        TrackId.MemberAssociationQuota => "Member association quota",
+        TrackId.RightsHolder => "Rights holder",
+        TrackId.Freelance => "Freelance",
+        _ => "Unknown",
+    };
+}
