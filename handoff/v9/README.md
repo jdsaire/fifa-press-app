@@ -1,0 +1,8 @@
+# v9 — Access Record Frontend Vertical Slice
+
+Builds the Access Record concept as a working frontend vertical slice in Blazor WebAssembly, entirely from the dossier committed at `ux-ui/03-ui-prototyping/` in v8. Four new entities, a service interface with one in-memory implementation, six pages, six components, and a token-based dual-theme stylesheet replace what had been an event-registration demo. Explicitly not a backend: no API, no database, no authentication — those belong to the next run.
+
+The highest-risk item was containing the published schedule, which is a record of a *completed* tournament: every knockout row names two real teams, so a naive read would let the app see results before they happen. Containment is structural — the importer never attaches team names to a fixture, and the provider attaches them in exactly one method that refuses to do so for a match that has not kicked off.
+
+- [`CC-PLAN-v9.md`](CC-PLAN-v9.md) — the plan approved before this run started: preflight findings against live HEAD, the CSV parse hazards found by reading all 104 rows, the link-integrity baseline, the commit sequence, the entity and interface definitions, and the withholding verification that was run before any component was written.
+- [`Completion-Report-v9.md`](Completion-Report-v9.md) — what actually happened: commit list with SHAs, the full `07_BUILD-BRIEF.md` §3 acceptance checklist reported item by item across all eight subsections, the link-integrity sweep at all three measurement points, six authorized deviations with reasons, thirteen decisions resolved autonomously, and open items carried forward.
