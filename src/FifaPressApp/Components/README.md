@@ -12,4 +12,4 @@ Holds pieces of the app meant to be reused across more than one screen — as op
 
 A component here has no web address of its own and can't be visited directly; that one-line difference is the whole reason `Pages/` and `Components/` are separate folders.
 
-For how `EventCard` works — its fields, and how editing one updates the underlying data automatically — see [`learning-mode/01-Building-the-Foundation.md`](../../../learning-mode/01-Building-the-Foundation.md#meet-the-building-block-the-eventcard-component).
+For how `EventCard` works — its fields, and how editing one updates the underlying data automatically — see [`learning-mode/01-Building-the-Foundation.md`](../../../learning-mode/01-architecture-foundation/01-Building-the-Foundation.md#meet-the-building-block-the-eventcard-component).

@@ -15,4 +15,4 @@ Holds the plain C# classes that define the *shape* of the app's data — what a 
 
 Keeping these separate from `Pages/` and `Components/` means the *rules* about what a fixture or a change looks like live in exactly one place each, instead of being scattered across every screen that happens to touch that data.
 
-For where this data is used, see [`learning-mode/01-Building-the-Foundation.md`](../../../learning-mode/01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data) (the earlier mock data) and [`learning-mode/03-Adding-Signups-and-Headcounts.md`](../../../learning-mode/03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input) (the request form).
+For where this data is used, see [`learning-mode/01-Building-the-Foundation.md`](../../../learning-mode/01-architecture-foundation/01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data) (the earlier mock data) and [`learning-mode/03-Adding-Signups-and-Headcounts.md`](../../../learning-mode/01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#the-registration-form-and-how-it-refuses-bad-input) (the request form).

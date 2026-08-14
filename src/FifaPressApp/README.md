@@ -15,4 +15,4 @@ A media-accreditation companion: it shows a journalist what their tournament acc
 
 The match schedule in `wwwroot/data/` is real published data. Everything else — the credential, the holder, and every logged change — is simulated, and the app says so on screen wherever a reader might otherwise take it for a live connection.
 
-For the concepts behind these files — what "Blazor WebAssembly" actually means, what a `.csproj` is for — see [`learning-mode/01-Building-the-Foundation.md`](../../learning-mode/01-Building-the-Foundation.md) and [`learning-mode/Glossary.md`](../../learning-mode/Glossary.md#csproj).
+For the concepts behind these files — what "Blazor WebAssembly" actually means, what a `.csproj` is for — see [`learning-mode/01-Building-the-Foundation.md`](../../learning-mode/01-architecture-foundation/01-Building-the-Foundation.md) and [`learning-mode/Glossary.md`](../../learning-mode/Glossary.md#csproj).

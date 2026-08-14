@@ -15,4 +15,4 @@ Holds the app's shared, ongoing memory — plain C# classes that aren't tied to 
 
 Both are kept rather than deleted. The count they backed is no longer displayed anywhere, but removing a display element and deleting the working code behind it are two different decisions, and only the first one has been taken. Neither is used to record access any more: access moves only by writing a change through the provider above, and having a second way to change it would defeat the point of keeping a record at all.
 
-For why keeping the two trackers separate mattered enough to be a deliberate choice, see [`learning-mode/03-Adding-Signups-and-Headcounts.md`](../../../learning-mode/03-Adding-Signups-and-Headcounts.md#why-keeping-them-separate-was-a-deliberate-choice).
+For why keeping the two trackers separate mattered enough to be a deliberate choice, see [`learning-mode/03-Adding-Signups-and-Headcounts.md`](../../../learning-mode/01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#why-keeping-them-separate-was-a-deliberate-choice).
