@@ -1,0 +1,71 @@
+.detail__kickoff {
+    margin-bottom: var(--space-2);
+}
+
+.detail__unplayed,
+.detail__loading {
+    color: var(--color-stale-text);
+    font-size: var(--font-size-small);
+}
+
+.detail__error {
+    color: var(--color-danger);
+}
+
+.detail__access,
+.detail__dependency,
+.detail__gate {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-stale-text);
+}
+
+.detail__access h2,
+.detail__dependency h2,
+.detail__gate h2 {
+    font-size: var(--font-size-heading-3);
+    margin-bottom: var(--space-2);
+}
+
+.detail__status {
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+}
+
+.detail__status--granted {
+    color: var(--color-success);
+}
+
+.detail__status--revoked {
+    color: var(--color-danger);
+}
+
+.detail__gate-agree {
+    color: var(--color-success);
+}
+
+/* Neutral, not red. A disagreement is not the holder's error and not a
+   refusal — it is two systems saying different things, and colouring it as a
+   failure would tell the reader which side lost. */
+.detail__gate-disagree {
+    border: 1px solid var(--color-stale-text);
+    border-left: 4px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+}
+
+.detail__gate-disagree dt {
+    font-size: var(--font-size-small);
+    font-weight: 700;
+    color: var(--color-stale-text);
+}
+
+.detail__gate-disagree dd {
+    margin-bottom: var(--space-2);
+}
+
+.detail__mocked {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-top: var(--space-2);
+}

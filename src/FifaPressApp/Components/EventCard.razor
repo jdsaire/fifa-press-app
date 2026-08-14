@@ -37,7 +37,10 @@
             <h3>@EventName</h3>
             <p class="mb-1"><time datetime="@EventDate.ToString("yyyy-MM-dd")">@EventDate.ToString("MMMM d, yyyy")</time></p>
             <p class="mb-2">@Location</p>
-            <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => isEditing = true">Edit</button>
+            @if (AllowEdit)
+            {
+                <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => isEditing = true">Edit</button>
+            }
         }
     </div>
 </div>
@@ -71,6 +74,16 @@
     // binding above remains demonstrable.
     [Parameter]
     public bool ReadOnly { get; set; } = true;
+
+    // Whether the "Edit" toggle is offered at all. Defaults to true, so the
+    // card behaves exactly as it always has for anything that does not opt out.
+    //
+    // The match surfaces opt out. A fixture is not the reader's to change, and
+    // an edit box over a fixture whose teams are deliberately withheld would
+    // invite someone to type in the very names the data layer refuses to hand
+    // out — which would be a strange way to undo that rule from the UI side.
+    [Parameter]
+    public bool AllowEdit { get; set; } = true;
 
     private bool isEditing;
     private bool hasInitializedEditingState;

@@ -1,79 +1,153 @@
-@* @page marks this file as reachable at a web address rather than just being a
-   reusable piece other files include. This screen used to be the home route.
-   It is now /matches: a fixture list is how you get to a match, not what this
-   app is about, and the front door belongs to the access record. *@
+@* Matches — a supporting surface, and honest about being one.
+   ------------------------------------------------------------------------
+   No task in this concept ends here. It exists because it is the only route to
+   a match's detail page, which two tasks do need. A fixture list is navigation
+   infrastructure, not the thing this app is about, which is why it moved off
+   the front door.
+
+   Note what is deliberately absent: no access status, no request count. Access
+   belongs to the person and lives on My Access; scattering it across as many
+   screens as there are fixtures is precisely how the old app made "what changed
+   about my access" unanswerable. A count of other people's requests tells the
+   reader nothing about their own entitlement and implies a competition they
+   cannot act on.
+
+   Fixtures whose kickoff has not passed arrive here with no team names on
+   them — the data layer withholds them — so this page renders whatever label it
+   is handed without needing to know why. *@
+
 @page "/matches"
-@using FifaPressApp.Models
-@using FifaPressApp.Services
-@inject SessionTracker Session
-@inject AttendanceTracker Attendance
+@inject IAccessDataProvider Access
 
-<PageTitle>Upcoming Events</PageTitle>
+<PageTitle>Matches</PageTitle>
 
-<h1>Upcoming Events</h1>
+<h1>Matches</h1>
 
-<input type="search" class="form-control mb-3" placeholder="Search by name or location"
-       value="@searchTerm" @oninput="OnSearchInput" aria-label="Search events by name or location" />
-
-@if (FilteredEvents.Count == 0)
+@if (loadFailed)
 {
-    <p class="text-muted">@EmptyStateMessage</p>
+    <div class="matches__error" role="alert">
+        <p>The match schedule could not be loaded, so this list is empty rather than complete.</p>
+        <button type="button" class="btn btn-primary" @onclick="ReloadAsync">Try again</button>
+    </div>
 }
 else
 {
-    @foreach (var ev in PagedEvents)
+    <StaleIndicator LastSyncedUtc="lastSyncedUtc"
+                    AsOfUtc="Access.AsOfUtc"
+                    Subject="this schedule"
+                    StaleAfter="TimeSpan.FromHours(24)" />
+
+    <input type="search" class="form-control mb-3" placeholder="Search by team, venue or city"
+           value="@searchTerm" @oninput="OnSearchInput"
+           aria-label="Search matches by team, venue or city" />
+
+    @if (!loaded)
     {
-        @* @key="ev.Id" tells Blazor to match each card up by the event's own ID
-           instead of by position in the list, so a card that hasn't changed
-           isn't needlessly redrawn just because the list around it shifted. *@
-        <div class="event-list-item mb-4" @key="ev.Id">
-            <EventCard @bind-EventName="ev.Name" @bind-EventDate="ev.Date" @bind-Location="ev.Location" ReadOnly="true" />
-            <p class="text-muted small mb-2">@FormatAttendeeCount(Attendance.GetAttendeeCount(ev.Id))</p>
-            @if (Session.IsRegistered(ev.Id))
+        <p class="matches__loading">Loading the schedule…</p>
+    }
+    else if (FilteredFixtures.Count == 0)
+    {
+        <p class="matches__empty">@EmptyStateMessage</p>
+    }
+    else
+    {
+        @* Bootstrap's existing grid, at the one breakpoint this app already
+           has. Fixtures have no inherent reading order between them, so a
+           multi-column layout costs nothing here — unlike the access record,
+           which is sequential and stays a single column. *@
+        <div class="row">
+            @foreach (var fixture in PagedFixtures)
             {
-                <span class="badge bg-success me-2">Registered</span>
+                <div class="col-12 col-md-6" @key="fixture.MatchNumber">
+                    <div class="matches__item">
+                        <EventCard EventName="@fixture.DisplayLabel"
+                                   EventDate="fixture.KickoffLocal"
+                                   Location="@($"{fixture.Venue}, {fixture.City}")"
+                                   ReadOnly="true"
+                                   AllowEdit="false" />
+                        <p class="matches__meta">
+                            @fixture.PhaseLabel ·
+                            <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("HH:mm")</time>
+                            @fixture.TimeZoneLabel
+                        </p>
+                        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{fixture.MatchNumber}")">View details</NavLink>
+                        <NavLink class="btn btn-primary btn-sm" href="@($"request/{fixture.MatchNumber}")">Request access</NavLink>
+                    </div>
+                </div>
             }
-            <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{ev.Id}")">View Details</NavLink>
-            <NavLink class="btn btn-primary btn-sm" href="@($"register/{ev.Id}")">Register</NavLink>
         </div>
     }
-}
 
-@if (TotalPages > 1)
-{
-    @* Numbered pages, not Prev/Next — the dataset is small enough (at most 5
-       pages at 10/page) that every page number can just be shown at once. *@
-    <nav aria-label="Event list pages" class="mt-3">
-        @for (var i = 1; i <= TotalPages; i++)
-        {
-            var pageNumber = i;
-            <button type="button"
-                    class="btn btn-sm me-1 @(pageNumber == currentPage ? "btn-primary" : "btn-outline-primary")"
-                    aria-current="@(pageNumber == currentPage ? "page" : null)"
-                    @onclick="() => currentPage = pageNumber">
-                @pageNumber
-            </button>
-        }
-    </nav>
+    @if (TotalPages > 1)
+    {
+        <nav aria-label="Match list pages" class="mt-3">
+            @for (var i = 1; i <= TotalPages; i++)
+            {
+                var pageNumber = i;
+                <button type="button"
+                        class="btn btn-sm me-1 mb-1 @(pageNumber == currentPage ? "btn-primary" : "btn-outline-primary")"
+                        aria-current="@(pageNumber == currentPage ? "page" : null)"
+                        @onclick="() => currentPage = pageNumber">
+                    @pageNumber
+                </button>
+            }
+        </nav>
+    }
 }
 
 @code {
     private const int PageSize = 10;
-    private readonly List<EventModel> allEvents = MockEventData.GetSampleEvents();
+
+    private IReadOnlyList<Fixture> allFixtures = [];
     private string searchTerm = string.Empty;
     private int currentPage = 1;
+    private DateTime lastSyncedUtc;
+    private bool loaded;
+    private bool loadFailed;
 
-    private List<EventModel> FilteredEvents =>
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            var response = await Access.GetFixturesAsync();
+            allFixtures = response.Value;
+            lastSyncedUtc = response.LastSyncedUtc;
+            loaded = true;
+
+            // An empty schedule is not a tournament with no matches in it; it
+            // is a load that did not work, and saying so is more useful than
+            // rendering a blank list.
+            loadFailed = allFixtures.Count == 0;
+        }
+        catch (Exception)
+        {
+            loadFailed = true;
+            loaded = true;
+        }
+    }
+
+    private async Task ReloadAsync()
+    {
+        loadFailed = false;
+        loaded = false;
+        await LoadAsync();
+    }
+
+    private List<Fixture> FilteredFixtures =>
         string.IsNullOrWhiteSpace(searchTerm)
-            ? allEvents
-            : allEvents.Where(ev =>
-                ev.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                ev.Location.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+            ? allFixtures.ToList()
+            : allFixtures.Where(fixture =>
+                fixture.DisplayLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                fixture.Venue.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                fixture.City.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                fixture.PhaseLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
 
-    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredEvents.Count / (double)PageSize));
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
 
-    private List<EventModel> PagedEvents =>
-        FilteredEvents.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+    private List<Fixture> PagedFixtures =>
+        FilteredFixtures.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
 
     private void OnSearchInput(ChangeEventArgs e)
     {
@@ -81,9 +155,8 @@ else
         currentPage = 1;
     }
 
-    private static string FormatAttendeeCount(int count) =>
-        count == 1 ? "1 person registered" : $"{count} people registered";
-
     private string EmptyStateMessage =>
-        string.IsNullOrWhiteSpace(searchTerm) ? "No events to show." : "No events match your search.";
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? "No matches to show."
+            : "No matches found. Fixtures that have not been played yet do not list their teams, so searching by team name will not find them.";
 }
