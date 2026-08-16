@@ -18,7 +18,9 @@ came first and which builds on which.
 - [`03-ui-prototyping/`](03-ui-prototyping/README.md) — a nine-gate specification pass that turns
   `02-ideation/`'s concept into a buildable interface: benchmarking, information architecture, UI
   design decisions, tasks and scenarios, screen specifications, a data model, and a build brief for
-  Run 4B. Specification only, no code — see its own README for what it can and cannot establish.
+  Run 4B. Specification only, no code — see its own README for what it can and cannot establish. Now
+  also carries a four-file Run 4D design addendum, finalized, closing out open items before Run 4E
+  builds against it.
 
 **From now on, every new UX dossier lands here** as the next numbered folder, rather than as its
 own top-level directory at repo root.
