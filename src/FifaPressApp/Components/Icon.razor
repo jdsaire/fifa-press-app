@@ -1,0 +1,73 @@
+@* A small named set of inline SVG glyphs.
+   ------------------------------------------------------------------------
+   Drawn in this repository rather than pulled from anywhere. No icon font, no
+   icon package, no CDN: the app's dependency list is unchanged by this file,
+   and the shapes below are plain geometry that nobody else owns.
+
+   EVERY ICON HERE IS DECORATIVE, AND THAT IS A RULE RATHER THAN A DEFAULT.
+   Each one sits beside text that already says what it means — a date icon next
+   to the date, a location icon next to the venue. So each is hidden from
+   assistive technology (`aria-hidden`) and taken out of the tab order
+   (`focusable`, which Internet Explorer-era SVG otherwise makes focusable). A
+   screen reader hears the text and nothing extra; nothing on screen loses its
+   words to make room for a picture.
+
+   Colour is inherited, never declared. `currentColor` means each glyph takes
+   whatever colour the text around it already has, so both themes are served by
+   the tokens already in `app.css` and this file introduces no colour of its own
+   — which is what keeps it out of the design work that is still to come. *@
+
+@if (Draw is not null)
+{
+    <svg class="icon"
+         viewBox="0 0 16 16"
+         width="16"
+         height="16"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="1.5"
+         stroke-linecap="round"
+         stroke-linejoin="round"
+         aria-hidden="true"
+         focusable="false">
+        @Draw
+    </svg>
+}
+
+@code {
+    /// <summary>
+    /// Which glyph to draw: <c>date</c>, <c>location</c> or <c>phase</c>.
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    // An unknown name draws nothing at all rather than throwing. A missing
+    // decoration is not worth taking a screen down for, and the text the icon
+    // would have sat beside is still there and still says the same thing.
+    private RenderFragment? Draw => Name?.ToLowerInvariant() switch
+    {
+        // A calendar: a page with a bound across the top and two hangers.
+        "date" => @<g>
+            <rect x="2" y="3.25" width="12" height="10.5" rx="1.5" />
+            <path d="M2 6.75h12" />
+            <path d="M5.5 1.75v2.5" />
+            <path d="M10.5 1.75v2.5" />
+        </g>,
+
+        // A map pin: a teardrop over a hollow centre.
+        "location" => @<g>
+            <path d="M8 14.25s4.75-4.15 4.75-7.75a4.75 4.75 0 1 0-9.5 0c0 3.6 4.75 7.75 4.75 7.75Z" />
+            <circle cx="8" cy="6.5" r="1.75" />
+        </g>,
+
+        // A bracket: two rounds feeding one, which is what a phase is.
+        "phase" => @<g>
+            <path d="M2.25 3.5h3.5v9h-3.5" />
+            <path d="M5.75 8h4" />
+            <path d="M9.75 5.25v5.5" />
+            <path d="M9.75 8h4" />
+        </g>,
+
+        _ => null,
+    };
+}

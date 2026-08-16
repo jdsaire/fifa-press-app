@@ -9,6 +9,7 @@ Holds pieces of the app meant to be reused across more than one screen — as op
 - **`ThemeTrigger.razor`** — the light/dark control, living in its own slim strip above the content. It follows the system setting until someone chooses otherwise, and once they do, that choice sticks and can't be quietly overturned by the system flipping later.
 - **`RequestAccessForm.razor`** — the request form's fields and validation, extracted so the pattern lives in one place: per-field messages tied to their input for screen readers, and element ids made unique per instance so two forms on a page can't collide.
 - **`EventCard.razor`** — the original reusable card, and the pattern the others follow. The match screens reuse it as-is for read-only presentation, opting out of its edit toggle.
+- **`Icon.razor`** — a small set of decorative SVG glyphs (date, location, phase), drawn in this repository rather than pulled from a package. Every one is `aria-hidden` and inherits its colour from the text beside it, so it adds a picture without ever taking a word away or needing its own entry in either theme.
 
 A component here has no web address of its own and can't be visited directly; that one-line difference is the whole reason `Pages/` and `Components/` are separate folders.
 

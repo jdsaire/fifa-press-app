@@ -30,6 +30,7 @@ A "Registered" badge follows you back to the Matches and Match Details pages aft
 - **Framework:** Blazor WebAssembly (client-side, `.NET 10`)
 - **Editor used for development:** Visual Studio Code
 - **AI coding assistant used for development (per assignment requirements):** an AI coding assistant
+- **Tests:** xUnit + bUnit, in [`tests/FifaPressApp.Tests/`](tests/README.md) — run with `dotnet test tests/FifaPressApp.Tests`
 
 ## Documentation
 

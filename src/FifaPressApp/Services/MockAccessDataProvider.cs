@@ -62,6 +62,33 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
     private static readonly DateTime SeededLastSyncedUtc = new(2026, 7, 3, 17, 15, 0, DateTimeKind.Utc);
 
     /// <summary>
+    /// How long the simulated write takes.
+    ///
+    /// <para>
+    /// <b>On the write path only, and that asymmetry is the point.</b> Reads
+    /// resolve from local state and must stay instant — the headline paints on
+    /// the first render with no spinner in front of it, and adding delay to a
+    /// read would take that away. A write is the one thing here that genuinely
+    /// goes somewhere, so it is the one thing worth showing progress for.
+    /// </para>
+    ///
+    /// <para>
+    /// Without this the request form's Submitting state cannot be seen at all:
+    /// an already-completed task lets the caller's continuation run before the
+    /// framework ever renders, so the disabled fields and the "Sending request…"
+    /// label the form already implements never reach the screen.
+    /// </para>
+    ///
+    /// <para>
+    /// A simulation device, with the same standing as <see cref="SimulatedNow"/>
+    /// above. A provider talking to a real service deletes this and gets its
+    /// latency from the network, which is where latency is supposed to come
+    /// from.
+    /// </para>
+    /// </summary>
+    private static readonly TimeSpan SimulatedWriteLatency = TimeSpan.FromMilliseconds(600);
+
+    /// <summary>
     /// The order rounds are played in. Used only to ask "what comes after the
     /// deepest round this team reached", which is how elimination is inferred
     /// without reading a result. Third place is not on the path — losing a
@@ -153,8 +180,15 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
     // --------------------------------------------------------------- writes
 
     /// <inheritdoc />
-    public Task<Change> RequestMatchAccessAsync(string credentialId, int matchNumber)
+    public async Task<Change> RequestMatchAccessAsync(string credentialId, int matchNumber)
     {
+        // The write takes a moment, and the caller's await genuinely yields
+        // here. That is what makes the form's Submitting state reachable: a
+        // render pass now happens between the button press and the navigation,
+        // which is where the disabled fields and the "Sending request…" label
+        // get their chance to appear.
+        await Task.Delay(SimulatedWriteLatency);
+
         // The change is the outcome. There is no separate "it worked" to hand
         // back, and handing back a bare success flag would let access move with
         // nothing written down — the one thing this record exists to stop.
@@ -175,7 +209,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
             affectsMatchNumber: matchNumber);
 
         changes.Add(written);
-        return Task.FromResult(written);
+        return written;
     }
 
     /// <inheritdoc />

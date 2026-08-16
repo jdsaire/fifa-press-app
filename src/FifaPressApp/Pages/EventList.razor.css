@@ -1,3 +1,27 @@
+/* The controls wrap rather than shrink: a select narrow enough to fit beside
+   everything else at 320px is a select whose longest option cannot be read. */
+.matches__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.matches__filter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+
+    /* Wide enough for "Knockout rounds" and "Not yet played" without
+       truncation, and free to grow into whatever room is left. */
+    flex: 1 1 12rem;
+}
+
+.matches__filter label {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+}
+
 .matches__item {
     margin-bottom: var(--space-4);
 }

@@ -28,5 +28,11 @@ Records of each build run against this repo: the plan approved before the work s
   components, and a token-based dual-theme stylesheet. The first run since v3 in which application
   behavior changes substantially — the app stops being an event-registration demo. Frontend only:
   no API, no database, no authentication.
+- [`v10/`](v10/) — the repository's first committed test project (`tests/FifaPressApp.Tests/`,
+  xUnit + bUnit), plus four straight patches with no design dependency: the request-access
+  Submitting state made observable, decorative date/venue/phase iconography on the match surfaces,
+  and group and match-status filters on the match list. Search behaviour is unchanged, proven by
+  tests written before either filter existed. Frontend only, and no `.csproj` reversal reaches the
+  published bundle: every new package lives in the test project alone.
 
 Each version folder has its own README with more detail on what that run covered.

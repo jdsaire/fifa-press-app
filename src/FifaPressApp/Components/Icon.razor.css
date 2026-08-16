@@ -1,0 +1,19 @@
+/* The glyph sits on the text baseline rather than on the line box, so an icon
+   beside a sentence reads as part of it instead of floating above it. */
+.icon {
+    display: inline-block;
+    vertical-align: -0.125em;
+
+    /* Sized in ems, so an icon in the small meta line comes out smaller than
+       one beside body text without either needing its own rule. */
+    width: 1em;
+    height: 1em;
+
+    /* Keeps the glyph off the word it precedes. Margin rather than a space in
+       the markup, which would collapse differently depending on formatting. */
+    margin-right: 0.35em;
+
+    /* Decorative: it must never be what a person is trying to click or read
+       around. */
+    flex-shrink: 0;
+}
