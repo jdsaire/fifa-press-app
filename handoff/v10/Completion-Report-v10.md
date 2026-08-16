@@ -14,7 +14,8 @@ branch `deploy/v10-frontend-course-correction`.
 | 5 | `ce48c8b` | `feat(matches): add group filter to the match list` |
 | 6 | `6d11fc7` | `feat(matches): add match status filter to the match list` |
 | 7 | `e681091` | `docs: document the test project and the new match-list controls` |
-| 8 | *(this commit)* | `docs: archive v10 frontend course correction plan and completion report` |
+| 8 | `aff7419` | `docs: archive v10 frontend course correction plan and completion report` |
+| 9 | *(this commit)* | `docs: correct the v10 archive's link-integrity count` |
 
 **Pull request:** [#7](https://github.com/jdsaire/fifa-press-app/pull/7), opened against `main`,
 left unmerged per push policy.
@@ -65,14 +66,14 @@ heading slug in the target file.
 | Point | Result |
 |---|---|
 | Baseline (task 1, before any change) | 274/275 |
-| After the docs commit, before this archive commit | 280/282 (`handoff/README.md → v10/` fails only because the folder did not exist yet) |
-| **After this archive commit** | **281/282** |
+| After the docs commit (`e681091`), before this archive commit | 280/282 (`handoff/README.md → v10/` fails only because the folder did not exist yet) |
+| **After the archive commit (`aff7419`), the last documentation commit of this run** | **283/284** |
 
-The one persistent failure is `handoff/v6/Completion-Report-v6.md → v5/` — inside a historical
-`handoff/` record this run is forbidden to alter. Named at the baseline and unchanged in count at
-every measurement point. The link total grew from 275 to 282 because this run added seven new
-markdown files (two `tests/` READMEs, this plan, this report, and the archive folder README) each
-carrying their own cross-links.
+The one persistent failure at every measurement point is `handoff/v6/Completion-Report-v6.md → v5/`
+— inside a historical `handoff/` record this run is forbidden to alter. Named at the baseline and
+unchanged in count throughout. The link total grew from 275 to 284 because this run added eight new
+markdown files (two `tests/` READMEs and the three files in this archive folder, plus revisions to
+`handoff/README.md` and the two `src/` folder READMEs) each carrying their own cross-links.
 
 ## Authorized deviations from the plan
 
@@ -97,7 +98,15 @@ carrying their own cross-links.
    commit rather than split across two. The content is correct and complete either way; this is a
    sequencing note, not a content gap.
 
-4. **Component testing was in scope, not the xUnit-only fallback** — confirmed at plan time by
+4. **A ninth commit corrects this report's own link-integrity numbers**, in place of amending the
+   archive commit. The number first written for the post-archive measurement was estimated rather
+   than re-run against the actual committed tree, and came out wrong (`281/282` written versus
+   `283/284` measured). Caught by re-running the same tool used at every other measurement point
+   immediately after the archive commit landed. Fixed as a new commit rather than an amend, per
+   standing git-safety practice; flagged here as the genuine cause to split this run's task 14 into
+   two commits.
+
+5. **Component testing was in scope, not the xUnit-only fallback** — confirmed at plan time by
    building and running bUnit `2.9.0` against `net10.0` before any implementation began. This is
    not a deviation from the plan (the plan's task 1(b) anticipated exactly this branch), but is
    restated here because the prompt's guardrails discuss the fallback at length and a reader
