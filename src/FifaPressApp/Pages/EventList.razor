@@ -135,14 +135,10 @@ else
         await LoadAsync();
     }
 
-    private List<Fixture> FilteredFixtures =>
-        string.IsNullOrWhiteSpace(searchTerm)
-            ? allFixtures.ToList()
-            : allFixtures.Where(fixture =>
-                fixture.DisplayLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                fixture.Venue.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                fixture.City.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                fixture.PhaseLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+    // The predicate itself now lives in FixtureQuery, unchanged. It moved out
+    // so it can be tested without rendering this page — not because anything
+    // about how it matches was reconsidered.
+    private List<Fixture> FilteredFixtures => FixtureQuery.Search(allFixtures, searchTerm);
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
 
