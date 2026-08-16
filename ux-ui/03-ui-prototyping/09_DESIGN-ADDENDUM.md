@@ -1,6 +1,6 @@
 # 09 — Design Addendum
 
-**Status:** proposed, for gate approval. First file of Run 4D, the design addendum dossier.
+**Status:** Final — approved and injected at v11, 16 Aug 2026. First file of Run 4D, the design addendum dossier.
 **Authority:** `P-PROTOTYPE_FIFA_Run4-Scope-PATCH_v1.md` §3 (design authority and provenance limit),
 §2 (R2, R3 — the reversals this file grounds), §5.1–§5.3 context.
 **Relationship to the frozen gate files.** This file does not edit `03_UI-DECISIONS.md`. Every

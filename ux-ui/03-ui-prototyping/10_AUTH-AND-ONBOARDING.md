@@ -1,6 +1,6 @@
 # 10 — Auth and Onboarding
 
-**Status:** proposed, for gate approval. Second file of Run 4D, the design addendum dossier.
+**Status:** Final — approved and injected at v11, 16 Aug 2026. Second file of Run 4D, the design addendum dossier.
 **Authority:** `P-PROTOTYPE_FIFA_Run4-Scope-PATCH_v1.md` §4 (login, onboarding, the public landing
 view; the two-record decision), §2 (R1, R4 — the reversals this file grounds).
 **Relationship to the frozen gate files.** This file does not edit `05_SCREENS.md`. It supersedes
@@ -122,11 +122,11 @@ currently demonstrable only in the abstract because one record exists. `[VERIFIE
 `HasNamedContact: false` → `ImmediateAndForeseeable` · Approved · valid until 19 Jul 2026 · zones
 Media tribune, Mixed zone, Press conference room.
 
-**Naming discrepancy, flagged not resolved.** `05_ARTIFACTS.md` calls the persona **Amina R.**; the
-seeded record calls her **Amina Bello**. Both predate this file, neither is wrong, and the surname
-initial in the research artifact is a persona convention rather than a contradiction. Left as-is —
-renaming a seeded record to match a persona document would edit shipped data to satisfy a cosmetic
-consistency nobody has asked for. Noted so a future reader does not treat it as a defect.
+**Naming difference — settled, intentional, not an open item.** `05_ARTIFACTS.md` calls the persona
+**Amina R.**; the seeded record calls her **Amina Bello**. Both predate this file. The persona
+document's surname initial and the seeded record's full surname are two conventions for the same
+person, not a contradiction — no change to either is being requested. A future reader should not
+treat this as a defect or reopen it.
 
 **Record 2 — Tomás.** New, and every field is derived from `05_ARTIFACTS.md` §1.2 rather than
 invented:

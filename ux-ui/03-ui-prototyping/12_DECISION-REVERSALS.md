@@ -1,6 +1,6 @@
 # 12 — Decision Reversals
 
-**Status:** proposed, for gate approval. Fourth and final file of Run 4D, the design addendum
+**Status:** Final — approved and injected at v11, 16 Aug 2026. Fourth and final file of Run 4D, the design addendum
 dossier.
 **Authority:** `P-PROTOTYPE_FIFA_Run4-Scope-PATCH_v1.md` §2 ("The four decision reversals, stated
 for the record") and §1 resolution table.
@@ -168,12 +168,12 @@ sign-in redesign exists to avoid telling.
 
 ---
 
-## 5. A fifth item, flagged rather than numbered — the `Change` entity's shape
+## 5. R5 — The `Change` entity's shape changes to locale-keyed fields
 
-**Not one of the four reversals the patch enumerates**, and this file does not renumber it as R5.
-Named here because `11_I18N.md` §9 identified it and asked this file to either record it or state
-plainly why it does not qualify — leaving the gap unaddressed would undercut the one file whose job
-is to keep the repo honest about exactly this kind of thing.
+**Formally the fifth reversal, numbered R5.** `11_I18N.md` §9 identified this change and asked this
+file to either record it or state plainly why it does not qualify; on the reasoning below, it
+qualifies — a frozen gate file's specification (`06_DATA-MODEL.md`'s `string` typing) is superseded
+by this patch, with a stated reason, which is the same shape R1–R4 each take.
 
 **What `06_DATA-MODEL.md` specifies, as committed.** The `Change` entity's `whatChanged`, `reason`,
 `nextStep`, and `conditionText` fields are typed as plain `string` — single-language, English
@@ -184,21 +184,22 @@ at render time the way static UI strings can — each field becomes three parall
 locale, authored together at seed time. This is a genuine change to the entity's shape, not a
 rendering-layer addition on top of an unchanged model.
 
-**Why this is not treated as a fifth numbered reversal.** R1–R4 each reverse a *decision* — a
-choice the frozen dossier considered and made, with a stated reason, about how something should
-work. `06_DATA-MODEL.md`'s `string` typing was never a considered-and-rejected-alternative decision
-in the way §3.2's trigger placement or §6.3's exclusion list were; it was simply the correct typing
-for a single-language app, which this app was until this patch. Extending it to a locale-keyed shape
+**Why this is numbered despite being a different shape of change than R1–R4.** R1–R4 each reverse a
+*decision* — a choice the frozen dossier considered and made, with a stated reason, about how
+something should work. `06_DATA-MODEL.md`'s `string` typing was never a considered-and-rejected-
+alternative decision in the way §3.2's trigger placement or §6.3's exclusion list were; it was simply
+the correct typing for a single-language app, which this app was until this patch. In that sense it
 is closer to `03_UI-DECISIONS.md` §3's palette re-derivation (R3, §3 above) than to a considered
 reversal — a value correctly derived under an assumption that has now changed, not a stance that was
-argued for and against.
+argued for and against. It is numbered anyway: R1–R4 are numbered because each changes what a frozen
+gate file specifies, and this does too, regardless of which of the two sub-shapes above the
+underlying change happens to be.
 
-**What this file does instead of numbering it.** Records it here, plainly, as a genuine model change
-this run of the dossier surfaces, so that `4E`'s plan does not present the entity change as a
-newly-discovered implementation necessity when it was in fact anticipated and named in `4D`. Any
-future reader auditing "what did 4D actually change beyond R1–R4" should find it by reading this
-section, not by diffing the entity definition against `06_DATA-MODEL.md` and wondering whether the
-drift was authorized.
+**What this section records.** This is R5, stated here plainly as a genuine model change this run of
+the dossier surfaces, so that `4E`'s plan does not present the entity change as a newly-discovered
+implementation necessity when it was in fact anticipated and named in `4D`. Any future reader
+auditing "what did 4D actually change" should find it here as R5, alongside R1–R4, not by diffing
+the entity definition against `06_DATA-MODEL.md` and wondering whether the drift was authorized.
 
 ---
 
@@ -210,7 +211,7 @@ drift was authorized.
 | R2 | Theme trigger moves into the nav list | `03_UI-DECISIONS.md` §3.2 | `theme.js`'s mechanism; §3.1's persistence rules |
 | R3 | Dark mode's prior discontinuation is itself withdrawn; palette re-derived to `#000000`-anchored | *(intervening decision, not a §3.2 line)* | §3.2's concourse-context justification; §3.3's AA-floor discipline as a practice |
 | R4 | Personal record and its write path require sign-in | `05_SCREENS.md` §6.2, §6.5 | Matches and Help stay public; the simulation notice governs the gate |
-| *(unnumbered)* | `Change`'s four free-text fields become locale-keyed | `06_DATA-MODEL.md` §2.3 (entity typing) | The append-only log, ordering, and supersession mechanism — all locale-independent |
+| R5 | `Change`'s four free-text fields become locale-keyed | `06_DATA-MODEL.md` §2.3 (entity typing) | The append-only log, ordering, and supersession mechanism — all locale-independent |
 
 This table is a navigation aid only. Where it and the prose sections above disagree on any detail,
 the prose sections govern — the table exists so a reader can find the right section quickly, not so
