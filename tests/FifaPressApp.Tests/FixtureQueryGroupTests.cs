@@ -91,8 +91,8 @@ public class FixtureQueryGroupTests
     {
         var all = await RealScheduleAsync();
 
-        var searchOnly = FixtureQuery.Apply(all, "Dallas", FixtureQuery.AllGroups);
-        var both = FixtureQuery.Apply(all, "Dallas", FixtureQuery.KnockoutRounds);
+        var searchOnly = FixtureQuery.Apply(all, "Dallas", FixtureQuery.AllGroups, MatchStatusFilter.All);
+        var both = FixtureQuery.Apply(all, "Dallas", FixtureQuery.KnockoutRounds, MatchStatusFilter.All);
 
         Assert.NotEmpty(both);
         Assert.All(both, fixture =>

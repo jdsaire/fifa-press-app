@@ -3,6 +3,22 @@ using FifaPressApp.Models;
 namespace FifaPressApp.Services;
 
 /// <summary>
+/// Whether the list is narrowed to matches that have been played, to matches
+/// that have not, or to neither.
+/// </summary>
+public enum MatchStatusFilter
+{
+    /// <summary>No narrowing by status.</summary>
+    All,
+
+    /// <summary>Fixtures whose kickoff has passed.</summary>
+    Played,
+
+    /// <summary>Fixtures still to come.</summary>
+    NotYetPlayed,
+}
+
+/// <summary>
 /// How the match list narrows a schedule down.
 ///
 /// <para>
@@ -92,6 +108,25 @@ public static class FixtureQuery
                 fixture.PhaseLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
 
     /// <summary>
+    /// Narrows to played or not-yet-played fixtures.
+    ///
+    /// <para>
+    /// <b>Read from <see cref="Fixture.IsResolved"/> and from nothing else.</b>
+    /// The provider sets that flag against the tournament instant it owns, and
+    /// re-deriving the same answer here by comparing dates would put a second
+    /// definition of "played" in the app — one that could disagree with the
+    /// first, silently, on exactly the fixtures where it matters.
+    /// </para>
+    /// </summary>
+    public static List<Fixture> WithStatus(IEnumerable<Fixture> fixtures, MatchStatusFilter status) =>
+        status switch
+        {
+            MatchStatusFilter.Played => fixtures.Where(fixture => fixture.IsResolved).ToList(),
+            MatchStatusFilter.NotYetPlayed => fixtures.Where(fixture => !fixture.IsResolved).ToList(),
+            _ => fixtures.ToList(),
+        };
+
+    /// <summary>
     /// Every active control applied together.
     ///
     /// <para>
@@ -104,6 +139,7 @@ public static class FixtureQuery
     public static List<Fixture> Apply(
         IEnumerable<Fixture> fixtures,
         string? searchTerm,
-        string? groupSelection) =>
-        InGroup(Search(fixtures, searchTerm), groupSelection);
+        string? groupSelection,
+        MatchStatusFilter status) =>
+        WithStatus(InGroup(Search(fixtures, searchTerm), groupSelection), status);
 }

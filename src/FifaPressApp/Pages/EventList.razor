@@ -61,6 +61,15 @@ else
                 <option value="@FixtureQuery.KnockoutRounds">Knockout rounds</option>
             </select>
         </div>
+
+        <div class="matches__filter">
+            <label for="matches-status">Match status</label>
+            <select id="matches-status" class="form-select" value="@statusFilter" @onchange="OnStatusChanged">
+                <option value="@MatchStatusFilter.All">All matches</option>
+                <option value="@MatchStatusFilter.Played">Played</option>
+                <option value="@MatchStatusFilter.NotYetPlayed">Not yet played</option>
+            </select>
+        </div>
     </div>
 
     @if (!loaded)
@@ -123,6 +132,7 @@ else
     private IReadOnlyList<Fixture> allFixtures = [];
     private string searchTerm = string.Empty;
     private string groupSelection = FixtureQuery.AllGroups;
+    private MatchStatusFilter statusFilter = MatchStatusFilter.All;
     private int currentPage = 1;
     private DateTime lastSyncedUtc;
     private bool loaded;
@@ -167,7 +177,7 @@ else
     // about how it matches was reconsidered. The filters narrow what it
     // returns; they never alter what it matches.
     private List<Fixture> FilteredFixtures =>
-        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection);
+        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter);
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
 
@@ -186,6 +196,14 @@ else
     private void OnGroupChanged(ChangeEventArgs e)
     {
         groupSelection = e.Value?.ToString() ?? FixtureQuery.AllGroups;
+        currentPage = 1;
+    }
+
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        statusFilter = Enum.TryParse<MatchStatusFilter>(e.Value?.ToString(), out var parsed)
+            ? parsed
+            : MatchStatusFilter.All;
         currentPage = 1;
     }
 
@@ -211,6 +229,15 @@ else
             else if (groupSelection != FixtureQuery.AllGroups)
             {
                 active.Add($"group {groupSelection} only");
+            }
+
+            if (statusFilter == MatchStatusFilter.Played)
+            {
+                active.Add("matches already played only");
+            }
+            else if (statusFilter == MatchStatusFilter.NotYetPlayed)
+            {
+                active.Add("matches not yet played only");
             }
 
             return active;
