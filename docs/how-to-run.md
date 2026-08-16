@@ -59,6 +59,14 @@ Application started. Press Ctrl+C to shut down.
 
 That's your cue to open the URL. To stop the app, go back to the terminal and press **Ctrl+C**.
 
+## Running the Tests
+
+The repository's automated test suite lives in [`tests/FifaPressApp.Tests/`](../tests/README.md). With the .NET 10 SDK installed (Path 2 or 3 above), run it from the repository root:
+
+```
+dotnet test tests/FifaPressApp.Tests
+```
+
 ### Troubleshooting
 
 - **"dotnet: command not found"** — the SDK isn't installed, or isn't on your terminal's PATH yet. Close and reopen the terminal after installing, or re-run the `export PATH=...` line from Path 2's step 3.
