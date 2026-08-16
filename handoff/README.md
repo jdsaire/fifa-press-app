@@ -34,5 +34,10 @@ Records of each build run against this repo: the plan approved before the work s
   and group and match-status filters on the match list. Search behaviour is unchanged, proven by
   tests written before either filter existed. Frontend only, and no `.csproj` reversal reaches the
   published bundle: every new package lives in the test project alone.
+- [`v11/`](v11/) — injects the four Run 4D design-addendum files (`09_DESIGN-ADDENDUM.md` through
+  `12_DECISION-REVERSALS.md`) into `ux-ui/03-ui-prototyping/`, byte-identical to how they were
+  authored, then applies targeted patches — once three principal-gated open items were resolved —
+  that flip all four from proposed to Final. Documentation only: no `src/` file and no frozen gate
+  file changed.
 
 Each version folder has its own README with more detail on what that run covered.
