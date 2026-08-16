@@ -24,6 +24,53 @@ namespace FifaPressApp.Services;
 public static class FixtureQuery
 {
     /// <summary>
+    /// The group selection meaning "do not narrow by group". The empty string,
+    /// so it is what a <c>select</c> hands back for an option with no value.
+    /// </summary>
+    public const string AllGroups = "";
+
+    /// <summary>
+    /// The group selection meaning "the rounds that have no group letter".
+    /// Cannot collide with a real selection: group letters are single
+    /// characters, A through L.
+    /// </summary>
+    public const string KnockoutRounds = "knockout";
+
+    /// <summary>
+    /// The group letters actually present in a schedule, in order, derived
+    /// rather than assumed.
+    ///
+    /// <para>
+    /// Not a hardcoded A–L list, deliberately. A hardcoded list is a claim about
+    /// data this function has been handed and can simply read, and it goes wrong
+    /// silently the first time the schedule it describes is not the schedule it
+    /// gets.
+    /// </para>
+    /// </summary>
+    public static List<string> GroupLetters(IEnumerable<Fixture> fixtures) =>
+        fixtures
+            .Select(fixture => fixture.GroupLetter)
+            .Where(letter => letter is not null)
+            .Select(letter => letter!)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+    /// <summary>
+    /// Narrows to one group, or to the knockout rounds, or not at all.
+    /// </summary>
+    public static List<Fixture> InGroup(IEnumerable<Fixture> fixtures, string? groupSelection) =>
+        groupSelection switch
+        {
+            null or AllGroups => fixtures.ToList(),
+
+            KnockoutRounds => fixtures.Where(fixture => fixture.GroupLetter is null).ToList(),
+
+            _ => fixtures.Where(fixture =>
+                string.Equals(fixture.GroupLetter, groupSelection, StringComparison.OrdinalIgnoreCase)).ToList(),
+        };
+
+    /// <summary>
     /// The free-text search, moved here unchanged from the match list.
     ///
     /// <para>
@@ -43,4 +90,20 @@ public static class FixtureQuery
                 fixture.Venue.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 fixture.City.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 fixture.PhaseLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    /// <summary>
+    /// Every active control applied together.
+    ///
+    /// <para>
+    /// The controls compose as AND: each one narrows what the one before it
+    /// left. Search is applied first and unchanged, so adding a filter can only
+    /// ever remove fixtures from a search result — it can never add one search
+    /// would not have found, and it cannot change which fixtures search matches.
+    /// </para>
+    /// </summary>
+    public static List<Fixture> Apply(
+        IEnumerable<Fixture> fixtures,
+        string? searchTerm,
+        string? groupSelection) =>
+        InGroup(Search(fixtures, searchTerm), groupSelection);
 }

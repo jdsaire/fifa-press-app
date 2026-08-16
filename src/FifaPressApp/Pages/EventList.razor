@@ -41,6 +41,28 @@ else
            value="@searchTerm" @oninput="OnSearchInput"
            aria-label="Search matches by team, venue or city" />
 
+    @* THERE IS NO CONFEDERATION FILTER, AND THAT IS DELIBERATE.
+       The schedule this app reads has eight columns — match, date, two clocks,
+       matchup, group/phase, venue, city — and confederation is not among them.
+       Building the filter would mean inventing a team-to-confederation lookup
+       and shipping it as though the schedule had supplied it, which is the same
+       category of mocked data as TimeZoneLabel and a larger one: there are 48
+       teams, and a wrong entry would be invisible. It stays unbuilt until data
+       for it is authorized. *@
+    <div class="matches__filters">
+        <div class="matches__filter">
+            <label for="matches-group">Group</label>
+            <select id="matches-group" class="form-select" value="@groupSelection" @onchange="OnGroupChanged">
+                <option value="@FixtureQuery.AllGroups">All groups</option>
+                @foreach (var letter in GroupLetters)
+                {
+                    <option value="@letter">Group @letter</option>
+                }
+                <option value="@FixtureQuery.KnockoutRounds">Knockout rounds</option>
+            </select>
+        </div>
+    </div>
+
     @if (!loaded)
     {
         <p class="matches__loading">Loading the schedule…</p>
@@ -100,6 +122,7 @@ else
 
     private IReadOnlyList<Fixture> allFixtures = [];
     private string searchTerm = string.Empty;
+    private string groupSelection = FixtureQuery.AllGroups;
     private int currentPage = 1;
     private DateTime lastSyncedUtc;
     private bool loaded;
@@ -135,10 +158,16 @@ else
         await LoadAsync();
     }
 
+    // The options offered are the groups this schedule actually contains, read
+    // from the data on every render rather than written down here.
+    private List<string> GroupLetters => FixtureQuery.GroupLetters(allFixtures);
+
     // The predicate itself now lives in FixtureQuery, unchanged. It moved out
     // so it can be tested without rendering this page — not because anything
-    // about how it matches was reconsidered.
-    private List<Fixture> FilteredFixtures => FixtureQuery.Search(allFixtures, searchTerm);
+    // about how it matches was reconsidered. The filters narrow what it
+    // returns; they never alter what it matches.
+    private List<Fixture> FilteredFixtures =>
+        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection);
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
 
@@ -151,8 +180,65 @@ else
         currentPage = 1;
     }
 
-    private string EmptyStateMessage =>
-        string.IsNullOrWhiteSpace(searchTerm)
-            ? "No matches to show."
-            : "No matches found. Fixtures that have not been played yet do not list their teams, so searching by team name will not find them.";
+    // Every control resets to the first page, for the same reason search always
+    // did: page 4 of a list that now has one page is a blank screen that looks
+    // like a bug.
+    private void OnGroupChanged(ChangeEventArgs e)
+    {
+        groupSelection = e.Value?.ToString() ?? FixtureQuery.AllGroups;
+        currentPage = 1;
+    }
+
+    /// <summary>
+    /// Which controls are currently narrowing the list, named as a reader would
+    /// name them. Used only by the empty state.
+    /// </summary>
+    private List<string> ActiveControls
+    {
+        get
+        {
+            var active = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                active.Add($"a search for \"{searchTerm}\"");
+            }
+
+            if (groupSelection == FixtureQuery.KnockoutRounds)
+            {
+                active.Add("the knockout rounds only");
+            }
+            else if (groupSelection != FixtureQuery.AllGroups)
+            {
+                active.Add($"group {groupSelection} only");
+            }
+
+            return active;
+        }
+    }
+
+    // States what is narrowing the list and stops there. It does not guess why a
+    // result set is empty beyond that — with the one exception below, which is
+    // not a guess but a property of the data the reader cannot see.
+    private string EmptyStateMessage
+    {
+        get
+        {
+            var active = ActiveControls;
+
+            if (active.Count == 0)
+            {
+                return "No matches to show.";
+            }
+
+            var message = $"No matches found. Narrowing this list right now: {string.Join(", ", active)}.";
+
+            // Kept wherever a team-name search could be the cause, because a
+            // reader who typed a team name and got nothing has no other way of
+            // knowing the app is withholding it rather than missing it.
+            return string.IsNullOrWhiteSpace(searchTerm)
+                ? message
+                : message + " Fixtures that have not been played yet do not list their teams, so searching by team name will not find them.";
+        }
+    }
 }
