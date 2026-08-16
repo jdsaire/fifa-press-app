@@ -26,6 +26,21 @@ simulated and what was not.
 | 7 | [`07_BUILD-BRIEF.md`](07_BUILD-BRIEF.md) | Build brief — file-level scope, build order, pass/fail acceptance criteria, and the anti-scope-creep list for Run 4B. |
 | 8 | [`08_LIMITATIONS.md`](08_LIMITATIONS.md) | Methodological disclosure — every scope decision defended, and what this mandate does and does not legitimately support. |
 
+---
+
+## The design addendum, Run 4D
+
+Not a tenth gate — an addendum layered on top of the nine gates above, closing out three items the
+prototyping pass left open before Run 4E builds against it. Injected proposed, then finalized once
+three principal-gated resolutions closed; see each file's own status line.
+
+| # | File | What it delivers |
+|---|---|---|
+| 1 | [`09_DESIGN-ADDENDUM.md`](09_DESIGN-ADDENDUM.md) | Design authority and provenance limit, a black-anchored dark palette re-derivation, the theme trigger's relocation to the nav list, and progressive-disclosure patterns for the change list and Help. |
+| 2 | [`10_AUTH-AND-ONBOARDING.md`](10_AUTH-AND-ONBOARDING.md) | Sign-in becomes a real (simulated) session with two demo records, the public landing view, and what stays reachable without signing in versus what is gated. |
+| 3 | [`11_I18N.md`](11_I18N.md) | The EN/ES/PT string inventory, the seeded-content localization approach, and the language-switch mechanism. |
+| 4 | [`12_DECISION-REVERSALS.md`](12_DECISION-REVERSALS.md) | The formal record of every decision this addendum reverses against the frozen gate files above, with the reasoning for each. |
+
 ## Relationship to its sibling folders
 
 [`../00-initial-evaluation/`](../00-initial-evaluation/) audited the app that already existed in
