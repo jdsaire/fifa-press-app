@@ -49,7 +49,7 @@ else
     <p class="detail__kickoff">
         Kicks off
         <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
-        <strong>@fixture.TimeZoneLabel</strong> · @fixture.PhaseLabel
+        <strong>@fixture.TimeZoneLabel</strong> · <Icon Name="phase" />@fixture.PhaseLabel
     </p>
 
     @if (!fixture.IsResolved)

@@ -34,9 +34,13 @@
         }
         else
         {
+            @* The two icons below are decorative only. Both lines keep every
+               word they had, and the <time> element keeps its machine-readable
+               datetime — the picture is added beside the text, never in place
+               of it. *@
             <h3>@EventName</h3>
-            <p class="mb-1"><time datetime="@EventDate.ToString("yyyy-MM-dd")">@EventDate.ToString("MMMM d, yyyy")</time></p>
-            <p class="mb-2">@Location</p>
+            <p class="mb-1"><Icon Name="date" /><time datetime="@EventDate.ToString("yyyy-MM-dd")">@EventDate.ToString("MMMM d, yyyy")</time></p>
+            <p class="mb-2"><Icon Name="location" />@Location</p>
             @if (AllowEdit)
             {
                 <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => isEditing = true">Edit</button>
