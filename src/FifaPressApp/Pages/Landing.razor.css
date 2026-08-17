@@ -1,0 +1,50 @@
+.landing__lede {
+    font-size: var(--font-size-heading-3);
+    max-width: 42rem;
+}
+
+/* The disclosure is not a footnote and is not styled as one. It reads at body
+   weight, in the flow, where someone deciding what this is will actually meet
+   it. */
+.landing__disclosure {
+    border-left: 3px solid var(--color-stale-text);
+    padding: var(--space-2) var(--space-3);
+    margin: var(--space-4) 0;
+    max-width: 42rem;
+}
+
+/* Equally weighted, per 10 §6.2's third item — same width, same treatment,
+   neither one styled as the primary path. The only difference is that one
+   carries a button because it leads to a form and the other carries links
+   because it leads to reading. */
+.landing__entries {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+@media (min-width: 641px) {
+    .landing__entries {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.landing__entry h2 {
+    font-size: var(--font-size-heading-3);
+}
+
+.landing__public-links {
+    margin-bottom: 0;
+}
+
+.landing__what-you-get {
+    max-width: 42rem;
+}
+
+.landing__what-you-get h2 {
+    font-size: var(--font-size-heading-3);
+}
+
+.landing__what-you-get li {
+    margin-bottom: var(--space-3);
+}

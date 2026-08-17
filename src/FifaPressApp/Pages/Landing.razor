@@ -1,0 +1,101 @@
+@* Landing — the front door, and the only screen with no content of its own.
+   ------------------------------------------------------------------------
+   Two audiences at once: someone evaluating the work, and the journalist the
+   app is built for. It serves the first without pretending not to be a
+   demonstration, which is why the disclosure sits in the second paragraph
+   rather than in a footer.
+
+   NOT A MARKETING PAGE. No feature grid, no testimonials, no invented
+   statistics, no logos. This is the easiest screen in the app to over-design,
+   precisely because it has no real content to defer to — so it states what the
+   app does, that it is simulated, and how to proceed, and then stops.
+
+   The demo credentials are deliberately NOT here. They belong beside the form
+   they are typed into, one click away. A reviewer who lands on a credential
+   dump learns what to type before learning what they are looking at, and
+   publishing them twice would create two places to keep in sync. *@
+
+@page "/"
+@inject NavigationManager Navigation
+@inject SimulatedSessionProvider Session
+
+<PageTitle>FIFA Press App</PageTitle>
+
+<h1>Know what changed about your access, before you're refused</h1>
+
+<p class="landing__lede">
+    A companion for journalists covering the 2026 World Cup. It shows what your
+    accreditation currently permits, what has changed about it, and the reason
+    attached to each change — so you find out from this screen rather than by
+    being turned away at a barrier.
+</p>
+
+<p class="landing__disclosure" role="note">
+    <strong>This is a portfolio demonstration, not a FIFA product.</strong>
+    It is not affiliated with, endorsed by, or connected to FIFA. Every record,
+    holder and decision in it is simulated. The match schedule is real; nothing
+    else is.
+</p>
+
+<div class="landing__entries">
+    <section class="landing__entry">
+        <h2>Sign in with a demo account</h2>
+        <p>
+            Two accounts are published on the sign-in page, in plain text, with
+            the passwords. They open two different holders' records — and the
+            difference between those records is the thing worth seeing.
+        </p>
+        <a class="btn btn-primary" href="signin">Go to sign in</a>
+    </section>
+
+    <section class="landing__entry">
+        <h2>Look around without one</h2>
+        <p>
+            The match schedule and the help page need no account. Help is where
+            the boundary of this service is stated plainly, including what it
+            cannot do for you.
+        </p>
+        <p class="landing__public-links">
+            <a href="matches">Browse the match schedule</a> ·
+            <a href="help">Read what this service does not do</a>
+        </p>
+    </section>
+</div>
+
+<section class="landing__what-you-get">
+    <h2>What a signed-in record shows</h2>
+    <ul>
+        <li>
+            <strong>Every change to your access, newest first</strong> — with
+            what changed, why it changed, and what you can do about it. A change
+            with no reason attached is not something this app will show you,
+            because a change with no reason is what it exists to replace.
+        </li>
+        <li>
+            <strong>Warning before the consequence, where the consequence is
+            foreseeable</strong> — a quarter-final allocation that depends on a
+            fixture nobody has played yet is stated as a condition, naming both
+            outcomes, rather than as a decision already taken.
+        </li>
+        <li>
+            <strong>How old the information is, always</strong> — not only when
+            it is stale. A confident headline over hours-old data is the quiet
+            failure this app is built to prevent.
+        </li>
+    </ul>
+</section>
+
+@code {
+    /// <summary>
+    /// A signed-in visitor has no use for the front door. Redirecting rather
+    /// than rendering a second entry point keeps one answer to "where is my
+    /// record", which is the whole reason the record got a named route.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (Session.IsSignedIn)
+        {
+            Navigation.NavigateTo("record", replace: true);
+        }
+    }
+}

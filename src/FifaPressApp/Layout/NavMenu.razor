@@ -12,8 +12,12 @@
     @* Three top-level destinations, in this order. Sign in is deliberately not
        among them: it is a door, not a section, and it gates nothing. *@
     <nav class="nav flex-column">
+        @* href="record", and no Match override. The empty href this row used to
+           carry needed Match="NavLinkMatch.All" only because an empty prefix
+           matches every address in the app; a real path gets a correct active
+           state from ordinary prefix matching. *@
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link" href="record">
                 My Access
             </NavLink>
         </div>

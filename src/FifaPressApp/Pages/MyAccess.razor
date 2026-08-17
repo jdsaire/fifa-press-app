@@ -1,9 +1,17 @@
-@* My Access — the primary surface, and the app's front door.
+@* My Access — the primary surface for a signed-in holder.
    ------------------------------------------------------------------------
    Answers "what do I hold, what changed, and what can I do" without a tap and
-   without a network. The match list used to live at "/" and has been demoted to
+   without a network. The match list used to live at "/" and was demoted to
    /matches: landing on fixtures would restate the app this repo already had,
    and no fixture screen can answer what changed about a person's own access.
+
+   It now sits at a named route rather than at "/", which is reserved for the
+   public landing view. A "/" that branched on session state would make one
+   component decide which *page* it is, tangling the landing's content into this
+   screen's error and empty states. The named route also fixes the nav's first
+   row: href="" with Match="NavLinkMatch.All" existed only because an empty href
+   prefix-matches every address, and href="record" gets a correct active state
+   from ordinary prefix matching.
 
    THE LOADING RULE IS THE POINT. The provider resolves reads from local state
    first, so the headline below is already in hand when this component first
@@ -17,7 +25,7 @@
    barrier, a refusal — discovery-by-failure with the app's endorsement on it.
    So StaleIndicator renders always, never only when something is old. *@
 
-@page "/"
+@page "/record"
 @inject IAccessDataProvider Access
 
 <PageTitle>My access</PageTitle>
