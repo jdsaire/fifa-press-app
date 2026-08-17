@@ -254,6 +254,7 @@
     "requestForm.emailRequired": "Escreva o e-mail que consta da sua credencial.",
     "requestForm.emailShape": "Isso não parece um endereço de e-mail.",
     "notFound.back": "Voltar ao início",
-    "stale.defaultSubject": "esta informação"
+    "stale.defaultSubject": "esta informação",
+    "changeRow.moreLabel": "Porque mudou e o que pode fazer"
   }
 }

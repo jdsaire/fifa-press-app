@@ -18,6 +18,7 @@
 @page "/request/{Id:int}"
 @inject IAccessDataProvider Access
 @inject SimulatedSessionProvider Session
+@inject ChangeArrivalTracker Arrivals
 @inject NavigationManager Navigation
 @inject LocaleService L
 
@@ -141,7 +142,11 @@ else
             // success flag to check, because the change is the outcome — and a
             // write that could report success without producing one would be
             // exactly the second write path this record forbids.
-            await Access.RequestMatchAccessAsync(credentialId, Id);
+            var written = await Access.RequestMatchAccessAsync(credentialId, Id);
+
+            // The record screen is about to mount fresh and will not otherwise
+            // be able to tell this row from the ones already in the log.
+            Arrivals.Announce(written.ChangeId);
 
             // Straight back to the record, where the change is now the newest
             // entry. What was typed stays in the fields until this navigation

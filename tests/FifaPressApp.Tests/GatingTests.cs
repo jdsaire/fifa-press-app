@@ -25,6 +25,7 @@ public class GatingTests
         var context = new BunitContext();
         context.JSInterop.Mode = JSRuntimeMode.Loose;
         context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new ChangeArrivalTracker());
         context.Services.AddSingleton(session);
         context.Services.AddSingleton<IAccessDataProvider>(TestData.ProviderOverRealSchedule());
         return context.WithLocale();

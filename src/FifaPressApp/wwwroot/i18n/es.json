@@ -254,6 +254,7 @@
     "requestForm.emailRequired": "Escribe el correo que figura en tu acreditación.",
     "requestForm.emailShape": "Eso no parece una dirección de correo.",
     "notFound.back": "Volver al inicio",
-    "stale.defaultSubject": "esta información"
+    "stale.defaultSubject": "esta información",
+    "changeRow.moreLabel": "Por qué cambió y qué puedes hacer"
   }
 }

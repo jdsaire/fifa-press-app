@@ -29,6 +29,7 @@
 @inject IAccessDataProvider Access
 @inject SimulatedSessionProvider Session
 @inject NavigationManager Navigation
+@inject ChangeArrivalTracker Arrivals
 @inject LocaleService L
 
 <PageTitle>@L[Locale, "record.title"]</PageTitle>
@@ -140,7 +141,8 @@ else
             <ChangeRow @key="change.ChangeId"
                        Change="change"
                        Superseded="@Superseded(change)"
-                       DependsOnFixture="@DependsOnFixture(change)" />
+                       DependsOnFixture="@DependsOnFixture(change)"
+                       JustArrived="@(change.ChangeId == arrivedChangeId)" />
         }
     }
 
@@ -183,6 +185,14 @@ else
     private bool loadFailed;
 
     /// <summary>
+    /// The change this person just wrote, if they arrived here from having
+    /// written one. Read once, on the way in: the tracker clears as it
+    /// answers, so a refresh does not replay a confirmation for something
+    /// that happened a while ago.
+    /// </summary>
+    private string? arrivedChangeId;
+
+    /// <summary>
     /// One line in the per-fixture block inside the headline.
     ///
     /// <para>
@@ -198,6 +208,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        arrivedChangeId = Arrivals.Consume();
+
         // Signed out, there is no record to read and nothing below applies. The
         // markup above has already rendered the offer; this moves the person to
         // the screen that explains what signing in here does and does not mean.

@@ -254,6 +254,7 @@
     "requestForm.emailRequired": "Enter the email address on your credential.",
     "requestForm.emailShape": "That does not look like an email address.",
     "notFound.back": "Back to the start",
-    "stale.defaultSubject": "this information"
+    "stale.defaultSubject": "this information",
+    "changeRow.moreLabel": "Why this changed, and what you can do"
   }
 }

@@ -26,6 +26,12 @@ builder.Services.AddSingleton<AttendanceTracker>();
 builder.Services.AddSingleton<DemoAccountStore>();
 builder.Services.AddSingleton<SimulatedSessionProvider>();
 
+// Which change the person just wrote, so the record can mark its arrival.
+// A singleton for the same reason again: submitting a request navigates to a
+// freshly mounted record screen, so the screen that needs to know is not the
+// screen that knows.
+builder.Services.AddSingleton<ChangeArrivalTracker>();
+
 // The three locales, held in one place for the life of the tab. A singleton is
 // what makes a language switch a dictionary lookup rather than a fetch: the
 // dictionaries are already loaded, so changing language does no I/O and cannot

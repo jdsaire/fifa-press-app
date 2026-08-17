@@ -27,6 +27,7 @@ public class LanguageSwitchTests
 
         context.Services.AddSingleton(locale);
         context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new ChangeArrivalTracker());
         context.Services.AddSingleton(session);
         context.Services.AddSingleton<IAccessDataProvider>(TestData.ProviderOverRealSchedule());
 

@@ -34,6 +34,7 @@ public class LocalizedDateTests
 
         context.Services.AddSingleton(locale);
         context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new ChangeArrivalTracker());
         context.Services.AddSingleton(session);
         context.Services.AddSingleton<IAccessDataProvider>(TestData.ProviderOverRealSchedule());
         context.RenderTree.Add<LocaleProvider>();
@@ -213,10 +214,11 @@ public class LocalizedDateTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var markup = context.Render<EventDetails>(parameters => parameters.Add(p => p.Id, 22)).Markup;
+        var page = context.Render<EventDetails>(parameters => parameters.Add(p => p.Id, 22));
+        harness.Locale.Set(locale);
 
-        Assert.DoesNotContain(" PM", markup);
-        Assert.DoesNotContain(" AM", markup);
+        Assert.DoesNotContain(" PM", page.Markup);
+        Assert.DoesNotContain(" AM", page.Markup);
 
         await Task.CompletedTask;
     }
