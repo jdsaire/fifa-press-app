@@ -62,11 +62,23 @@ public class LocaleServiceTests
     [Fact]
     public void NoTranslationIsJustTheEnglishStringCopiedAcross()
     {
-        // Identifiers and the product name are supposed to be identical in all
-        // three; everything else being identical usually means a placeholder
-        // was pasted and never revisited.
+        // Identifiers, proper names and the product name are supposed to be
+        // identical in all three; everything else being identical usually means
+        // a placeholder was pasted and never revisited.
         var locale = LocaleTestData.Loaded();
-        var allowedToMatch = new[] { "app.name", "phase.final" };
+        var allowedToMatch = new[]
+        {
+            "app.name",
+
+            // The same word in all three languages, which is a fact about the
+            // languages rather than a missed translation.
+            "phase.final",
+
+            // The name of a FIFA department. 11 §3's rule sends a name that
+            // identifies a thing rather than describing it to English, and this
+            // is one — translating it would invent a department nobody can find.
+            "help.contact.fifaStrong",
+        };
 
         foreach (var key in locale.Keys(AppLocale.En))
         {

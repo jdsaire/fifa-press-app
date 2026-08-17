@@ -6,107 +6,106 @@
 
    Entirely static, and that is a requirement rather than a convenience. The
    offline path through this app terminates here, so this page has to be
-   readable with no signal at all. Nothing on it fetches anything. *@
+   readable with no signal at all. Nothing on it fetches anything, and that
+   includes the disclosure below — <details> is browser behaviour, so a section
+   opens with no JavaScript, no state, and nothing to load.
+
+   EIGHT SECTIONS AT ONE LEVEL, ALL CLOSED. It used to be four long blocks read
+   top to bottom regardless of which one you came for. The five lifecycle stages
+   are now peers of the other three categories rather than nested inside one of
+   them, which is what makes the page read as a list of answerable questions
+   instead of a single document. Somebody arriving from a specific refusal
+   should not have to scroll past four sections they did not come for.
+
+   NO URL-FRAGMENT AUTO-EXPAND. Opening the relevant section from a link is the
+   obvious next step and it is deliberately not built: 09 §7.3 names it as an
+   extension and explicitly does not authorize it. Raised in the Completion
+   Report rather than assumed here.
+
+   The content inventory is unchanged. The same four categories, the same five
+   stages, the same words — translated, and disclosed rather than stacked. The
+   contact section in particular still says what it said: it is not an appeal
+   channel, and collapsing it changed its visibility, not its framing. *@
 
 @page "/help"
+@inject LocaleService L
 
-<PageTitle>Help</PageTitle>
+<PageTitle>@L[Locale, "help.title"]</PageTitle>
 
-<h1>Help</h1>
+<h1>@L[Locale, "help.title"]</h1>
 
-<p class="help__intro">
-    This app shows what your accreditation currently permits, what has changed
-    about it, and why. It is not the accreditation system itself, and it cannot
-    change any decision that system has taken.
-</p>
+<p class="help__intro">@L[Locale, "help.intro"]</p>
 
-<section class="help__section">
-    <h2>Where you are in the process</h2>
+<p class="help__hint">@L[Locale, "help.hint"]</p>
 
-    <h3>Before you apply</h3>
-    <p>
-        Nothing appears here until an application exists against your credential
-        number. Applications are made through your member association, your
-        broadcaster, or the freelance route — not through this app.
-    </p>
+@* --- Staged guidance, flattened into its five stages ------------------- *@
 
-    <h3>While your application is being assessed</h3>
-    <p>
-        This is the longest silence in the whole process, and this app cannot
-        shorten it. There are no interim stages to report during assessment, so
-        an empty record here means your application has not yet reached a
-        decision — not that it has been overlooked.
-    </p>
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.beforeApply.heading"]</h2></summary>
+    <p>@L[Locale, "help.beforeApply.body"]</p>
+</details>
 
-    <h3>Once a decision is taken</h3>
-    <p>
-        The decision appears as a change, with the reason attached and whatever
-        you can do next. Approval is always stated as approved <em>until</em> a
-        date, because it is never open-ended.
-    </p>
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.beingAssessed.heading"]</h2></summary>
+    <p>@L[Locale, "help.beingAssessed.body"]</p>
+</details>
 
-    <h3>During the tournament</h3>
-    <p>
-        Your access can move after approval — quotas contract, zone lists get
-        revised, and some entitlements depend on results that have not happened
-        yet. Every one of those movements is written here before it takes
-        effect, so you find out by reading rather than by being turned away.
-    </p>
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.decision.heading"]</h2></summary>
+    <p>@((MarkupString)L[Locale, "help.decision.body"])</p>
+</details>
 
-    <h3>On a matchday</h3>
-    <p>
-        The state on this screen is the last one your device managed to fetch,
-        and it always shows its own age. Check that age before you rely on it.
-        If the venue's list disagrees with what you see, this app records the
-        disagreement and points you at a person — it does not settle it.
-    </p>
-</section>
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.tournament.heading"]</h2></summary>
+    <p>@L[Locale, "help.tournament.body"]</p>
+</details>
 
-<section class="help__section">
-    <h2>What this service does not do</h2>
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.matchday.heading"]</h2></summary>
+    <p>@L[Locale, "help.matchday.body"]</p>
+</details>
+
+@* --- What this service does not do ------------------------------------- *@
+
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.notDo.heading"]</h2></summary>
     <ul>
-        <li><strong>Visas and entry permissions.</strong> Nothing here affects your right to enter any host country, and this app does not know your visa status.</li>
-        <li><strong>Vetting outcomes.</strong> Security vetting is carried out elsewhere and its reasoning is not shared with this app.</li>
-        <li><strong>Quota decisions.</strong> How many places your association or broadcaster receives, and who gets them, is decided outside this app entirely.</li>
-        <li><strong>Guaranteed access.</strong> Nothing shown here is a promise. An entitlement recorded today can be changed tomorrow, which is exactly why the record exists.</li>
-        <li><strong>Appeals.</strong> There is no appeal channel in this app, and the section below is not one.</li>
+        <li><strong>@L[Locale, "help.notDo.visasStrong"]</strong> @L[Locale, "help.notDo.visasBody"]</li>
+        <li><strong>@L[Locale, "help.notDo.vettingStrong"]</strong> @L[Locale, "help.notDo.vettingBody"]</li>
+        <li><strong>@L[Locale, "help.notDo.quotaStrong"]</strong> @L[Locale, "help.notDo.quotaBody"]</li>
+        <li><strong>@L[Locale, "help.notDo.guaranteeStrong"]</strong> @L[Locale, "help.notDo.guaranteeBody"]</li>
+        <li><strong>@L[Locale, "help.notDo.appealsStrong"]</strong> @L[Locale, "help.notDo.appealsBody"]</li>
     </ul>
-</section>
+</details>
 
-<section class="help__section">
-    <h2>What will not reach you as a notification</h2>
-    <p>
-        Some changes are written to your record without interrupting you. They
-        are still there to read; they simply do not raise an alert. If they did,
-        the alerts that matter would be buried among them.
-    </p>
-    <ul>
-        <li>Corrections to administrative details that do not affect what you can do.</li>
-        <li>Documents you re-uploaded being accepted.</li>
-        <li>Access being <em>widened</em> — a zone or a match added rather than removed.</li>
-        <li>Your existing state being re-confirmed without changing.</li>
-    </ul>
-    <p>
-        This list is published for one reason: an unexplained silence is
-        indistinguishable from a broken app. If nothing has reached you, you
-        should be able to check here and know why.
-    </p>
-</section>
+@* --- What will not notify you ------------------------------------------ *@
 
-<section class="help__section">
-    <h2>Who to contact</h2>
-    <p>
-        This app does not accept submissions, and sending something here would
-        not reach anyone. Contact the people who already hold your file:
-    </p>
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.notNotify.heading"]</h2></summary>
+    <p>@L[Locale, "help.notNotify.intro"]</p>
     <ul>
-        <li><strong>Your member association or broadcaster media officer</strong> — for anything about quota, allocation, or which of your colleagues holds which place.</li>
-        <li><strong>The accreditation centre in the host city</strong> — for a credential that will not scan, a lost pass, or a disagreement at a barrier.</li>
-        <li><strong>FIFA Event Media Operations</strong> — for a decision you believe was recorded against the wrong person or the wrong match.</li>
+        <li>@L[Locale, "help.notNotify.item1"]</li>
+        <li>@L[Locale, "help.notNotify.item2"]</li>
+        <li>@((MarkupString)L[Locale, "help.notNotify.item3"])</li>
+        <li>@L[Locale, "help.notNotify.item4"]</li>
     </ul>
-    <p class="help__mocked">
-        Contact routes are described here in general terms. This version of the
-        app is a demonstration and carries no live contact details or
-        integrations.
-    </p>
-</section>
+    <p>@L[Locale, "help.notNotify.closing"]</p>
+</details>
+
+@* --- The escalation route, which is not an appeal channel -------------- *@
+
+<details class="help__section">
+    <summary class="help__summary"><h2>@L[Locale, "help.contact.heading"]</h2></summary>
+    <p>@L[Locale, "help.contact.intro"]</p>
+    <ul>
+        <li><strong>@L[Locale, "help.contact.officerStrong"]</strong> @L[Locale, "help.contact.officerBody"]</li>
+        <li><strong>@L[Locale, "help.contact.centreStrong"]</strong> @L[Locale, "help.contact.centreBody"]</li>
+        <li><strong>@L[Locale, "help.contact.fifaStrong"]</strong> @L[Locale, "help.contact.fifaBody"]</li>
+    </ul>
+    <p class="help__mocked">@L[Locale, "help.contact.mocked"]</p>
+</details>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+}

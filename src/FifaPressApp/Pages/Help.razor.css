@@ -1,14 +1,27 @@
 .help__intro {
     font-size: var(--font-size-heading-3);
+    margin-bottom: var(--space-3);
+}
+
+/* Said once, in small print, because it is a fact about the page rather than
+   part of its content: everything is shut, open what you came for. */
+.help__hint {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
     margin-bottom: var(--space-4);
 }
 
 /* Organised by where the person is in the process rather than by topic,
    because the question someone brings to this page is almost always tied to a
    stage: "nothing has happened yet", "I have been approved, now what",
-   "I am at the gate and it will not scan". */
+   "I am at the gate and it will not scan".
+   ------------------------------------------------------------------------
+   Each stage is now its own closed section rather than one heading in a long
+   scroll. The rules below all read from <details>, so the open and closed
+   states are the browser's own — no JavaScript, no state to get wrong, and
+   nothing that could fail to load on the offline path this page terminates. */
 .help__section {
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
     padding-bottom: var(--space-3);
     border-bottom: 1px solid var(--color-stale-text);
 }
@@ -17,15 +30,52 @@
     border-bottom: none;
 }
 
-.help__section h2 {
-    font-size: var(--font-size-heading-1);
-    margin-bottom: var(--space-3);
+/* The heading is the control. Its own font size and weight are unchanged, so
+   the page still reads as a document with headings rather than as a list of
+   buttons — the chevron and the pointer are the only things that say it
+   opens. */
+.help__summary {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    cursor: pointer;
+    list-style: none;
 }
 
-.help__section h3 {
-    font-size: var(--font-size-heading-3);
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-1);
+.help__summary::-webkit-details-marker {
+    display: none;
+}
+
+.help__summary::before {
+    content: "";
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.4rem;
+    border-right: 2px solid var(--color-link);
+    border-bottom: 2px solid var(--color-link);
+    transform: rotate(-45deg);
+    transition: transform 160ms ease-out;
+}
+
+.help__section[open] > .help__summary::before {
+    transform: rotate(45deg);
+}
+
+.help__summary:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-default);
+}
+
+.help__summary h2 {
+    font-size: var(--font-size-heading-1);
+    margin-bottom: 0;
+}
+
+/* Closed, a section is one line; open, its body needs the space back. */
+.help__section[open] > .help__summary {
+    margin-bottom: var(--space-3);
 }
 
 .help__section ul {
@@ -39,4 +89,10 @@
 .help__mocked {
     font-size: var(--font-size-small);
     color: var(--color-stale-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .help__summary::before {
+        transition: none;
+    }
 }
