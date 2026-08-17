@@ -27,7 +27,7 @@ public class GatingTests
         context.Services.AddSingleton(new DemoAccountStore());
         context.Services.AddSingleton(session);
         context.Services.AddSingleton<IAccessDataProvider>(TestData.ProviderOverRealSchedule());
-        return context;
+        return context.WithLocale();
     }
 
     private static SimulatedSessionProvider SignedOut() => new(new DemoAccountStore());

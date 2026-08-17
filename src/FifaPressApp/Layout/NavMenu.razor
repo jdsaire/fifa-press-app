@@ -1,11 +1,15 @@
 @implements IDisposable
 @inject SimulatedSessionProvider Session
+@inject LocaleService L
 @inject NavigationManager Navigation
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">FIFA Press App</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu"
+        @* The product name, never translated: 11 §3's rule is that a name
+           identifying the product stays English, while a name identifying what
+           a person is looking at translates. *@
+        <a class="navbar-brand" href="">@L[Locale, "app.name"]</a>
+        <button title="@MenuTitle" class="navbar-toggler" @onclick="ToggleNavMenu"
                 aria-expanded="@(!collapseNavMenu)" aria-controls="nav-menu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -21,7 +25,7 @@
            except the record itself, nothing else on the page says. It is not a
            menu and has no affordance beyond being read. *@
         <div class="nav-session">
-            <span class="nav-session__label">Signed in as</span>
+            <span class="nav-session__label">@L[Locale, "nav.signedInAs"]</span>
             <span class="nav-session__holder">@holder.HolderName</span>
             <span class="nav-session__credential">@holder.CredentialId</span>
         </div>
@@ -39,17 +43,17 @@
            state from ordinary prefix matching. *@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="record">
-                My Access
+                @L[Locale, "nav.record"]
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="matches">
-                Matches
+                @L[Locale, "nav.matches"]
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="help">
-                Help
+                @L[Locale, "nav.help"]
             </NavLink>
         </div>
         @* A fourth row. It is a control rather than a destination: it has no
@@ -68,7 +72,7 @@
             <div class="nav-item px-3">
                 <button type="button" class="nav-signout" @onclick="SignOut">
                     <span class="nav-signout__icon" aria-hidden="true">⇥</span>
-                    <span class="nav-signout__label">Sign out</span>
+                    <span class="nav-signout__label">@L[Locale, "nav.signOut"]</span>
                 </button>
             </div>
         }
@@ -76,9 +80,17 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    // Pulled out of the attribute rather than inlined: a lookup with its own
+    // quoted key inside a quoted attribute value is a parse the Razor
+    // compiler should not have to be trusted with.
+    private string MenuTitle => L[Locale, "nav.menu"];
 
     protected override void OnInitialized() => Session.OnChanged += Refresh;
 

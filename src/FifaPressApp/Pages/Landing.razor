@@ -18,8 +18,9 @@
 @page "/"
 @inject NavigationManager Navigation
 @inject SimulatedSessionProvider Session
+@inject LocaleService L
 
-<PageTitle>FIFA Press App</PageTitle>
+<PageTitle>@L[Locale, "app.name"]</PageTitle>
 
 @if (justSignedOut)
 {
@@ -27,77 +28,59 @@
        quietly lost two rows is the same class of silence this app exists to
        replace, at a smaller scale. *@
     <p class="landing__signed-out" role="status">
-        <strong>You are signed out.</strong>
-        The simulated session has ended. Signing in again, as either holder,
-        starts a new one.
+        <strong>@L[Locale, "landing.signedOutStrong"]</strong>
+        @L[Locale, "landing.signedOutBody"]
     </p>
 }
 
-<h1>Know what changed about your access, before you're refused</h1>
+<h1>@L[Locale, "landing.title"]</h1>
 
-<p class="landing__lede">
-    A companion for journalists covering the 2026 World Cup. It shows what your
-    accreditation currently permits, what has changed about it, and the reason
-    attached to each change — so you find out from this screen rather than by
-    being turned away at a barrier.
-</p>
+<p class="landing__lede">@L[Locale, "landing.lede"]</p>
 
 <p class="landing__disclosure" role="note">
-    <strong>This is a portfolio demonstration, not a FIFA product.</strong>
-    It is not affiliated with, endorsed by, or connected to FIFA. Every record,
-    holder and decision in it is simulated. The match schedule is real; nothing
-    else is.
+    <strong>@L[Locale, "landing.disclosureStrong"]</strong>
+    @L[Locale, "landing.disclosureBody"]
 </p>
 
 <div class="landing__entries">
     <section class="landing__entry">
-        <h2>Sign in with a demo account</h2>
-        <p>
-            Two accounts are published on the sign-in page, in plain text, with
-            the passwords. They open two different holders' records — and the
-            difference between those records is the thing worth seeing.
-        </p>
-        <a class="btn btn-primary" href="signin">Go to sign in</a>
+        <h2>@L[Locale, "landing.signInHeading"]</h2>
+        <p>@L[Locale, "landing.signInBody"]</p>
+        <a class="btn btn-primary" href="signin">@L[Locale, "landing.signInCta"]</a>
     </section>
 
     <section class="landing__entry">
-        <h2>Look around without one</h2>
-        <p>
-            The match schedule and the help page need no account. Help is where
-            the boundary of this service is stated plainly, including what it
-            cannot do for you.
-        </p>
+        <h2>@L[Locale, "landing.browseHeading"]</h2>
+        <p>@L[Locale, "landing.browseBody"]</p>
         <p class="landing__public-links">
-            <a href="matches">Browse the match schedule</a> ·
-            <a href="help">Read what this service does not do</a>
+            <a href="matches">@L[Locale, "landing.browseMatches"]</a> ·
+            <a href="help">@L[Locale, "landing.browseHelp"]</a>
         </p>
     </section>
 </div>
 
 <section class="landing__what-you-get">
-    <h2>What a signed-in record shows</h2>
+    <h2>@L[Locale, "landing.whatYouGetHeading"]</h2>
     <ul>
         <li>
-            <strong>Every change to your access, newest first</strong> — with
-            what changed, why it changed, and what you can do about it. A change
-            with no reason attached is not something this app will show you,
-            because a change with no reason is what it exists to replace.
+            <strong>@L[Locale, "landing.point1Strong"]</strong>
+            @L[Locale, "landing.point1Body"]
         </li>
         <li>
-            <strong>Warning before the consequence, where the consequence is
-            foreseeable</strong> — a quarter-final allocation that depends on a
-            fixture nobody has played yet is stated as a condition, naming both
-            outcomes, rather than as a decision already taken.
+            <strong>@L[Locale, "landing.point2Strong"]</strong>
+            @L[Locale, "landing.point2Body"]
         </li>
         <li>
-            <strong>How old the information is, always</strong> — not only when
-            it is stale. A confident headline over hours-old data is the quiet
-            failure this app is built to prevent.
+            <strong>@L[Locale, "landing.point3Strong"]</strong>
+            @L[Locale, "landing.point3Body"]
         </li>
     </ul>
 </section>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private bool justSignedOut;
 
     /// <summary>

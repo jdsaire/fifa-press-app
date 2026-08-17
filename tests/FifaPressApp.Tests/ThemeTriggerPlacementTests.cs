@@ -36,7 +36,7 @@ public class ThemeTriggerPlacementTests
         context.JSInterop.Mode = JSRuntimeMode.Loose;
         context.Services.AddSingleton(new DemoAccountStore());
         context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
-        return context;
+        return context.WithLocale();
     }
 
     [Fact]

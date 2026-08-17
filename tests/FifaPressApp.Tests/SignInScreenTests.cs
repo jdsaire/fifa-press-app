@@ -1,4 +1,5 @@
 using Bunit;
+using FifaPressApp.Models;
 using FifaPressApp.Pages;
 using FifaPressApp.Services;
 using Microsoft.AspNetCore.Components;
@@ -31,7 +32,7 @@ public class SignInScreenTests
         context.JSInterop.Mode = JSRuntimeMode.Loose;
         context.Services.AddSingleton(new DemoAccountStore());
         context.Services.AddSingleton(session ?? new SimulatedSessionProvider(new DemoAccountStore()));
-        return context;
+        return context.WithLocale();
     }
 
     [Fact]
@@ -91,7 +92,7 @@ public class SignInScreenTests
             Assert.Contains(account.Identifier, markup);
             Assert.Contains(account.Password, markup);
             Assert.Contains(account.HolderName, markup);
-            Assert.Contains(account.WhatIsDifferent, markup);
+            Assert.Contains(LocaleTestData.Loaded()[AppLocale.En, account.DescriptionKey], markup);
         }
     }
 

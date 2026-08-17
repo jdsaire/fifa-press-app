@@ -11,17 +11,21 @@
    nothing visible to compare against reads as information; shown beside the
    value it replaced, it reads as a change. *@
 
+@inject LocaleService L
+
 <article class="change-row @(IsForeseeable ? "change-row--foreseeable" : null)">
     @if (IsForeseeable)
     {
         <ForeseeableBadge />
     }
 
-    <h3 class="change-row__what">@Change.WhatChanged</h3>
+    @* Resolved from the cascading locale, never from the model's English
+       canonical accessor. *@
+    <h3 class="change-row__what">@Change.WhatChangedText.For(Locale)</h3>
 
     <p class="change-row__when">
         <time datetime="@Change.EffectiveUtc.ToString("o")">
-            @(IsForeseeable ? "Takes effect" : "Took effect") @Change.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
+            @L[Locale, IsForeseeable ? "changeRow.takesEffect" : "changeRow.tookEffect"] @Change.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
         </time>
     </p>
 
@@ -31,29 +35,31 @@
            an audit-trail nicety: a correction that hides what it corrected
            leaves the reader unable to tell whether anything actually moved. *@
         <div class="change-row__superseded">
-            <p class="change-row__superseded-label">Replaces an earlier entry:</p>
-            <p class="change-row__superseded-value">@Superseded.WhatChanged</p>
+            <p class="change-row__superseded-label">@L[Locale, "changeRow.replacesLabel"]</p>
+            <p class="change-row__superseded-value">@Superseded.WhatChangedText.For(Locale)</p>
             <p class="change-row__superseded-when">
                 <time datetime="@Superseded.EffectiveUtc.ToString("o")">
-                    Recorded @Superseded.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
+                    @L[Locale, "changeRow.recorded"] @Superseded.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
                 </time>
             </p>
         </div>
     }
 
-    @if (Change.ConditionText is not null)
+    @if (Change.ConditionTextLocalized is not null)
     {
         <div class="change-row__condition">
-            <p class="change-row__field-label">The condition</p>
-            <p>@Change.ConditionText</p>
+            <p class="change-row__field-label">@L[Locale, "changeRow.conditionLabel"]</p>
+            <p>@Change.ConditionTextLocalized.For(Locale)</p>
             @if (DependsOnFixture is not null)
             {
                 @* Named by round, venue and date — never by the teams playing
                    in it. This fixture has not kicked off, so who is in it is
                    something the app is not entitled to know. *@
                 <p class="change-row__dependency">
-                    Depends on the @DependsOnFixture.PhaseLabel fixture at
-                    @DependsOnFixture.Venue, @DependsOnFixture.City, on
+                    @L.Format(Locale, "changeRow.dependsOn",
+                        ("phase", FixtureLabels.Phase(L, Locale, DependsOnFixture)),
+                        ("venue", DependsOnFixture.Venue),
+                        ("city", DependsOnFixture.City))
                     <time datetime="@DependsOnFixture.KickoffLocal.ToString("o")">@DependsOnFixture.KickoffLocal.ToString("d MMMM")</time>
                     (@DependsOnFixture.TimeZoneLabel).
                 </p>
@@ -61,25 +67,28 @@
         </div>
     }
 
-    <p class="change-row__field-label">Why</p>
-    <p class="change-row__why">@Change.Reason</p>
+    <p class="change-row__field-label">@L[Locale, "changeRow.whyLabel"]</p>
+    <p class="change-row__why">@Change.ReasonText.For(Locale)</p>
 
-    <p class="change-row__field-label">What you can do</p>
-    <p class="change-row__next">@Change.NextStep</p>
+    <p class="change-row__field-label">@L[Locale, "changeRow.nextLabel"]</p>
+    <p class="change-row__next">@Change.NextStepText.For(Locale)</p>
 
-    @if (!Change.NextStepIsActionable && Change.DecidedBy is not null)
+    @if (!Change.NextStepIsActionable && Change.DecidedByText is not null)
     {
         @* A dead end still owes the reader a name. "Nothing you can do" with
            nobody attached to it is the silence this record exists to replace. *@
-        <p class="change-row__decided-by">Decided by @Change.DecidedBy</p>
+        <p class="change-row__decided-by">@L.Format(Locale, "changeRow.decidedBy", ("who", Change.DecidedByText.For(Locale)))</p>
     }
 
     <p class="change-row__mocked">
-        Simulated record — no accreditation system is connected in this version.
+        @L[Locale, "changeRow.mocked"]
     </p>
 </article>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     [Parameter, EditorRequired]
     public Change Change { get; set; } = default!;
 

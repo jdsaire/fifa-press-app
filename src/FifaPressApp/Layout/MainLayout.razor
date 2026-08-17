@@ -1,10 +1,16 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject LocaleService L
 
 @* Everything is inside the locale cascade, including the sidebar — the nav
    labels are as localized as the page body, and a switch that re-rendered only
    the content column would leave half the screen in the previous language. *@
 <LocaleProvider>
-<a href="#main-content" class="skip-link">Skip to main content</a>
+@* The one string outside the cascade, because this component is the
+   cascade's parent and cannot receive its own value. It reads the service
+   directly and subscribes for the re-render — the exception that proves
+   the rule, and the only place in the app allowed to do it. *@
+<a href="#main-content" class="skip-link">@L[L.Current, "nav.skipToContent"]</a>
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -20,3 +26,11 @@
     </main>
 </div>
 </LocaleProvider>
+
+@code {
+    protected override void OnInitialized() => L.OnChanged += Refresh;
+
+    public void Dispose() => L.OnChanged -= Refresh;
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+}

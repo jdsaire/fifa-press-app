@@ -28,7 +28,7 @@ public class DemoSessionTests
         {
             Assert.False(string.IsNullOrWhiteSpace(account.Identifier));
             Assert.False(string.IsNullOrWhiteSpace(account.Password));
-            Assert.False(string.IsNullOrWhiteSpace(account.WhatIsDifferent));
+            Assert.False(string.IsNullOrWhiteSpace(account.DescriptionKey));
         });
 
         // Two accounts that opened the same record would demonstrate nothing.

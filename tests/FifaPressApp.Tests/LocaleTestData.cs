@@ -1,5 +1,7 @@
 using System.Net;
 using System.Runtime.CompilerServices;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection;
 using FifaPressApp.Models;
 using FifaPressApp.Services;
 
@@ -31,6 +33,22 @@ internal static class LocaleTestData
 
         service.InitializeAsync().GetAwaiter().GetResult();
         return service;
+    }
+
+    /// <summary>
+    /// Registers the locale service on a bUnit context.
+    ///
+    /// <para>
+    /// Every component that renders text now depends on this, so every test that
+    /// renders one has to supply it. That is what a shared, loaded-once helper
+    /// is for — the alternative is each test file carrying its own copy of the
+    /// same three lines.
+    /// </para>
+    /// </summary>
+    public static BunitContext WithLocale(this BunitContext context)
+    {
+        context.Services.AddSingleton(Loaded());
+        return context;
     }
 
     public static string RawJson(AppLocale locale) =>

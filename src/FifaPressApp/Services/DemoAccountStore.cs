@@ -15,18 +15,22 @@ namespace FifaPressApp.Services;
 /// </param>
 /// <param name="CredentialId">The record this account opens.</param>
 /// <param name="HolderName">Whose record it is, for the published list.</param>
-/// <param name="WhatIsDifferent">
-/// One line saying what makes this record worth looking at next to the other.
-/// This is the part that makes two accounts a demonstration rather than two
-/// accounts: a person should be told what the difference is before they go
-/// looking for it.
+/// <param name="DescriptionKey">
+/// The resource key for one line saying what makes this record worth looking at
+/// next to the other. This is the part that makes two accounts a demonstration
+/// rather than two accounts: a person should be told what the difference is
+/// before they go looking for it.
+///
+/// A key rather than the sentence itself, because the sentence is interface
+/// copy on the sign-in screen and has to render in whichever of the three
+/// languages the reader is in.
 /// </param>
 public sealed record DemoAccount(
     string Identifier,
     string Password,
     string CredentialId,
     string HolderName,
-    string WhatIsDifferent);
+    string DescriptionKey);
 
 /// <summary>
 /// The two demo accounts, and the only credential check this app performs.
@@ -63,8 +67,7 @@ public sealed class DemoAccountStore
         Password: "amina-demo-2026",
         CredentialId: "MP-2026-04817",
         HolderName: "Amina Bello",
-        WhatIsDifferent: "Has nobody at FIFA to ask, so a change that depends on an unplayed "
-                       + "fixture interrupts her.");
+        DescriptionKey: "signIn.accountAmina");
 
     /// <summary>
     /// Tomás's record: the rights-holder with a named contact, so his ceiling is
@@ -76,8 +79,7 @@ public sealed class DemoAccountStore
         Password: "tomas-demo-2026",
         CredentialId: "RH-2026-00219",
         HolderName: "Tomás L.",
-        WhatIsDifferent: "Has a named contact who can answer a conditional question, so the same "
-                       + "change is written to his record without interrupting him.");
+        DescriptionKey: "signIn.accountTomas");
 
     /// <summary>
     /// Both accounts, in the order the sign-in screen publishes them. Amina

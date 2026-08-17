@@ -27,32 +27,31 @@
 @inject SimulatedSessionProvider Session
 @inject DemoAccountStore Accounts
 @inject NavigationManager Navigation
+@inject LocaleService L
 
-<PageTitle>Sign in</PageTitle>
+<PageTitle>@L[Locale, "signIn.title"]</PageTitle>
 
-<h1>Sign in</h1>
+<h1>@L[Locale, "signIn.title"]</h1>
 
 @* Visible before any interaction, and first on the page. The four things it
    states are in the order 10 §2.3 sets: what this is, that the credentials
    below are real and work, how long the session lasts, and what it is not. *@
 <div class="signin__notice" role="note">
     <p>
-        <strong>This is a simulated sign-in.</strong>
-        There is no account system behind it — no server, no verification, and
-        nothing that could tell you apart from anyone else.
+        <strong>@L[Locale, "signIn.noticeSimulatedStrong"]</strong>
+        @L[Locale, "signIn.noticeSimulatedBody"]
     </p>
     <p>
-        The credentials below are fake, published on purpose, and
-        <strong>they work</strong>. They are the only two that do.
+        @L[Locale, "signIn.noticeCredentialsBefore"]
+        <strong>@L[Locale, "signIn.noticeCredentialsStrong"]</strong>@L[Locale, "signIn.noticeCredentialsAfter"]
     </p>
     <p>
-        The session lives in memory for as long as this tab does.
-        <strong>Refreshing the page signs you out</strong>, because storing it
-        would make this look more like an account system than it is.
+        @L[Locale, "signIn.noticeSessionBefore"]
+        <strong>@L[Locale, "signIn.noticeSessionStrong"]</strong>@L[Locale, "signIn.noticeSessionAfter"]
     </p>
     <p>
-        It is a demonstration of what this app shows a signed-in holder.
-        <strong>It is not a security boundary and it protects nothing.</strong>
+        @L[Locale, "signIn.noticeBoundaryBefore"]
+        <strong>@L[Locale, "signIn.noticeBoundaryStrong"]</strong>
     </p>
 </div>
 
@@ -61,7 +60,7 @@
    signs in as one and then the other should be told, beforehand, that the
    difference is the point. *@
 <section class="signin__accounts">
-    <h2>The two demo accounts</h2>
+    <h2>@L[Locale, "signIn.accountsHeading"]</h2>
 
     <ul class="signin__account-list">
         @foreach (var account in Accounts.Published)
@@ -69,29 +68,26 @@
             <li class="signin__account" @key="account.CredentialId">
                 <h3>@account.HolderName</h3>
                 <dl>
-                    <dt>Email or credential number</dt>
+                    @* The identifier is never translated or reformatted in any
+                       locale — it is an identifier, not language content. *@
+                    <dt>@L[Locale, "signIn.identifierLabel"]</dt>
                     <dd><code>@account.Identifier</code></dd>
-                    <dt>Password</dt>
+                    <dt>@L[Locale, "signIn.passwordLabel"]</dt>
                     <dd><code>@account.Password</code></dd>
                 </dl>
-                <p class="signin__account-note">@account.WhatIsDifferent</p>
+                <p class="signin__account-note">@L[Locale, account.DescriptionKey]</p>
             </li>
         }
     </ul>
 
-    <p class="signin__account-hint">
-        Sign in as one, read the change list, then sign out and sign in as the
-        other. The same conditional change sits on both records and behaves
-        differently, and that difference is derived from the record — never from
-        a setting either of them chose.
-    </p>
+    <p class="signin__account-hint">@L[Locale, "signIn.accountsHint"]</p>
 </section>
 
 <EditForm EditContext="editContext" OnValidSubmit="HandleSubmitAsync" class="signin__form">
     <DataAnnotationsValidator />
 
     <div class="signin__field">
-        <label for="signin-identifier">Email or credential number</label>
+        <label for="signin-identifier">@L[Locale, "signIn.identifierLabel"]</label>
         <InputText id="signin-identifier"
                    class="form-control"
                    autocomplete="username"
@@ -99,11 +95,21 @@
                    disabled="@submitting"
                    @bind-Value="model.Identifier"
                    @bind-Value:event="oninput" />
-        <ValidationMessage For="@(() => model.Identifier)" class="signin__error" aria-live="polite" />
+        @* Rendered from the EditContext rather than by <ValidationMessage>, and
+           this is the one place v9's structure could not be carried across
+           verbatim. A DataAnnotations ErrorMessage is a fixed string on the
+           attribute, and <ValidationMessage> renders it as-is — so the
+           attributes below carry resource KEYS and this resolves them against
+           the cascading locale. Same markup, same class, same aria-live, same
+           per-field association: only the resolution step is added. *@
+        @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Identifier)))
+        {
+            <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+        }
     </div>
 
     <div class="signin__field">
-        <label for="signin-password">Password</label>
+        <label for="signin-password">@L[Locale, "signIn.passwordLabel"]</label>
         @* type="password" and current-password, and nothing else touches this
            value: it is never trimmed, pattern-checked, rewritten, logged, or
            put in a query string. Allow-list rewriting is right for a username
@@ -116,34 +122,39 @@
                    autocomplete="current-password"
                    disabled="@submitting"
                    @bind-Value="model.Password" />
-        <ValidationMessage For="@(() => model.Password)" class="signin__error" aria-live="polite" />
+        @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Password)))
+        {
+            <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+        }
     </div>
 
     @if (formError is not null)
     {
-        <p class="signin__error" role="alert">@formError</p>
+        <p class="signin__error" role="alert">@L[Locale, formError]</p>
     }
 
     <button type="submit" class="btn btn-primary" disabled="@submitting">
-        @(submitting ? "Signing in…" : "Sign in")
+        @L[Locale, submitting ? "signIn.submitting" : "signIn.submit"]
     </button>
 </EditForm>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private readonly SignInModel model = new();
     private EditContext editContext = default!;
     private string? formError;
     private bool submitting;
 
     /// <summary>
-    /// One message for any failure. Saying which of the two was wrong would tell
-    /// an attacker which half they had right. With both passwords published
-    /// above this is arguably ceremony — it is kept because the pattern is
-    /// correct, and a demonstration that models the wrong pattern teaches the
-    /// wrong pattern.
+    /// One message for any failure, held as a resource key rather than a
+    /// sentence. Saying which of the two was wrong would tell an attacker which
+    /// half they had right. With both passwords published above this is arguably
+    /// ceremony — it is kept because the pattern is correct, and a demonstration
+    /// that models the wrong pattern teaches the wrong pattern.
     /// </summary>
-    private const string GenericFailure =
-        "That identifier and password do not match a demo account. Both are published above.";
+    private const string GenericFailure = "signIn.failure";
 
     protected override void OnInitialized()
     {
@@ -164,6 +175,13 @@
     /// </summary>
     private string? IdentifierInputMode =>
         model.Identifier.Contains('@') ? "email" : null;
+
+    /// <summary>
+    /// The field a lambda names, so validation messages can be read out of the
+    /// EditContext per field the way ValidationMessage reads them.
+    /// </summary>
+    private FieldIdentifier FieldFor<T>(System.Linq.Expressions.Expression<Func<T>> accessor) =>
+        FieldIdentifier.Create(accessor);
 
     private async Task HandleSubmitAsync()
     {
@@ -193,14 +211,14 @@
 
     private sealed class SignInModel
     {
-        [Required(ErrorMessage = "Enter your email or credential number.")]
-        [StringLength(120, MinimumLength = 3, ErrorMessage = "This must be between 3 and 120 characters.")]
+        [Required(ErrorMessage = "signIn.identifierRequired")]
+        [StringLength(120, MinimumLength = 3, ErrorMessage = "signIn.identifierLength")]
         [PermissiveIdentifier]
         public string Identifier { get; set; } = string.Empty;
 
         // Length bound only. No allow-list, no pattern, no sanitising.
-        [Required(ErrorMessage = "Enter your password.")]
-        [StringLength(200, MinimumLength = 1, ErrorMessage = "Enter your password.")]
+        [Required(ErrorMessage = "signIn.passwordRequired")]
+        [StringLength(200, MinimumLength = 1, ErrorMessage = "signIn.passwordRequired")]
         public string Password { get; set; } = string.Empty;
     }
 
@@ -221,8 +239,7 @@
         private static readonly Regex AllowedCharacters =
             new(@"^[\p{L}\p{N} .\-'_@]+$", RegexOptions.CultureInvariant);
 
-        public PermissiveIdentifierAttribute() =>
-            ErrorMessage = "Use letters, numbers, spaces, and the marks . - ' _ @ only.";
+        public PermissiveIdentifierAttribute() => ErrorMessage = "signIn.identifierAllowed";
 
         public override bool IsValid(object? value)
         {

@@ -1,3 +1,5 @@
+@inject LocaleService L
+
 @* Read-only by default: name as a heading, date as a <time> element, location
    as text. An inline "Edit" toggle switches to the original editable inputs
    so the underlying two-way binding stays demonstrable. *@
@@ -39,7 +41,7 @@
                datetime — the picture is added beside the text, never in place
                of it. *@
             <h3>@EventName</h3>
-            <p class="mb-1"><Icon Name="date" /><time datetime="@EventDate.ToString("yyyy-MM-dd")">@EventDate.ToString("MMMM d, yyyy")</time></p>
+            <p class="mb-1"><Icon Name="date" /><time datetime="@EventDate.ToString("yyyy-MM-dd")">@L.Date(Locale, EventDate, "monthDayYear")</time></p>
             <p class="mb-2"><Icon Name="location" />@Location</p>
             @if (AllowEdit)
             {
@@ -50,6 +52,9 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     // Each parameter is paired with a matching "...Changed" EventCallback.
     // That X / XChanged pairing is what lets a parent page write
     // @bind-EventName="ev.Name" and get two-way binding for free: the parent's

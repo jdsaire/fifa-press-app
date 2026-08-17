@@ -19,7 +19,7 @@ public class LandingTests
         var context = new BunitContext();
         context.JSInterop.Mode = JSRuntimeMode.Loose;
         context.Services.AddSingleton(session ?? new SimulatedSessionProvider(new DemoAccountStore()));
-        return context;
+        return context.WithLocale();
     }
 
     private static string SourceRoot([CallerFilePath] string thisFile = "")

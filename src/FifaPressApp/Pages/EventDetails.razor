@@ -20,48 +20,47 @@
 @page "/events/{Id:int}"
 @inject IAccessDataProvider Access
 @inject SimulatedSessionProvider Session
+@inject LocaleService L
 
 <PageTitle>@PageHeading</PageTitle>
 
 <nav aria-label="breadcrumb" class="mb-2">
-    <NavLink href="matches">Matches</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+    <NavLink href="matches">@L[Locale, "detail.breadcrumb"]</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
 </nav>
 
 <h1>@PageHeading</h1>
 
 @if (!loaded)
 {
-    <p class="detail__loading">Loading this match…</p>
+    <p class="detail__loading">@L[Locale, "common.loadingMatch"]</p>
 }
 else if (fixture is null)
 {
     @* The address is a valid shape (/events/9999) but no fixture has that
        number, which routing alone cannot catch. *@
-    <p class="detail__error" role="alert">No match has this number.</p>
+    <p class="detail__error" role="alert">@L[Locale, "common.noMatchNumber"]</p>
 }
 else
 {
-    <EventCard EventName="@fixture.DisplayLabel"
+    <EventCard EventName="@FixtureLabels.Display(L, Locale, fixture)"
                EventDate="fixture.KickoffLocal"
                Location="@($"{fixture.Venue}, {fixture.City}")"
                ReadOnly="true"
                AllowEdit="false" />
 
     <p class="detail__kickoff">
-        Kicks off
+        @L[Locale, "detail.kicksOff"]
         <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
-        <strong>@fixture.TimeZoneLabel</strong> · <Icon Name="phase" />@fixture.PhaseLabel
+        <strong>@fixture.TimeZoneLabel</strong> · <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture)
     </p>
 
     @if (!fixture.IsResolved)
     {
-        <p class="detail__unplayed">
-            This match has not been played, so the teams in it are not shown.
-        </p>
+        <p class="detail__unplayed">@L[Locale, "detail.unplayed"]</p>
     }
 
     <section class="detail__access">
-        <h2>Your access to this match</h2>
+        <h2>@L[Locale, "detail.accessHeading"]</h2>
 
         @if (!Session.IsSignedIn)
         {
@@ -70,10 +69,9 @@ else
                about their access; this says plainly that it has one and what it
                needs in order to give it. *@
             <p class="detail__signed-out">
-                Your access to this match is part of your own record, so it is
-                not shown until you say who you are.
-                <a href="signin">Sign in with a demo account</a> to see it, and
-                to request access to this match.
+                @L[Locale, "detail.signedOut"]
+                <a href="signin">@L[Locale, "detail.signedOutLink"]</a>
+                @L[Locale, "detail.signedOutAfter"]
             </p>
         }
         else if (accessLoadFailed)
@@ -81,12 +79,8 @@ else
             @* Stated plainly rather than defaulted to "no access". Showing a
                person "no access" because a lookup failed would send them away
                from a barrier they were entitled to walk through. *@
-            <p class="detail__error" role="alert">
-                Your access status for this match could not be read. This is not
-                the same as having no access — it means this app cannot tell you
-                either way right now.
-            </p>
-            <p><a href="help">What to do at the barrier</a></p>
+            <p class="detail__error" role="alert">@L[Locale, "detail.accessError"]</p>
+            <p><a href="help">@L[Locale, "detail.barrierHelp"]</a></p>
         }
         else
         {
@@ -94,11 +88,11 @@ else
 
             <StaleIndicator LastSyncedUtc="lastSyncedUtc"
                             AsOfUtc="Access.AsOfUtc"
-                            Subject="your access status" />
+                            SubjectKey="detail.staleSubject" />
 
             @if (status == MatchAccessStatus.NotRequested)
             {
-                <NavLink class="btn btn-primary btn-sm" href="@($"request/{Id}")">Request access</NavLink>
+                <NavLink class="btn btn-primary btn-sm" href="@($"request/{Id}")">@L[Locale, "detail.requestAccess"]</NavLink>
             }
         }
     </section>
@@ -109,13 +103,10 @@ else
            never as a commitment, because the condition is by definition
            unresolved. *@
         <section class="detail__dependency">
-            <h2>An entitlement depends on this match</h2>
+            <h2>@L[Locale, "detail.dependencyHeading"]</h2>
             <ForeseeableBadge />
-            <p>@dependentChange.ConditionText</p>
-            <p class="detail__mocked">
-                Simulated dependency. In this version the link between a fixture
-                and an entitlement is mocked, and no results feed is connected.
-            </p>
+            <p>@dependentChange.ConditionTextLocalized?.For(Locale)</p>
+            <p class="detail__mocked">@L[Locale, "detail.dependencyMocked"]</p>
         </section>
     }
 
@@ -126,25 +117,22 @@ else
     @if (Session.IsSignedIn)
     {
     <section class="detail__gate">
-        <h2>Gate check</h2>
+        <h2>@L[Locale, "detail.gateHeading"]</h2>
 
         @if (gateResult is null)
         {
-            <p>
-                Compare what this app holds against what the venue's access list
-                says, as a barrier check would.
-            </p>
+            <p>@L[Locale, "detail.gateIntro"]</p>
             <button type="button" class="btn btn-outline-primary btn-sm" @onclick="RunGateCheck">
-                Run a simulated gate check
+                @L[Locale, "detail.gateRun"]
             </button>
         }
         else if (gateResult == GateOutcome.Agreement)
         {
             <p class="detail__gate-agree" role="status">
-                <strong>The venue list agrees with your record.</strong>
-                Both show: @StatusSentence
+                <strong>@L[Locale, "detail.gateAgreeStrong"]</strong>
+                @L[Locale, "detail.gateAgreeBoth"] @StatusSentence
             </p>
-            <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => gateResult = null">Run it again</button>
+            <button type="button" class="btn btn-link btn-sm p-0" @onclick="() => gateResult = null">@L[Locale, "detail.gateRunAgain"]</button>
         }
         else
         {
@@ -154,40 +142,34 @@ else
                venue access list is genuinely unresolved, so arbitrating here
                would be a guess presented as an answer. *@
             <div class="detail__gate-disagree" role="alert">
-                <p><strong>The venue list and your record do not agree.</strong></p>
+                <p><strong>@L[Locale, "detail.gateDisagreeStrong"]</strong></p>
                 <dl>
-                    <dt>Your record says</dt>
+                    <dt>@L[Locale, "detail.gateYourRecord"]</dt>
                     <dd>
                         @StatusWord(status) —
                         <time datetime="@lastSyncedUtc.ToString("o")">as of @lastSyncedUtc.ToString("d MMM, HH:mm")</time> UTC
                     </dd>
-                    <dt>The venue list says</dt>
+                    <dt>@L[Locale, "detail.gateVenueList"]</dt>
                     <dd>
                         @StatusWord(venueStatus) —
                         <time datetime="@VenueListAsOf.ToString("o")">as of @VenueListAsOf.ToString("d MMM, HH:mm")</time> UTC
                     </dd>
                 </dl>
-                <p>
-                    This app cannot establish which of the two is correct, and it
-                    does not try to. Show both timestamps to the accreditation
-                    supervisor at the venue and let them resolve it against their
-                    own system.
-                </p>
-                <a class="btn btn-primary btn-sm" href="help">Who to contact</a>
+                <p>@L[Locale, "detail.gateResolution"]</p>
+                <a class="btn btn-primary btn-sm" href="help">@L[Locale, "common.whoToContact"]</a>
             </div>
-            <p class="detail__mocked">
-                Simulated gate check. No venue access list is connected in this
-                version, and which system owns that list is an open question
-                this app does not answer.
-            </p>
+            <p class="detail__mocked">@L[Locale, "detail.gateMocked"]</p>
         }
     </section>
     }
 }
 
-<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">Back to matches</NavLink>
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">@L[Locale, "common.backToMatches"]</NavLink>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     /// <summary>The match number, taken from the address.</summary>
     [Parameter]
     public int Id { get; set; }
@@ -215,8 +197,10 @@ else
     private DateTime VenueListAsOf => Access.AsOfUtc - VenueListLag;
 
     private string PageHeading => fixture is null
-        ? "Match not found"
-        : $"Match {fixture.MatchNumber} — {fixture.DisplayLabel}";
+        ? L[Locale, "detail.notFound"]
+        : L.Format(Locale, "detail.heading",
+            ("number", fixture.MatchNumber),
+            ("label", FixtureLabels.Display(L, Locale, fixture)));
 
     protected override async Task OnParametersSetAsync()
     {
@@ -299,19 +283,19 @@ else
     private void RunGateCheck() =>
         gateResult = status == venueStatus ? GateOutcome.Agreement : GateOutcome.Disagreement;
 
-    private string StatusSentence => status switch
+    private string StatusSentence => L[Locale, status switch
     {
-        MatchAccessStatus.Granted => "Access granted for this match.",
-        MatchAccessStatus.Revoked => "Access to this match has been withdrawn. See your record for the reason.",
-        MatchAccessStatus.Requested => "Requested. No decision has been taken yet.",
-        _ => "You have not requested access to this match.",
-    };
+        MatchAccessStatus.Granted => "detail.statusGranted",
+        MatchAccessStatus.Revoked => "detail.statusRevoked",
+        MatchAccessStatus.Requested => "detail.statusRequested",
+        _ => "detail.statusNotRequested",
+    }];
 
-    private static string StatusWord(MatchAccessStatus value) => value switch
+    private string StatusWord(MatchAccessStatus value) => L[Locale, value switch
     {
-        MatchAccessStatus.Granted => "Access granted",
-        MatchAccessStatus.Revoked => "Access withdrawn",
-        MatchAccessStatus.Requested => "Requested, not yet decided",
-        _ => "Not requested",
-    };
+        MatchAccessStatus.Granted => "status.granted",
+        MatchAccessStatus.Revoked => "status.revoked",
+        MatchAccessStatus.Requested => "status.requested",
+        _ => "status.notRequested",
+    }];
 }

@@ -151,6 +151,7 @@ public class FixtureQueryGroupTests
         };
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
@@ -176,6 +177,7 @@ public class FixtureQueryGroupTests
         };
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
@@ -193,6 +195,7 @@ public class FixtureQueryGroupTests
         var fixtures = new[] { TestData.Fixture(1, groupLetter: "A") };
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();

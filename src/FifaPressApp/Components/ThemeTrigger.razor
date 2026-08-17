@@ -1,5 +1,6 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject LocaleService L
 
 @* The theme control.
    ------------------------------------------------------------------------
@@ -27,11 +28,16 @@
 </button>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private IJSObjectReference? module;
     private string current = "light";
     private bool isReady;
 
-    private string ButtonLabel => current == "dark" ? "Switch to light theme" : "Switch to dark theme";
+    // An expression-bodied property, so it recomputes every render and cannot
+    // hold a label in the language the app was in when this component loaded.
+    private string ButtonLabel => L[Locale, current == "dark" ? "theme.toLight" : "theme.toDark"];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

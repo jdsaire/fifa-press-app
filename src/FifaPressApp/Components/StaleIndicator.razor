@@ -1,3 +1,5 @@
+@inject LocaleService L
+
 @* Staleness is a property of every surface that reads cached data, not a
    state that one screen enters when something goes wrong. So this renders
    ALWAYS — including when the data is seconds old — because an indicator that
@@ -15,6 +17,9 @@
 </p>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     /// <summary>When the data being shown was last synchronised.</summary>
     [Parameter]
     public DateTime LastSyncedUtc { get; set; }
@@ -27,9 +32,22 @@
     [Parameter]
     public DateTime AsOfUtc { get; set; }
 
-    /// <summary>What the age applies to, e.g. "your access record".</summary>
+    /// <summary>
+    /// The resource key naming what the age applies to, e.g.
+    /// <c>record.staleSubject</c>.
+    ///
+    /// <para>
+    /// A key rather than a sentence, and that is a fix rather than a
+    /// preference. This was a <c>string</c> with an English literal default,
+    /// and callers passed English literals into it — a <c>[Parameter]</c>
+    /// default is assigned once at construction and never re-evaluated, so the
+    /// subject kept whichever language the app was in when the component was
+    /// first rendered. It is one of the three places <c>11_I18N.md</c> §5.2's
+    /// stale-string bug genuinely occurred.
+    /// </para>
+    /// </summary>
     [Parameter]
-    public string Subject { get; set; } = "this information";
+    public string SubjectKey { get; set; } = "stale.defaultSubject";
 
     [Parameter]
     public bool ShowExactTimestamp { get; set; } = true;
@@ -45,11 +63,20 @@
 
     private bool IsStale => Age >= StaleAfter;
 
+    private string Subject => L[Locale, SubjectKey];
+
     /// <summary>
     /// Written out as an age rather than as a word like "stale", partly because
     /// a number is harder to skim past, and partly because "stale" has no
     /// single-word equivalent in the other two languages this service has to
     /// work in — both translate it as something closer to "spoiled".
+    ///
+    /// <para>
+    /// The one/many split is carried in the resources rather than done here
+    /// with an "s". Spanish and Portuguese do not pluralize by appending a
+    /// letter, and a sentence assembled from a number plus a suffix produces
+    /// grammatically wrong output in both.
+    /// </para>
     /// </summary>
     private string AgeSentence
     {
@@ -59,23 +86,24 @@
 
             if (age < TimeSpan.Zero)
             {
-                return $"Last updated: {Subject} carries a future timestamp.";
+                return L.Format(Locale, "stale.future", ("subject", Subject));
             }
 
             var howLong = age.TotalMinutes switch
             {
-                < 1 => "less than a minute ago",
-                < 2 => "1 minute ago",
-                < 60 => $"{(int)age.TotalMinutes} minutes ago",
-                < 120 => "1 hour ago",
-                < 1440 => $"{(int)age.TotalHours} hours ago",
-                < 2880 => "1 day ago",
-                _ => $"{(int)age.TotalDays} days ago",
+                < 1 => L[Locale, "stale.lessThanAMinute"],
+                < 2 => L[Locale, "stale.oneMinute"],
+                < 60 => L.Format(Locale, "stale.minutes", ("count", (int)age.TotalMinutes)),
+                < 120 => L[Locale, "stale.oneHour"],
+                < 1440 => L.Format(Locale, "stale.hours", ("count", (int)age.TotalHours)),
+                < 2880 => L[Locale, "stale.oneDay"],
+                _ => L.Format(Locale, "stale.days", ("count", (int)age.TotalDays)),
             };
 
             return IsStale
-                ? $"Last updated {howLong}. {Capitalise(Subject)} may have changed since."
-                : $"Last updated {howLong}.";
+                ? L.Format(Locale, "stale.lastUpdatedStale",
+                    ("howLong", howLong), ("subject", Capitalise(Subject)))
+                : L.Format(Locale, "stale.lastUpdated", ("howLong", howLong));
         }
     }
 

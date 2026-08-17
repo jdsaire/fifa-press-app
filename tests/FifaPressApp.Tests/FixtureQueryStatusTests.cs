@@ -125,6 +125,7 @@ public class FixtureQueryStatusTests
         var fixtures = new[] { TestData.Fixture(1) };
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
@@ -146,6 +147,7 @@ public class FixtureQueryStatusTests
             TestData.Fixture(2, venue: "BC Place", city: "Vancouver"), "Mexico", "South Africa");
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider([upcoming, played]));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
@@ -170,6 +172,7 @@ public class FixtureQueryStatusTests
             .ToArray();
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
@@ -193,6 +196,7 @@ public class FixtureQueryStatusTests
         var fixtures = new[] { TestData.Fixture(1, groupLetter: "A", venue: "Estadio Azteca") };
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
@@ -212,6 +216,7 @@ public class FixtureQueryStatusTests
     public void WithNoControlActiveTheEmptyStateStaysAsItWas()
     {
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider([]));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();

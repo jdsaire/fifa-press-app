@@ -19,11 +19,12 @@
 @inject IAccessDataProvider Access
 @inject SimulatedSessionProvider Session
 @inject NavigationManager Navigation
+@inject LocaleService L
 
 <PageTitle>@PageHeading</PageTitle>
 
 <nav aria-label="breadcrumb" class="mb-2">
-    <NavLink href="matches">Matches</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+    <NavLink href="matches">@L[Locale, "detail.breadcrumb"]</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
 </nav>
 
 <h1>@PageHeading</h1>
@@ -35,31 +36,31 @@
        attached either goes nowhere or goes to an arbitrary record, and both
        are worse than asking who you are first. *@
     <p class="request__signed-out">
-        Requesting access writes to a holder's own record, so this asks who you
-        are first. <a href="signin">Sign in with a demo account</a> — it is a
-        demonstration, not a security check, and the sign-in page says so.
+        @L[Locale, "request.signedOut"]
+        <a href="signin">@L[Locale, "request.signedOutLink"]</a>
+        @L[Locale, "request.signedOutAfter"]
     </p>
 }
 else if (!loaded)
 {
-    <p class="request__loading">Loading this match…</p>
+    <p class="request__loading">@L[Locale, "common.loadingMatch"]</p>
 }
 else if (fixture is null)
 {
-    <p class="request__error" role="alert">No match has this number.</p>
+    <p class="request__error" role="alert">@L[Locale, "common.noMatchNumber"]</p>
 }
 else
 {
-    <p>You are requesting access to:</p>
+    <p>@L[Locale, "request.intro"]</p>
 
-    <EventCard EventName="@fixture.DisplayLabel"
+    <EventCard EventName="@FixtureLabels.Display(L, Locale, fixture)"
                EventDate="fixture.KickoffLocal"
                Location="@($"{fixture.Venue}, {fixture.City}")"
                ReadOnly="true"
                AllowEdit="false" />
 
     <p class="request__meta">
-        <Icon Name="phase" />@fixture.PhaseLabel ·
+        <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture) ·
         <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
         @fixture.TimeZoneLabel
     </p>
@@ -67,18 +68,18 @@ else
     <RequestAccessForm @bind-Name="name"
                        @bind-Email="email"
                        Submitting="submitting"
-                       ErrorMessage="@errorMessage"
+                       ErrorMessage="@(errorMessage is null ? null : L[Locale, errorMessage])"
                        OnSubmit="SubmitAsync" />
 
-    <p class="request__mocked">
-        Simulated request. Nothing is sent anywhere in this version — submitting
-        writes a change to the simulated record and returns you to it.
-    </p>
+    <p class="request__mocked">@L[Locale, "request.mocked"]</p>
 }
 
-<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">Back to matches</NavLink>
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">@L[Locale, "common.backToMatches"]</NavLink>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     /// <summary>The match number, taken from the address.</summary>
     [Parameter]
     public int Id { get; set; }
@@ -91,8 +92,8 @@ else
     private string? errorMessage;
 
     private string PageHeading => fixture is null
-        ? "Match not found"
-        : $"Request access to match {fixture.MatchNumber}";
+        ? L[Locale, "detail.notFound"]
+        : L.Format(Locale, "request.heading", ("number", fixture.MatchNumber));
 
     protected override async Task OnParametersSetAsync()
     {
@@ -127,7 +128,7 @@ else
             // because a write with no holder attached is the one outcome this
             // gate exists to prevent, and "unreachable" is a property of
             // today's markup rather than of the write path.
-            errorMessage = "Your session ended. Sign in again to send this request.";
+            errorMessage = "request.sessionEnded";
             return;
         }
 
@@ -150,7 +151,7 @@ else
         catch (Exception)
         {
             submitting = false;
-            errorMessage = "That request could not be recorded. Your details are still here — try again.";
+            errorMessage = "request.failed";
         }
     }
 }

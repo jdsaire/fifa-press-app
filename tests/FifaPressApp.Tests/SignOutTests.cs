@@ -21,7 +21,7 @@ public class SignOutTests
         context.JSInterop.Mode = JSRuntimeMode.Loose;
         context.Services.AddSingleton(new DemoAccountStore());
         context.Services.AddSingleton(session);
-        return context;
+        return context.WithLocale();
     }
 
     private static async Task<SimulatedSessionProvider> AsAminaAsync()
