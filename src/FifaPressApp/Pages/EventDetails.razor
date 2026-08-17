@@ -19,6 +19,7 @@
 
 @page "/events/{Id:int}"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
 
 <PageTitle>@PageHeading</PageTitle>
 
@@ -62,7 +63,20 @@ else
     <section class="detail__access">
         <h2>Your access to this match</h2>
 
-        @if (accessLoadFailed)
+        @if (!Session.IsSignedIn)
+        {
+            @* The affordance is stated, not concealed. A hidden or dead control
+               would leave a person guessing whether the app has an opinion
+               about their access; this says plainly that it has one and what it
+               needs in order to give it. *@
+            <p class="detail__signed-out">
+                Your access to this match is part of your own record, so it is
+                not shown until you say who you are.
+                <a href="signin">Sign in with a demo account</a> to see it, and
+                to request access to this match.
+            </p>
+        }
+        else if (accessLoadFailed)
         {
             @* Stated plainly rather than defaulted to "no access". Showing a
                person "no access" because a lookup failed would send them away
@@ -89,7 +103,7 @@ else
         }
     </section>
 
-    @if (dependentChange is not null)
+    @if (Session.IsSignedIn && dependentChange is not null)
     {
         @* Interaction 4.2. Worded as a condition with both outcomes named —
            never as a commitment, because the condition is by definition
@@ -105,6 +119,12 @@ else
         </section>
     }
 
+    @* The gate check compares this holder's record against the venue list, so
+       it is as personal as the record is. Signed out there are no two sides to
+       compare, and running it against an empty record would manufacture an
+       agreement about nothing. *@
+    @if (Session.IsSignedIn)
+    {
     <section class="detail__gate">
         <h2>Gate check</h2>
 
@@ -162,6 +182,7 @@ else
             </p>
         }
     </section>
+    }
 }
 
 <NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">Back to matches</NavLink>
@@ -213,19 +234,33 @@ else
             fixture = null;
         }
 
-        try
+        // Signed out, there is no personal state to fold and no credential to
+        // fold it for. This branch deliberately does NOT return early: an early
+        // return here would skip the line below and freeze a signed-out visitor
+        // on "Loading this match…" forever, on a page that is supposed to be
+        // public. The fixture above is what they came for and it is already in
+        // hand.
+        if (Session.CredentialId is string credentialId)
         {
-            var changeResponse = await Access.GetChangesAsync(MockAccessDataProvider.DemoCredentialId);
-            changes = changeResponse.Value;
-            lastSyncedUtc = changeResponse.LastSyncedUtc;
+            try
+            {
+                var changeResponse = await Access.GetChangesAsync(credentialId);
+                changes = changeResponse.Value;
+                lastSyncedUtc = changeResponse.LastSyncedUtc;
 
-            status = FoldStatus(DateTime.MaxValue);
-            venueStatus = FoldStatus(VenueListAsOf);
-            dependentChange = changes.FirstOrDefault(change => change.DependsOnMatchNumber == Id);
+                status = FoldStatus(DateTime.MaxValue);
+                venueStatus = FoldStatus(VenueListAsOf);
+                dependentChange = changes.FirstOrDefault(change => change.DependsOnMatchNumber == Id);
+            }
+            catch (Exception)
+            {
+                accessLoadFailed = true;
+            }
         }
-        catch (Exception)
+        else
         {
-            accessLoadFailed = true;
+            changes = [];
+            dependentChange = null;
         }
 
         loaded = true;

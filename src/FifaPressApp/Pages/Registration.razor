@@ -17,6 +17,7 @@
 
 @page "/request/{Id:int}"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
 @inject NavigationManager Navigation
 
 <PageTitle>@PageHeading</PageTitle>
@@ -27,7 +28,19 @@
 
 <h1>@PageHeading</h1>
 
-@if (!loaded)
+@if (!Session.IsSignedIn)
+{
+    @* This is a write to a personal record, which is the reason it is gated
+       and the reason worth stating: a request submitted with no holder
+       attached either goes nowhere or goes to an arbitrary record, and both
+       are worse than asking who you are first. *@
+    <p class="request__signed-out">
+        Requesting access writes to a holder's own record, so this asks who you
+        are first. <a href="signin">Sign in with a demo account</a> — it is a
+        demonstration, not a security check, and the sign-in page says so.
+    </p>
+}
+else if (!loaded)
 {
     <p class="request__loading">Loading this match…</p>
 }
@@ -85,6 +98,14 @@ else
     {
         loaded = false;
 
+        if (!Session.IsSignedIn)
+        {
+            // The offer is already rendered above. Nothing is fetched for a
+            // visitor who cannot submit the form the fetch is for.
+            Navigation.NavigateTo("signin", replace: true);
+            return;
+        }
+
         try
         {
             fixture = (await Access.GetFixtureAsync(Id)).Value;
@@ -99,6 +120,17 @@ else
 
     private async Task SubmitAsync()
     {
+        if (Session.CredentialId is not string credentialId)
+        {
+            // Belt and braces. The form is not rendered without a session, so
+            // this is unreachable through the interface — and it is here
+            // because a write with no holder attached is the one outcome this
+            // gate exists to prevent, and "unreachable" is a property of
+            // today's markup rather than of the write path.
+            errorMessage = "Your session ended. Sign in again to send this request.";
+            return;
+        }
+
         submitting = true;
         errorMessage = null;
 
@@ -108,12 +140,12 @@ else
             // success flag to check, because the change is the outcome — and a
             // write that could report success without producing one would be
             // exactly the second write path this record forbids.
-            await Access.RequestMatchAccessAsync(MockAccessDataProvider.DemoCredentialId, Id);
+            await Access.RequestMatchAccessAsync(credentialId, Id);
 
             // Straight back to the record, where the change is now the newest
             // entry. What was typed stays in the fields until this navigation
             // completes, so a failure leaves the form recoverable.
-            Navigation.NavigateTo("");
+            Navigation.NavigateTo("record");
         }
         catch (Exception)
         {

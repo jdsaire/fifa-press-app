@@ -27,12 +27,30 @@
 
 @page "/record"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
+@inject NavigationManager Navigation
 
 <PageTitle>My access</PageTitle>
 
 <h1>My access</h1>
 
-@if (loadFailed && record is null)
+@if (!Session.IsSignedIn)
+{
+    @* Gated, and stated as what it is. An access record is personal by
+       definition, and one anybody can read without identifying themselves is
+       not the person's own state — which is the app's whole premise.
+
+       Never a 403, never "access denied", never anything borrowed from the
+       vocabulary of a real authorization system: there is no security here to
+       describe. The person is on their way to the sign-in screen, where the
+       full simulation notice explains what this is. *@
+    <p class="my-access__signed-out">
+        This record belongs to a holder, so it asks who you are first.
+        <a href="signin">Sign in with one of the two published demo accounts</a>
+        — neither of them protects anything, and the sign-in page says so.
+    </p>
+}
+else if (loadFailed && record is null)
 {
     @* Error — fetch failed, no cache. A dead end with no way out is not an
        acceptable end state, so this routes somewhere a person can act. *@
@@ -174,15 +192,24 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        // Signed out, there is no record to read and nothing below applies. The
+        // markup above has already rendered the offer; this moves the person to
+        // the screen that explains what signing in here does and does not mean.
+        if (Session.CredentialId is not string credentialId)
+        {
+            Navigation.NavigateTo("signin", replace: true);
+            return;
+        }
+
         // Both of these resolve from local state and complete without yielding,
         // so the first render already has the headline. Nothing below blocks it.
         try
         {
-            var accreditation = await Access.GetAccreditationAsync(MockAccessDataProvider.DemoCredentialId);
+            var accreditation = await Access.GetAccreditationAsync(credentialId);
             record = accreditation.Value;
             lastSyncedUtc = accreditation.LastSyncedUtc;
 
-            var changes = await Access.GetChangesAsync(MockAccessDataProvider.DemoCredentialId);
+            var changes = await Access.GetChangesAsync(credentialId);
             allChanges = changes.Value;
 
             Rebuild();

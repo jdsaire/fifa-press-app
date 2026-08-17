@@ -17,3 +17,10 @@
     color: var(--color-stale-text);
     margin-top: var(--space-3);
 }
+
+.request__signed-out {
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+    max-width: 40rem;
+}
