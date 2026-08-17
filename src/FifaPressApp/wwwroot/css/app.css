@@ -86,50 +86,60 @@
     :root:not([data-theme="light"]) {
         color-scheme: dark;
 
-        --color-surface: #121212;
-        --color-text: #e8e8e8;                  /* 15.29:1 */
-        --color-stale-text: #b3b3b3;            /* 8.93:1 */
+        --color-surface: #000000;
+        --color-text: #ffffff;                  /* 21.00:1 */
+        --color-stale-text: #c4c4c4;            /* 12.04:1 — see note below */
 
-        --color-link: #6fb3f2;                  /* 8.39:1 */
-        --color-focus-ring: #6fb3f2;            /* 8.39:1, 3:1 floor */
-        --color-action-primary: #3d8bd4;        /* 5.51:1 against its own text */
-        --color-action-primary-text: #0a0a0a;
-        --color-action-primary-border: #2f6fa8;
+        --color-link: #7ab8f5;                  /* 10.00:1 */
+        --color-focus-ring: #7ab8f5;            /* 10.00:1, 3:1 floor */
+        --color-action-primary: #4a94dc;        /* 6.56:1 against its own text */
+        --color-action-primary-text: #000000;
+        --color-action-primary-border: #356f9e;
 
-        --color-danger: #ff6b6b;                /* 6.75:1 */
-        --color-success: #4fd07a;               /* 9.49:1, 3:1 floor */
-        --color-code: #e879b0;                  /* 6.95:1 */
-        --color-danger-surface: #7a1414;        /* 10.84:1 against its text */
+        --color-danger: #ff7a7a;                /* 8.32:1 */
+        --color-success: #57d382;               /* 11.05:1, 3:1 floor */
+        --color-code: #ec84b8;                  /* 8.56:1 */
+        --color-danger-surface: #6e0f0f;        /* 12.08:1 against its text */
         --color-danger-surface-text: #ffffff;
 
+        /* Retained, not flattened: the gradient is a fixed, minor portion of the
+           screen and the app's one persistent identity landmark. Both values below
+           are checked against the gradient's own stops, never against
+           --color-surface, so re-anchoring the surface to black leaves them
+           untouched. Worst case is the lighter stop, #04173d. */
         --color-sidebar-grad-start: #04173d;
         --color-sidebar-grad-end: #22032c;
         --color-sidebar-text: #f0f0f0;          /* 15.42:1 worst-case stop */
-        --color-nav-item: #c9c9c9;              /* 11.35:1 */
+        --color-nav-item: #c9c9c9;              /* 10.61:1 worst-case stop */
 
-        --color-progress-track: #2a2a2a;
+        --color-progress-track: #1a1a1a;
 
         --elevation-card: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
 }
 
+/* The explicitly-chosen dark theme. Every value below is deliberately identical
+   to the prefers-color-scheme block above — the two are one palette written
+   twice, because a person who picks dark and a person whose system picks dark
+   must not get different screens. Editing one without the other is the defect
+   this comment exists to prevent; the computed ratios live above, once. */
 :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --color-surface: #121212;
-    --color-text: #e8e8e8;
-    --color-stale-text: #b3b3b3;
+    --color-surface: #000000;
+    --color-text: #ffffff;
+    --color-stale-text: #c4c4c4;
 
-    --color-link: #6fb3f2;
-    --color-focus-ring: #6fb3f2;
-    --color-action-primary: #3d8bd4;
-    --color-action-primary-text: #0a0a0a;
-    --color-action-primary-border: #2f6fa8;
+    --color-link: #7ab8f5;
+    --color-focus-ring: #7ab8f5;
+    --color-action-primary: #4a94dc;
+    --color-action-primary-text: #000000;
+    --color-action-primary-border: #356f9e;
 
-    --color-danger: #ff6b6b;
-    --color-success: #4fd07a;
-    --color-code: #e879b0;
-    --color-danger-surface: #7a1414;
+    --color-danger: #ff7a7a;
+    --color-success: #57d382;
+    --color-code: #ec84b8;
+    --color-danger-surface: #6e0f0f;
     --color-danger-surface-text: #ffffff;
 
     --color-sidebar-grad-start: #04173d;
@@ -137,7 +147,7 @@
     --color-sidebar-text: #f0f0f0;
     --color-nav-item: #c9c9c9;
 
-    --color-progress-track: #2a2a2a;
+    --color-progress-track: #1a1a1a;
 
     --elevation-card: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
