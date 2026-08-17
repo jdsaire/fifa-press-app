@@ -4,11 +4,20 @@
 // Loaded as a module by LocaleProvider.razor, the same way ThemeTrigger loads
 // theme.js: one static file, imported on first render, no <script> tag.
 //
-// This file is the exact sibling of theme.ts and is deliberately shaped like it.
+// This file mirrors theme.ts in one respect and deliberately not in another.
 // The division of labour is the same: something else owns the content — the
 // per-locale JSON owns every translated string, as CSS owns every colour — and
 // this module only remembers which language was chosen and tells the document
 // which one it is in. No translated text appears here.
+//
+// UNLIKE THEME, THIS DOES NOT READ AN AMBIENT SYSTEM PREFERENCE. theme.ts's
+// getSystemTheme reads prefers-color-scheme because a person who set a system
+// dark-mode preference has already answered that question. Reading the
+// browser's declared languages the same way was tried and deliberately
+// reversed: EN is the fixed default on a first visit, full stop, and the only
+// way a person reaches ES or PT is the language switch itself or a choice this
+// module already remembered. If that default is ever revisited, it is a
+// one-function addition here, not a redesign.
 //
 // WHY THE lang ATTRIBUTE IS NOT OPTIONAL. A screen reader picks its
 // pronunciation rules from document.documentElement.lang. A page of Spanish
@@ -20,8 +29,8 @@ function isLocaleCode(value) {
     return value === 'en' || value === 'es' || value === 'pt';
 }
 /**
- * The stored choice, or null when none has been made and the browser's own
- * preference should be left to decide. The mirror of getStoredTheme.
+ * The stored choice, or null when none has been made and the app should open
+ * in its fixed default (English). The mirror of getStoredTheme.
  */
 export function getStoredLocale() {
     try {
@@ -33,28 +42,6 @@ export function getStoredLocale() {
         // cannot be remembered is not a reason to fail to render one.
         return null;
     }
-}
-/**
- * The best of the browser's declared languages, falling back to English.
- *
- * <p>The mirror of getSystemTheme, and the same argument: a person who has told
- * their browser they read Spanish has already answered this question, and asking
- * them again on every first visit is asking them to configure something they
- * configured once already.</p>
- *
- * <p>Only the primary subtag is read, so es-419 and pt-BR resolve the same way
- * es-ES and pt-PT do. This app has one variant of each language and pretending
- * otherwise would be a promise it does not keep.</p>
- */
-export function getBrowserLocale() {
-    const declared = navigator.languages?.length ? navigator.languages : [navigator.language];
-    for (const tag of declared) {
-        const primary = tag?.split('-')[0]?.toLowerCase() ?? '';
-        if (isLocaleCode(primary)) {
-            return primary;
-        }
-    }
-    return 'en';
 }
 /**
  * Sets the document's language. Unlike theme.ts's applyTheme this never clears

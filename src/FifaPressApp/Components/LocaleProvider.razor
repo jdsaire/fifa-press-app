@@ -43,21 +43,18 @@
 
     /// <summary>
     /// Resolves the language on first render: an explicit stored choice wins,
-    /// and otherwise the browser's own declared preference decides.
+    /// and otherwise the app opens in its fixed default, English.
     ///
     /// <para>
-    /// The same order <c>ThemeTrigger</c> uses for the theme — stored, then
-    /// system — and for the same reason. Someone who has told their browser they
-    /// read Spanish has already answered this question once.
-    /// </para>
-    ///
-    /// <para>
-    /// It runs after the first render rather than before it, so the app paints
-    /// in English and then corrects itself if it needs to. That is a visible
-    /// flicker on a first visit in a Spanish browser, and it is the price of not
-    /// blocking the first paint on a JavaScript round trip. Fixing it properly
-    /// would mean resolving the locale before Blazor starts, which is a change to
-    /// index.html and to the boot sequence.
+    /// <b>Deliberately not resolved from the browser's declared language.</b> An
+    /// earlier version of this read <c>navigator.languages</c> the way
+    /// <c>ThemeTrigger</c> reads the system's dark-mode preference, on the
+    /// argument that someone who has told their browser they read Spanish has
+    /// already answered the question once. That was reversed: EN is the fixed
+    /// default on a first visit, full stop, and ES/PT are reached only through
+    /// the language switch or a choice this module already remembered. The
+    /// asymmetry with theme is intentional, not an oversight — see
+    /// <c>locale.ts</c>'s own remarks.
     /// </para>
     /// </summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -72,16 +69,23 @@
             module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/locale.js");
 
             var stored = await module.InvokeAsync<string?>("getStoredLocale");
-            var resolved = stored is not null
-                ? LocaleService.FromCode(stored)
-                : LocaleService.FromCode(await module.InvokeAsync<string>("getBrowserLocale"));
 
-            await module.InvokeVoidAsync("applyLocale", LocaleService.CodeOf(resolved));
-
-            // Set() raises OnChanged, which re-renders the tree through Refresh
-            // below. It is a no-op when the resolved locale is the one already
-            // active, so a first visit in an English browser costs nothing.
-            Locale.Set(resolved);
+            if (stored is not null)
+            {
+                // Set() raises OnChanged, which re-renders the tree through
+                // Refresh below and applies + stores the resolved locale there.
+                // It is a no-op when the stored value is already the active
+                // locale, so returning to a page in the language it was left in
+                // costs nothing.
+                Locale.Set(LocaleService.FromCode(stored));
+            }
+            else
+            {
+                // Nothing stored: the app is already rendering in the fixed
+                // default (English), so only the document's lang attribute needs
+                // setting — there is no locale change to announce.
+                await module.InvokeVoidAsync("applyLocale", LocaleService.CodeOf(Locale.Current));
+            }
         }
         catch (JSException)
         {

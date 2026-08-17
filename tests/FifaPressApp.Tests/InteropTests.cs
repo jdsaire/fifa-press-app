@@ -143,19 +143,30 @@ public class InteropTests
         }
     }
 
-    // ------------------------------------------------------- the toolchain
-
     // -------------------------------------------------- the locale module
 
     [Theory]
     [InlineData("getStoredLocale")]
-    [InlineData("getBrowserLocale")]
     [InlineData("applyLocale")]
     [InlineData("storeLocale")]
     [InlineData("clearStoredLocale")]
     public void TheLocaleModuleExportsEveryFunctionTheProviderCalls(string name)
     {
         Assert.Contains($"export function {name}", Compiled("locale.js"));
+    }
+
+    [Fact]
+    public void TheLocaleModuleDoesNotReadTheBrowsersDeclaredLanguage()
+    {
+        // The reversal, pinned. An earlier version resolved a first visit from
+        // navigator.languages the way theme.js reads the system's dark-mode
+        // preference; that was tried and deliberately reversed in favour of a
+        // fixed English default. This is what would notice if the ambient read
+        // came back.
+        var compiled = Compiled("locale.js");
+
+        Assert.DoesNotContain("navigator.language", compiled);
+        Assert.DoesNotContain("getBrowserLocale", compiled);
     }
 
     [Fact]
@@ -179,21 +190,23 @@ public class InteropTests
     }
 
     [Fact]
-    public void TheLocaleModuleIsShapedLikeItsSibling()
+    public void TheLocaleModuleIsShapedLikeItsSiblingMinusTheAmbientRead()
     {
-        // The two modules are deliberately the same shape: a stored read, an
-        // ambient-preference read, an apply, a store, a clear. A reader who has
-        // understood one has understood both. Both halves of each name are
-        // normalised — the subject (Theme/Locale) and the source of the ambient
-        // preference, which is the operating system for one and the browser's
-        // declared languages for the other.
-        static IReadOnlyList<string> Shape(string code) =>
+        // Deliberately not an equal-shape assertion any more. theme.js has a
+        // stored read, a system-preference read, an apply, a store and a clear;
+        // locale.js has all but the ambient-preference read, by design — see
+        // locale.ts's own remarks on why that asymmetry is intentional. What
+        // should still hold is that locale.js's exports are exactly theme.js's
+        // minus its one system-reading function.
+        static IReadOnlyList<string> Names(string code) =>
             Regex.Matches(code, @"export function (\w+)")
-                .Select(match => Regex.Replace(match.Groups[1].Value, "Theme|Locale|System|Browser", "X"))
+                .Select(match => Regex.Replace(match.Groups[1].Value, "Theme|Locale", "X"))
                 .OrderBy(name => name, StringComparer.Ordinal)
                 .ToList();
 
-        Assert.Equal(Shape(Compiled("theme.js")), Shape(Compiled("locale.js")));
+        var themeShape = Names(Compiled("theme.js")).Where(name => name != "getSystemX").ToList();
+
+        Assert.Equal(themeShape, Names(Compiled("locale.js")));
     }
 
     [Fact]
