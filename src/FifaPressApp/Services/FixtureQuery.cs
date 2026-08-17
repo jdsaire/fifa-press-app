@@ -97,15 +97,68 @@ public static class FixtureQuery
     /// compares them, is a behavioural change to something nobody asked to have
     /// changed.
     /// </para>
+    ///
+    /// <para>
+    /// This overload is the original one and stays exactly as it was. The
+    /// locale-aware overload below <i>adds</i> to it and never subtracts.
+    /// </para>
     /// </summary>
     public static List<Fixture> Search(IEnumerable<Fixture> fixtures, string? searchTerm) =>
         string.IsNullOrWhiteSpace(searchTerm)
             ? fixtures.ToList()
+            : fixtures.Where(fixture => MatchesCanonical(fixture, searchTerm)).ToList();
+
+    /// <summary>
+    /// The same search, extended to also match the fixture's label in the
+    /// language the person is reading.
+    ///
+    /// <para>
+    /// <b>Additive, and that word is doing real work.</b> Every input that
+    /// matched before still matches: the canonical English fields are checked
+    /// first and unchanged, and the locale's rendering of the round is checked
+    /// <i>as well</i>. A person reading Spanish who types <i>octavos</i> finds
+    /// the Round of 16; a person who types <i>Round of 16</i> in any language
+    /// still finds it too. Nothing that used to be findable stops being
+    /// findable, which is why every frozen search test passes untouched.
+    /// </para>
+    ///
+    /// <para>
+    /// Recorded as an authorized deviation: the method's own remarks above call
+    /// its field list a contract, and this widens it. It widens it in the only
+    /// direction that cannot break an existing expectation — a search that
+    /// matched N fixtures before matches those N and possibly more, never fewer.
+    /// </para>
+    ///
+    /// <para>
+    /// The withholding rule is untouched here, as it was before: an unresolved
+    /// fixture carries no team names in any language, so searching a translated
+    /// label cannot surface one. What a translated label can reveal is the round
+    /// — which the app already prints on the card.
+    /// </para>
+    /// </summary>
+    public static List<Fixture> Search(
+        IEnumerable<Fixture> fixtures,
+        string? searchTerm,
+        LocaleService locale,
+        AppLocale which) =>
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? fixtures.ToList()
             : fixtures.Where(fixture =>
-                fixture.DisplayLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                fixture.Venue.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                fixture.City.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                fixture.PhaseLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+                MatchesCanonical(fixture, searchTerm) ||
+                FixtureLabels.Display(locale, which, fixture)
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                FixtureLabels.Phase(locale, which, fixture)
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    /// <summary>
+    /// The original four fields, unchanged, in the original order. Extracted so
+    /// both overloads read from one definition and cannot drift apart.
+    /// </summary>
+    private static bool MatchesCanonical(Fixture fixture, string searchTerm) =>
+        fixture.DisplayLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        fixture.Venue.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        fixture.City.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        fixture.PhaseLabel.Contains(searchTerm, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Narrows to played or not-yet-played fixtures.
@@ -142,4 +195,17 @@ public static class FixtureQuery
         string? groupSelection,
         MatchStatusFilter status) =>
         WithStatus(InGroup(Search(fixtures, searchTerm), groupSelection), status);
+
+    /// <summary>
+    /// The same composition, searching in the reader's language as well as the
+    /// canonical one.
+    /// </summary>
+    public static List<Fixture> Apply(
+        IEnumerable<Fixture> fixtures,
+        string? searchTerm,
+        string? groupSelection,
+        MatchStatusFilter status,
+        LocaleService locale,
+        AppLocale which) =>
+        WithStatus(InGroup(Search(fixtures, searchTerm, locale, which), groupSelection), status);
 }

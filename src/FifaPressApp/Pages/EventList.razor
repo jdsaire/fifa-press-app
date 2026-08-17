@@ -181,7 +181,7 @@ else
     // about how it matches was reconsidered. The filters narrow what it
     // returns; they never alter what it matches.
     private List<Fixture> FilteredFixtures =>
-        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter);
+        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale);
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
 
