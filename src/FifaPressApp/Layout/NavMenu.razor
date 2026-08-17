@@ -56,11 +56,24 @@
                 @L[Locale, "nav.help"]
             </NavLink>
         </div>
-        @* A fourth row. It is a control rather than a destination: it has no
-           href, so it is not a NavLink and no active state can ever apply to
-           it. It is in the list rather than above the content column because
-           this list is already the same element at both breakpoints — a row
-           added to it collapses on a phone for free. *@
+        @* The two appearance-and-language controls, in the non-destination tail
+           below the three destinations. Language sits above theme; both are
+           controls rather than destinations, so neither is a NavLink and no
+           active state can ever apply to either. They are in the list rather
+           than above the content column because this list is already the same
+           element at both breakpoints — a row added to it collapses on a phone
+           for free.
+
+           SWITCHING LANGUAGE DOES NOT END THE SESSION. 11 §5.3 says it does,
+           deriving that from a locale-triggered reload — but §5.2 decided
+           Option B, an in-session re-render with no reload, so the premise does
+           not hold. There is nothing here that could end a session, and the
+           language switch's own UI therefore has nothing to warn anyone about.
+           Reported as a discrepancy rather than resolved by editing a Final
+           file. *@
+        <div class="nav-item px-3">
+            <LanguageSwitch />
+        </div>
         <div class="nav-item px-3">
             <ThemeTrigger />
         </div>

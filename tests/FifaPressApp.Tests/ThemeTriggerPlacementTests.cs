@@ -46,10 +46,11 @@ public class ThemeTriggerPlacementTests
 
         var nav = context.Render<NavMenu>();
 
-        // Inside the list, not merely somewhere in the component.
+        // Inside the list, not merely somewhere in the component. Five rows
+        // signed out: three destinations, then language, then theme.
         var rows = nav.FindAll("nav.flex-column > .nav-item");
-        Assert.Equal(4, rows.Count);
-        Assert.NotEmpty(rows[3].QuerySelectorAll("button.theme-trigger"));
+        Assert.Equal(5, rows.Count);
+        Assert.NotEmpty(rows[4].QuerySelectorAll("button.theme-trigger"));
     }
 
     [Fact]
@@ -60,14 +61,16 @@ public class ThemeTriggerPlacementTests
         var nav = context.Render<NavMenu>();
         var rows = nav.FindAll("nav.flex-column > .nav-item");
 
-        // Help is third, the trigger fourth. 09 §5.2 put the trigger visually
-        // last; 10 §4.1 then placed sign-out below it, so "last" holds only
-        // while there is no session — which is the state this class renders.
-        // What survives either way is the arrangement that matters: the three
-        // destinations contiguous at the top, the controls beneath them.
+        // Help is third and last of the destinations; everything below it is a
+        // control. 09 §5.2 put the trigger visually last; 11 §5.1 then put the
+        // language switch above it and 10 §4.1 put sign-out below it, so
+        // "last" no longer describes the theme row at all. What survives — and
+        // what these three files actually agree on — is the arrangement: three
+        // destinations contiguous at the top, controls beneath them, none of
+        // the controls a NavLink.
         Assert.Contains("Help", rows[2].TextContent);
         Assert.Empty(rows[3].QuerySelectorAll("a"));
-        Assert.Equal(rows.Count - 1, 3);
+        Assert.Empty(rows[4].QuerySelectorAll("a"));
     }
 
     [Fact]
@@ -117,7 +120,7 @@ public class ThemeTriggerPlacementTests
 
         var nav = context.Render<NavMenu>();
 
-        Assert.Equal(4, nav.FindAll("nav.flex-column > .nav-item").Count);
+        Assert.Equal(5, nav.FindAll("nav.flex-column > .nav-item").Count);
         Assert.True(nav.Find("button.theme-trigger").HasAttribute("disabled"));
     }
 

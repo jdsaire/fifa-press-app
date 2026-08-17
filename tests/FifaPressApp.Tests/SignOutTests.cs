@@ -40,23 +40,25 @@ public class SignOutTests
 
         Assert.Empty(nav.FindAll(".nav-signout"));
         Assert.Empty(nav.FindAll(".nav-session"));
-        Assert.Equal(4, nav.FindAll("nav.flex-column > .nav-item").Count);
+        Assert.Equal(5, nav.FindAll("nav.flex-column > .nav-item").Count);
     }
 
     [Fact]
-    public async Task SignedInThereIsAFifthRowBelowTheThemeRow()
+    public async Task SignedInThereIsASixthRowBelowTheThemeRow()
     {
         using var context = NewContext(await AsAminaAsync());
 
         var nav = context.Render<NavMenu>();
         var rows = nav.FindAll("nav.flex-column > .nav-item");
 
-        Assert.Equal(5, rows.Count);
+        Assert.Equal(6, rows.Count);
 
-        // Destinations contiguous at the top, the two controls grouped at the
-        // bottom, sign-out last.
-        Assert.NotEmpty(rows[3].QuerySelectorAll("button.theme-trigger"));
-        Assert.NotEmpty(rows[4].QuerySelectorAll("button.nav-signout"));
+        // Destinations contiguous at the top, the three controls grouped at the
+        // bottom in the order 11 §5.1 and 10 §4.1 set between them: language,
+        // theme, sign-out last.
+        Assert.NotEmpty(rows[3].QuerySelectorAll(".language-switch"));
+        Assert.NotEmpty(rows[4].QuerySelectorAll("button.theme-trigger"));
+        Assert.NotEmpty(rows[5].QuerySelectorAll("button.nav-signout"));
     }
 
     [Fact]

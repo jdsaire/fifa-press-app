@@ -1,0 +1,52 @@
+/* Shaped like the rows around it — same height, same padding, same colour
+   token — but holding a label and three options rather than one label. The
+   three sit right, so the row still reads left-to-right as "what this is" then
+   "what you can do about it", the same as the theme row. */
+.language-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    height: 3rem;
+    padding-left: var(--space-2);
+    color: var(--color-nav-item);
+    font-size: var(--font-size-small);
+}
+
+.language-switch__options {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.language-switch__option {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-default);
+    color: var(--color-nav-item);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+}
+
+.language-switch__option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-sidebar-text);
+}
+
+/* The current language is marked, not removed: the control keeps the same
+   shape whichever one is active, so nothing moves under the pointer when a
+   person switches. */
+.language-switch__option--current {
+    background-color: rgba(255, 255, 255, 0.37);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-sidebar-text);
+    cursor: default;
+}
+
+.language-switch__option:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+}
