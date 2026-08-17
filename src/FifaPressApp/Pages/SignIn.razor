@@ -1,52 +1,93 @@
-@* Sign in — a form, not authentication.
+@* Sign in — a simulated session, and the screen says so before anything else.
    ------------------------------------------------------------------------
-   There is no credential store behind this, no session, no authorization, and
-   nothing on the other side of it. A login form that implies an account system
-   it does not have is a lie told by the interface, so this page says what it is
-   ON THE SCREEN — before any interaction, not buried in a repo file that the
-   person filling in the form will never read.
+   This is no longer the inert form v9 shipped. There is a session now, it is
+   real enough to change what renders, and it gates the record. What there is
+   NOT is an account system: no server, no token, no verification, and two
+   passwords compiled into the app and printed a few inches below the field
+   they go in.
 
-   Everything in this app is reachable without signing in, and this page must
-   not imply otherwise by presenting itself as a barrier in front of the record.
+   That is exactly why the notice had to be rewritten rather than kept. v9's
+   notice said nothing is sent, stored, or checked, and that the whole app is
+   reachable without signing in. Both halves are now false, and a notice that
+   has quietly become false is worse than no notice — it is the lie-by-interface
+   this app exists to argue against, told about itself.
 
-   Adopted from this project's own reference login: the on-screen honesty about
-   simulation, the autocomplete attributes, the password input type, idiomatic
-   EditForm/EditContext/DataAnnotationsValidator validation, aria-live on field
-   errors and role="alert" on the form-level one, a single generic failure
-   message that does not reveal which field was wrong, and allow-list validation
-   on the identifier only.
-
-   NOT adopted, deliberately: published demo credentials (there is no store, so
-   there is nothing to publish and printing placeholders would imply one
-   exists), any signed-in state or session provider, sign-out, redirect on
-   success, and the reference's injection blocklist — that list rejects
-   apostrophes and the substring " or ", which would turn away a journalist
-   called O'Neill. An allow-list that rejects real names is a bug, not stricter
-   defence, and the reference's own service says as much. *@
+   CARRIED FORWARD FROM v9, UNCHANGED, and deliberately not re-derived: the
+   EditForm/EditContext/DataAnnotationsValidator structure, autocomplete
+   attributes, type="password", the IdentifierInputMode switch, ValidationMessage
+   with aria-live per field and role="alert" on the form-level error, the
+   PermissiveIdentifier allow-list and its reasoning, and the single generic
+   failure message. The reference's injection blocklist is still not adopted:
+   it rejects apostrophes and the substring " or ", which turns away O'Neill,
+   D'Angelo and Ba'ath. *@
 
 @page "/signin"
 @using System.ComponentModel.DataAnnotations
 @using System.Text.RegularExpressions
+@inject SimulatedSessionProvider Session
+@inject DemoAccountStore Accounts
+@inject NavigationManager Navigation
 
 <PageTitle>Sign in</PageTitle>
 
 <h1>Sign in</h1>
 
-@* Visible before any interaction, and first on the page. *@
+@* Visible before any interaction, and first on the page. The four things it
+   states are in the order 10 §2.3 sets: what this is, that the credentials
+   below are real and work, how long the session lasts, and what it is not. *@
 <div class="signin__notice" role="note">
     <p>
-        <strong>This form is a demonstration, not a way in.</strong>
-        There is no account system behind it and no credentials exist. Nothing
-        you type here is sent, stored, or checked against anything.
+        <strong>This is a simulated sign-in.</strong>
+        There is no account system behind it — no server, no verification, and
+        nothing that could tell you apart from anyone else.
     </p>
     <p>
-        You do not need it: every part of this app —
-        <a href="record">your access record</a>, <a href="matches">the match list</a>,
-        and <a href="help">help</a> — is fully reachable without signing in.
+        The credentials below are fake, published on purpose, and
+        <strong>they work</strong>. They are the only two that do.
+    </p>
+    <p>
+        The session lives in memory for as long as this tab does.
+        <strong>Refreshing the page signs you out</strong>, because storing it
+        would make this look more like an account system than it is.
+    </p>
+    <p>
+        It is a demonstration of what this app shows a signed-in holder.
+        <strong>It is not a security boundary and it protects nothing.</strong>
     </p>
 </div>
 
-<EditForm EditContext="editContext" OnValidSubmit="HandleSubmit" class="signin__form">
+@* Adjacent to the form, not behind a disclosure. Each account says whose
+   record it opens and what makes that record worth looking at — a person who
+   signs in as one and then the other should be told, beforehand, that the
+   difference is the point. *@
+<section class="signin__accounts">
+    <h2>The two demo accounts</h2>
+
+    <ul class="signin__account-list">
+        @foreach (var account in Accounts.Published)
+        {
+            <li class="signin__account" @key="account.CredentialId">
+                <h3>@account.HolderName</h3>
+                <dl>
+                    <dt>Email or credential number</dt>
+                    <dd><code>@account.Identifier</code></dd>
+                    <dt>Password</dt>
+                    <dd><code>@account.Password</code></dd>
+                </dl>
+                <p class="signin__account-note">@account.WhatIsDifferent</p>
+            </li>
+        }
+    </ul>
+
+    <p class="signin__account-hint">
+        Sign in as one, read the change list, then sign out and sign in as the
+        other. The same conditional change sits on both records and behaves
+        differently, and that difference is derived from the record — never from
+        a setting either of them chose.
+    </p>
+</section>
+
+<EditForm EditContext="editContext" OnValidSubmit="HandleSubmitAsync" class="signin__form">
     <DataAnnotationsValidator />
 
     <div class="signin__field">
@@ -55,6 +96,7 @@
                    class="form-control"
                    autocomplete="username"
                    inputmode="@IdentifierInputMode"
+                   disabled="@submitting"
                    @bind-Value="model.Identifier"
                    @bind-Value:event="oninput" />
         <ValidationMessage For="@(() => model.Identifier)" class="signin__error" aria-live="polite" />
@@ -65,11 +107,14 @@
         @* type="password" and current-password, and nothing else touches this
            value: it is never trimmed, pattern-checked, rewritten, logged, or
            put in a query string. Allow-list rewriting is right for a username
-           and wrong for a password, which has to compare byte for byte. *@
+           and wrong for a password, which has to compare byte for byte — and
+           now that a real comparison happens, that is a tested rule rather
+           than a stated intention. *@
         <InputText id="signin-password"
                    type="password"
                    class="form-control"
                    autocomplete="current-password"
+                   disabled="@submitting"
                    @bind-Value="model.Password" />
         <ValidationMessage For="@(() => model.Password)" class="signin__error" aria-live="polite" />
     </div>
@@ -79,34 +124,39 @@
         <p class="signin__error" role="alert">@formError</p>
     }
 
-    <button type="submit" class="btn btn-primary">Sign in</button>
+    <button type="submit" class="btn btn-primary" disabled="@submitting">
+        @(submitting ? "Signing in…" : "Sign in")
+    </button>
 </EditForm>
-
-@if (submitted)
-{
-    @* Submission is inert: it validates, and then says so. *@
-    <div class="signin__result" role="status">
-        <p>
-            <strong>Sign-in is not implemented in this version.</strong>
-            Your details were checked for shape only and then discarded — nothing
-            was sent and nothing was kept.
-        </p>
-        <p>
-            Everything this app does is available without an account:
-            <a href="record">read your access record and what changed</a>,
-            <a href="matches">browse the match schedule</a>, or
-            <a href="help">read what this service does not do</a>.
-        </p>
-    </div>
-}
 
 @code {
     private readonly SignInModel model = new();
     private EditContext editContext = default!;
     private string? formError;
-    private bool submitted;
+    private bool submitting;
 
-    protected override void OnInitialized() => editContext = new EditContext(model);
+    /// <summary>
+    /// One message for any failure. Saying which of the two was wrong would tell
+    /// an attacker which half they had right. With both passwords published
+    /// above this is arguably ceremony — it is kept because the pattern is
+    /// correct, and a demonstration that models the wrong pattern teaches the
+    /// wrong pattern.
+    /// </summary>
+    private const string GenericFailure =
+        "That identifier and password do not match a demo account. Both are published above.";
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(model);
+
+        // Already signed in: there is nothing here for them, and rendering a
+        // sign-in form to someone who has a session invites them to wonder
+        // whether they now have two.
+        if (Session.IsSignedIn)
+        {
+            Navigation.NavigateTo("record", replace: true);
+        }
+    }
 
     /// <summary>
     /// Nudges the on-screen keyboard toward an email layout once the value
@@ -115,13 +165,30 @@
     private string? IdentifierInputMode =>
         model.Identifier.Contains('@') ? "email" : null;
 
-    private void HandleSubmit()
+    private async Task HandleSubmitAsync()
     {
-        // One message for any failure. Saying which of the two was wrong would
-        // be telling an attacker which half they had right — and here there is
-        // nothing to be right about anyway.
         formError = null;
-        submitted = true;
+        submitting = true;
+
+        // The session's simulated latency is what makes this state reachable:
+        // the await genuinely yields, so a render pass happens here and the
+        // disabled fields and the "Signing in…" label get their chance to
+        // appear.
+        var succeeded = await Session.SignInAsync(model.Identifier, model.Password);
+
+        submitting = false;
+
+        if (!succeeded)
+        {
+            // The typed identifier is left in place. Clearing the form on a
+            // failure makes a person retype something that was probably right.
+            formError = GenericFailure;
+            return;
+        }
+
+        // No result panel and no success message: the person is on their
+        // record, and the sidebar indicator naming them is the confirmation.
+        Navigation.NavigateTo("record");
     }
 
     private sealed class SignInModel
