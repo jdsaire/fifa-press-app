@@ -46,8 +46,10 @@ began, plus one authorized post-gate correction (19) and documentation (20–22)
 the plan's estimated 21; the difference is the boundary-4 default reversal, a fix the plan could not
 have anticipated because the item it corrects was itself flagged only at that gate.
 
-**Pull request:** opened against `main`, left unmerged per push policy — see the note at the end of
-this report on the blocker encountered opening it.
+**Pull request:** [#9](https://github.com/jdsaire/fifa-press-app/pull/9), opened against `main`,
+left unmerged per push policy. Opening it was transiently blocked mid-run by an expired `gh`
+credential — see the note at the end of this report — which had cleared on its own by the time this
+archive commit was ready to push.
 
 ## Outcome
 
@@ -76,7 +78,7 @@ every one of the 22 commits, checked individually.
 | 7 | No read path gained latency | **PASS** | `GetAccreditationAsync`/`GetChangesAsync`/`GetFixturesAsync`/`GetFixtureAsync` all still return already-completed tasks; only `RequestMatchAccessAsync` and `SimulatedSessionProvider.SignInAsync` carry a simulated delay, each with its own regression test |
 | 8 | Zero AI product names anywhere in diff, messages, branch, PR; zero "built in TypeScript" phrasing | **PASS** | Full diff and every commit message swept for AI product/vendor name patterns — zero hits. `InteropTests.NothingInTheRepoClaimsTheAppIsBuiltInTypeScript` guards the second phrase in source; every description in this report and the plan uses "authored in TypeScript" instead |
 | 9 | Links N/N against the 288/299 baseline | **See below** — method changed; both counts re-verified under one consistent method | |
-| 10 | All commits on `deploy/v12-addendum-implementation`, authored `jdsaire`, PR opened against `main` and left unmerged | **PASS on authorship; PR blocked** — see final section | `git log ac5555c..HEAD --format='%an|%ae'` → one distinct value, `Juan Diego S.|88201583+jdsaire@users.noreply.github.com`, for all 22 commits |
+| 10 | All commits on `deploy/v12-addendum-implementation`, authored `jdsaire`, PR opened against `main` and left unmerged | **PASS** | `git log ac5555c..HEAD --format='%an\|%ae'` → one distinct value, `Juan Diego S.\|88201583+jdsaire@users.noreply.github.com`, for all 22 commits. PR [#9](https://github.com/jdsaire/fifa-press-app/pull/9) open against `main`, unmerged — see final section for the transient blocker encountered opening it |
 
 ## Link-integrity sweep
 
@@ -208,14 +210,14 @@ Restating v11's items unresolved by this run, plus what is new here:
 | **URL-fragment auto-expand on Help — deliberately not built** | New. `09_DESIGN-ADDENDUM.md` §7.3 names it as a natural extension and explicitly does not authorize it in this run; no section carries an `id`, and a test (`HelpDisclosureTests.NoSectionAutoExpandsFromAUrlFragment`) pins that it stays unbuilt |
 | **`docs/project-plan.md` and `docs/grading-criteria.md` still describe the pre-v9 registration flow** | New (carried, not introduced, by this run — same defect class v10 flagged for the root README and how-to-run, which this run fixed). Neither file is a folder README, root README, or how-to-run guide, so fixing them was outside what this run's documentation task authorized; flagged for the next run rather than swept in |
 | **The 299/288 link-integrity baseline this run's own plan cited turned out to be unverifiable** | New. See the link-integrity section above. Re-measured cleanly for this run; the earlier figure should not be cited again without independent re-derivation |
-| **`gh auth` failed mid-run with an invalid keyring token**, blocking `gh pr create` | New — see final section |
+| ~~`gh auth` failed mid-run with an invalid keyring token, blocking `gh pr create`~~ | Resolved — the credential recovered on its own before this archive commit was pushed; see final section |
 
-## The blocker on opening the PR
+## The transient blocker on opening the PR
 
 `gh auth status` succeeded at this run's own preflight (confirmed: `jdsaire`, keyring, scopes
 `repo`/`workflow`) and `git push` continued working throughout — every commit above reached the
 remote branch immediately, as the recovery record's corrective instruction required. When this
-report reached the point of opening the pull request, `gh auth status` failed:
+report first reached the point of opening the pull request, `gh auth status` failed:
 
 ```
 X Failed to log in to github.com account jdsaire (keyring)
@@ -223,12 +225,14 @@ X Failed to log in to github.com account jdsaire (keyring)
 - To re-authenticate, run: gh auth refresh -h github.com
 ```
 
-`gh auth refresh` requires an interactive device-code or browser flow this session cannot complete
-unattended. The branch is pushed and every commit in the table above is on the remote; only the PR
-object itself is not yet created. **This is the one item from the plan's verification checklist not
-satisfiable without the principal's action**: either running `gh auth refresh -h github.com`
-themselves so this session (or a resumed one) can open the PR, or opening it directly from the
-GitHub UI against `deploy/v12-addendum-implementation` → `main`.
+`gh auth refresh` requires an interactive device-code or browser flow this session could not have
+completed unattended, so this was recorded as an open item pending the principal's action, and this
+archive commit was prepared and committed with that framing. By the time the commit was ready to
+push and the PR step was retried, `gh auth status` succeeded again with no action taken on either
+side — a transient keyring issue, not a revoked credential. `gh pr create` then succeeded on the
+first attempt: [#9](https://github.com/jdsaire/fifa-press-app/pull/9), against `main`, left
+unmerged. Recorded here rather than silently smoothed over, since the report was written and staged
+while the blocker was still real.
 
 ## Summary
 
@@ -238,5 +242,5 @@ Portuguese with no reload on switch; a small, strictly-typed TypeScript interop 
 output ships and whose sources don't; and two-layer disclosure on both the change log and Help. 409
 tests, zero known regressions, every frozen contract — the withholding rule, the search field list,
 the read-path latency guarantee, `RequestSubmittingStateTests`'s exact string assertion — verified
-unmodified and still passing. The branch is pushed and ready for review; the PR itself needs either
-the principal's `gh` re-authentication or a manual open against `main`.
+unmodified and still passing. PR [#9](https://github.com/jdsaire/fifa-press-app/pull/9) is open
+against `main` and left unmerged, per push policy.

@@ -24,5 +24,6 @@ commits reached the remote continuously rather than sitting unpushed for three b
   by a figure independently re-derived against `main` with the method stated precisely), six
   authorized deviations including the full lifecycle of one that was proposed, flagged, and then
   reversed within this same run, five decisions resolved autonomously, open items carried forward,
-  and the one item this run could not complete unattended — opening the pull request itself, blocked
-  by an expired `gh` credential mid-run.
+  and a transient `gh` credential failure encountered while opening the PR — resolved on its own
+  before this archive landed. PR [#9](https://github.com/jdsaire/fifa-press-app/pull/9), open
+  against `main`, unmerged.
