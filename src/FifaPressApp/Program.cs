@@ -16,6 +16,15 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSingleton<SessionTracker>();
 builder.Services.AddSingleton<AttendanceTracker>();
 
+// The simulated session, and the two published demo accounts behind it. Both
+// are singletons for the same reason as the trackers above: the session has to
+// survive navigation, or signing in would last exactly one page.
+//
+// Neither of these is an authentication system, and the classes say so in their
+// own remarks rather than leaving it to this comment.
+builder.Services.AddSingleton<DemoAccountStore>();
+builder.Services.AddSingleton<SimulatedSessionProvider>();
+
 // Registered against the interface, not the class. Every page and component
 // asks for IAccessDataProvider and never names MockAccessDataProvider, so
 // swapping in an implementation that talks to a real service is a change to
