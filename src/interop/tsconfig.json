@@ -1,0 +1,37 @@
+{
+  // Emits plain ES modules straight into the app's wwwroot/js, which is where
+  // the components import them from. The output is committed, so this file
+  // describes a development-time step and never a build dependency.
+  //
+  // The strict flags are the entire point of the exercise. An interop layer is
+  // the one place in a Blazor app where the compiler stops helping: the
+  // JavaScript side takes whatever .NET sends it and hands back whatever it
+  // likes. Type-checking that seam is what this buys, and it is why the flags
+  // below are on rather than merely available.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Readable output rather than minified: this JavaScript is committed and
+    // reviewed, and a diff nobody can read is a diff nobody checks.
+    "removeComments": false,
+    "newLine": "lf",
+    "declaration": false,
+    "sourceMap": false,
+
+    "outDir": "../FifaPressApp/wwwroot/js",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"]
+}

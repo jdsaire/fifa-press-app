@@ -118,7 +118,7 @@ public class LocalizedChangeTests
     }
 
     [Fact]
-    public void DecidedByIsLocalizedEvenThoughR5DoesNotListIt()
+    public async Task DecidedByIsLocalizedEvenThoughR5DoesNotListIt()
     {
         // 11 §4.2's R5 names four fields. DecidedBy is a fifth and it is
         // user-visible — ChangeRow renders "Decided by …" — so leaving it in
@@ -126,8 +126,7 @@ public class LocalizedChangeTests
         // render in all three locales.
         var provider = TestData.ProviderOverRealSchedule();
 
-        var change = provider.GetChangesAsync(MockAccessDataProvider.AminaCredentialId)
-            .GetAwaiter().GetResult().Value
+        var change = (await provider.GetChangesAsync(MockAccessDataProvider.AminaCredentialId)).Value
             .Single(c => c.ChangeId == "ch-003");
 
         Assert.NotNull(change.DecidedByText);

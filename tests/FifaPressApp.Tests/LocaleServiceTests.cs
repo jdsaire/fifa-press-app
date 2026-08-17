@@ -245,13 +245,13 @@ public class LocaleServiceTests
     }
 
     [Fact]
-    public void ALocaleFileThatWillNotLoadDoesNotTakeTheAppDown()
+    public async Task ALocaleFileThatWillNotLoadDoesNotTakeTheAppDown()
     {
         // Degraded, stated, still running — the app's own argument applied to
         // itself. Nothing is served here, so every lookup falls through to the
         // key rather than throwing.
         var service = new LocaleService(new HttpClient { BaseAddress = new Uri("http://localhost/") });
-        service.InitializeAsync().GetAwaiter().GetResult();
+        await service.InitializeAsync();
 
         Assert.False(service.IsLoaded);
         Assert.Equal("nav.record", service[AppLocale.Es, "nav.record"]);

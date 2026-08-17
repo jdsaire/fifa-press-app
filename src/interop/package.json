@@ -1,0 +1,14 @@
+{
+  "name": "fifa-press-app-interop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TypeScript sources for the app's JavaScript interop layer. A development-time toolchain only: the compiled JavaScript is committed, so neither CI nor a local dotnet run needs Node.",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
