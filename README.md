@@ -1,10 +1,12 @@
 # FIFA Press App — Blazor WebAssembly App
 
-A client-side media-accreditation app for journalists covering the 2026 World Cup: browse matches, view details, and request facility access — built with Blazor WebAssembly.
+A media-accreditation companion for journalists covering the 2026 World Cup, in English, Spanish and Portuguese: sign in as one of two demo holders and see what your access currently permits, what has changed about it, and why — before you discover it by being refused. Built with Blazor WebAssembly.
 
 ## What is this project?
 
-A Blazor WebAssembly application reimagining a press-accreditation workflow for World Cup match coverage: the kind of tool a press office might use to let journalists, cameramen, and producers browse which matches they can request access to. It lets a user browse a mock list of matches, drill into an individual match's details, and request facility access for one through a validated form — with session-scoped state tracking which matches the current user has requested access to, and a separate per-match request count. All data is mock/in-memory for the duration of the browser session; nothing is persisted.
+A portfolio demonstration, not a FIFA product — it is not affiliated with, endorsed by, or connected to FIFA, and the public landing view says so before anything else. It reimagines what a journalist's accreditation record could show: not a login-gated status page, but an append-only log of every change to that record, each one carrying a reason and a next step, with the ones that depend on a result nobody has played yet worded as conditions rather than decisions already taken. Two demo accounts, published on the sign-in screen, open two different holders' records — the difference between them is the point, not an accident of the data.
+
+All data is simulated for the duration of the browser session; nothing is persisted server-side, and the app says so wherever a reader might otherwise mistake it for a live integration. The match schedule is the one real thing in it.
 
 New to Blazor or .NET? [`docs/setup-guide.md`](docs/setup-guide.md) walks through installing the SDK and running this project from scratch — no prior experience assumed.
 
@@ -18,15 +20,19 @@ However you get there, you'll see:
 
 | Page | Route | What it does |
 |---|---|---|
-| **Matches** | `/` | Lists all mock World Cup matches as editable cards (name, date, location), each with **View Details** and **Register** links — "Register" is this app's built-in wording for submitting a facility-access request. |
-| **Match Details** | `/events/{id}` | Shows a single match, whether you've already requested access, and how many people have requested access to it. |
-| **Register** | `/register/{id}` | A validated form (name, email) — submitting marks you as having requested access to that match and updates the request count. |
+| **Landing** | `/` | The public front door: what this app is, that it's a demonstration, and two equally weighted ways in — sign in, or browse without an account. |
+| **Sign in** | `/signin` | A simulated session — genuinely functional, genuinely not a security boundary — with both demo accounts published on screen, passwords included. |
+| **My Access** | `/record` | The signed-in holder's record: what they hold, every change to it (each one a row you open for the reason and next step), and how old the data on screen is. Gated — an access record is personal by definition. |
+| **Matches** | `/matches` | Every scheduled fixture, searchable and filterable. Public: no sign-in needed. |
+| **Match details** | `/events/{id}` | One fixture, kickoff time, and — signed in — your access to it and a simulated gate check. |
+| **Request access** | `/request/{id}` | A validated form; submitting writes a new, animated-in entry to your record rather than showing a separate confirmation screen. Gated, since it writes to a personal record. |
+| **Help** | `/help` | What this service doesn't do, what won't reach you as a notification, and who to contact — eight independently collapsible sections, all closed on arrival, entirely static so it still reads with no network at all. Public. |
 
-A "Registered" badge follows you back to the Matches and Match Details pages after you submit, and stays until you close the tab (state is in-memory only).
+A fixture that hasn't been played yet never names its teams — on any of these screens, in any of the three languages — because the schedule this app reads is a record of a *completed* tournament, and the app is built not to read ahead. Switch language or theme from the sidebar; both are independent of the other and of the session, so changing either never signs you out.
 
 ## Tech Stack
 
-- **Language:** C#
+- **Language:** C#, with a small TypeScript interop layer (two files: theme and locale storage) — see [`src/interop/README.md`](src/interop/README.md) for why and how narrowly.
 - **Framework:** Blazor WebAssembly (client-side, `.NET 10`)
 - **Editor used for development:** Visual Studio Code
 - **AI coding assistant used for development (per assignment requirements):** an AI coding assistant
