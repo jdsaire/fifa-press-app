@@ -21,6 +21,18 @@
 
 <PageTitle>FIFA Press App</PageTitle>
 
+@if (justSignedOut)
+{
+    @* Signing out says so. Leaving a person to infer it from a sidebar that
+       quietly lost two rows is the same class of silence this app exists to
+       replace, at a smaller scale. *@
+    <p class="landing__signed-out" role="status">
+        <strong>You are signed out.</strong>
+        The simulated session has ended. Signing in again, as either holder,
+        starts a new one.
+    </p>
+}
+
 <h1>Know what changed about your access, before you're refused</h1>
 
 <p class="landing__lede">
@@ -86,6 +98,8 @@
 </section>
 
 @code {
+    private bool justSignedOut;
+
     /// <summary>
     /// A signed-in visitor has no use for the front door. Redirecting rather
     /// than rendering a second entry point keeps one answer to "where is my
@@ -96,6 +110,11 @@
         if (Session.IsSignedIn)
         {
             Navigation.NavigateTo("record", replace: true);
+            return;
         }
+
+        // Asked once and cleared by the asking, so a refresh does not repeat an
+        // announcement about something that happened a while ago.
+        justSignedOut = Session.ConsumeSignOutAnnouncement();
     }
 }

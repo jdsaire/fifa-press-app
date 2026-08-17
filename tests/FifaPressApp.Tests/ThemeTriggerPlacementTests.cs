@@ -2,6 +2,8 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Bunit;
 using FifaPressApp.Layout;
+using FifaPressApp.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Xunit;
 
@@ -23,11 +25,24 @@ public class ThemeTriggerPlacementTests
     private static string Read(params string[] parts)
         => File.ReadAllText(Path.Combine(SourceRoot(), Path.Combine(parts)));
 
+    /// <summary>
+    /// NavMenu reads the session now — it renders the signed-in indicator and
+    /// the sign-out row. These tests are about the theme row, so they use a
+    /// signed-out session: four rows, the theme trigger last.
+    /// </summary>
+    private static BunitContext NewContext()
+    {
+        var context = new BunitContext();
+        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
+        return context;
+    }
+
     [Fact]
     public void TheTriggerRendersAsARowInsideTheNavList()
     {
-        using var context = new BunitContext();
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
 
@@ -38,25 +53,27 @@ public class ThemeTriggerPlacementTests
     }
 
     [Fact]
-    public void TheTriggerIsTheLastRow_SoItInheritsTheListsFinalItemPadding()
+    public void TheTriggerSitsBelowTheDestinations_LastOfThemWhenSignedOut()
     {
-        using var context = new BunitContext();
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
         var rows = nav.FindAll("nav.flex-column > .nav-item");
 
-        // Help is third, the trigger fourth. The bottom padding the stylesheet
-        // gives :last-of-type now belongs to the theme row.
+        // Help is third, the trigger fourth. 09 §5.2 put the trigger visually
+        // last; 10 §4.1 then placed sign-out below it, so "last" holds only
+        // while there is no session — which is the state this class renders.
+        // What survives either way is the arrangement that matters: the three
+        // destinations contiguous at the top, the controls beneath them.
         Assert.Contains("Help", rows[2].TextContent);
         Assert.Empty(rows[3].QuerySelectorAll("a"));
+        Assert.Equal(rows.Count - 1, 3);
     }
 
     [Fact]
     public void TheTriggerIsNotANavLinkAndCarriesNoActiveState()
     {
-        using var context = new BunitContext();
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
         var trigger = nav.Find("button.theme-trigger");
@@ -75,8 +92,7 @@ public class ThemeTriggerPlacementTests
         // The move is a placement decision. What the control renders — an icon
         // paired with a label that says what pressing it does — is unchanged,
         // and the label is what a screen reader gets; the icon is hidden.
-        using var context = new BunitContext();
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
         var trigger = nav.Find("button.theme-trigger");
@@ -93,8 +109,7 @@ public class ThemeTriggerPlacementTests
         // module never loads at all, the app still renders in the system theme
         // and only the ability to override it is lost. That degrades quietly;
         // it does not remove a row from the navigation.
-        using var context = new BunitContext();
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        using var context = NewContext();
         context.JSInterop
             .SetupModule("./js/theme.js")
             .Setup<string?>("getStoredTheme")
@@ -109,8 +124,7 @@ public class ThemeTriggerPlacementTests
     [Fact]
     public void TheRowBecomesUsableOnceItsModuleHasLoaded()
     {
-        using var context = new BunitContext();
-        context.JSInterop.Mode = JSRuntimeMode.Loose;
+        using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
 

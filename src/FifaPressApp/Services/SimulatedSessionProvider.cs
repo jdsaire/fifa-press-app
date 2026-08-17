@@ -107,6 +107,28 @@ public sealed class SimulatedSessionProvider
         }
 
         Current = null;
+        signedOutToAnnounce = true;
         OnChanged?.Invoke();
+    }
+
+    private bool signedOutToAnnounce;
+
+    /// <summary>
+    /// Whether a sign-out has happened that the landing has not yet
+    /// acknowledged, cleared by the asking.
+    ///
+    /// <para>
+    /// Signing out has to say plainly that it happened, and the landing is where
+    /// the person lands. A query string would put the announcement in the
+    /// address bar, where it survives a refresh, gets shared, and outlives the
+    /// event it describes — a one-shot flag says it once, to the person it
+    /// happened to.
+    /// </para>
+    /// </summary>
+    public bool ConsumeSignOutAnnouncement()
+    {
+        var pending = signedOutToAnnounce;
+        signedOutToAnnounce = false;
+        return pending;
     }
 }

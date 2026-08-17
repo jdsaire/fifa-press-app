@@ -70,3 +70,64 @@
         overflow-y: auto;
     }
 }
+
+/* The session indicator. Above the rows, quieter than any of them, and not
+   interactive — the label is smaller and dimmer than the name it introduces,
+   so the eye lands on "who" rather than on "signed in as". Both colours come
+   from the sidebar's own tokens, which are checked against the gradient rather
+   than against the page surface. */
+.nav-session {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-3) 0;
+    font-size: var(--font-size-small);
+}
+
+.nav-session__label {
+    color: var(--color-nav-item);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.nav-session__holder {
+    color: var(--color-sidebar-text);
+    font-weight: 700;
+}
+
+.nav-session__credential {
+    color: var(--color-nav-item);
+    font-variant-numeric: tabular-nums;
+}
+
+/* The sign-out row, shaped like the theme row above it and like the three
+   destinations above that. Same reasoning as ThemeTrigger.razor.css: this is a
+   control, never a destination, so it carries no active state — but unlike the
+   theme trigger it lives here, because it has no component of its own. */
+.nav-signout {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 3rem;
+    line-height: 3rem;
+    padding-left: var(--space-2);
+    background: none;
+    border: none;
+    border-radius: var(--radius-default);
+    color: var(--color-nav-item);
+    font-size: var(--font-size-small);
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-signout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-sidebar-text);
+}
+
+.nav-signout:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: -2px;
+}

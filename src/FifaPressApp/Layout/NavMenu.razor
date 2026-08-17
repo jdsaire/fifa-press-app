@@ -1,4 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+@implements IDisposable
+@inject SimulatedSessionProvider Session
+@inject NavigationManager Navigation
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">FIFA Press App</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu"
@@ -9,8 +13,25 @@
 </div>
 
 <div id="nav-menu" class="@NavMenuCssClass nav-scrollable">
-    @* Three top-level destinations, in this order. Sign in is deliberately not
-       among them: it is a door, not a section, and it gates nothing. *@
+    @if (Session.Current is DemoAccount holder)
+    {
+        @* Above the rows, and read-only. With two demo records whose whole
+           point is comparison, "which one am I looking at" is a question the
+           interface has to answer without being asked — and on every screen
+           except the record itself, nothing else on the page says. It is not a
+           menu and has no affordance beyond being read. *@
+        <div class="nav-session">
+            <span class="nav-session__label">Signed in as</span>
+            <span class="nav-session__holder">@holder.HolderName</span>
+            <span class="nav-session__credential">@holder.CredentialId</span>
+        </div>
+    }
+
+    @* Three destinations, then the controls. Sign in is not among the
+       destinations — it is a door, not a section. It used to be true that it
+       gated nothing; it gates the record now, and the row order says so by
+       keeping the destinations contiguous at the top and grouping the two
+       state-not-destination controls at the bottom. *@
     <nav class="nav flex-column">
         @* href="record", and no Match override. The empty href this row used to
            carry needed Match="NavLinkMatch.All" only because an empty prefix
@@ -31,15 +52,26 @@
                 Help
             </NavLink>
         </div>
-        @* A fourth row, and the last one, so it inherits the bottom padding the
-           list already gives its final item. It is a control rather than a
-           destination: it has no href, so it is not a NavLink and no active
-           state can ever apply to it. It is in the list rather than above the
-           content column because this list is already the same element at both
-           breakpoints — a row added to it collapses on a phone for free. *@
+        @* A fourth row. It is a control rather than a destination: it has no
+           href, so it is not a NavLink and no active state can ever apply to
+           it. It is in the list rather than above the content column because
+           this list is already the same element at both breakpoints — a row
+           added to it collapses on a phone for free. *@
         <div class="nav-item px-3">
             <ThemeTrigger />
         </div>
+        @if (Session.IsSignedIn)
+        {
+            @* Fifth and last, below the theme row. No confirmation dialog:
+               there is nothing to lose, and a modal guarding a simulated
+               session would be theatre. *@
+            <div class="nav-item px-3">
+                <button type="button" class="nav-signout" @onclick="SignOut">
+                    <span class="nav-signout__icon" aria-hidden="true">⇥</span>
+                    <span class="nav-signout__label">Sign out</span>
+                </button>
+            </div>
+        }
     </nav>
 </div>
 
@@ -48,8 +80,29 @@
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
+    protected override void OnInitialized() => Session.OnChanged += Refresh;
+
+    public void Dispose() => Session.OnChanged -= Refresh;
+
+    /// <summary>
+    /// The session changes from the sign-in screen, which is not this
+    /// component's child and cannot tell it directly. Subscribing is what keeps
+    /// the indicator and the sign-out row from being a render behind.
+    /// </summary>
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void SignOut()
+    {
+        Session.SignOut();
+
+        // Back to the public landing, which is where a person with no session
+        // belongs — and it announces that the sign-out happened rather than
+        // leaving them to infer it from a changed sidebar.
+        Navigation.NavigateTo("");
     }
 }
