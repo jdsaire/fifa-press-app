@@ -1,0 +1,42 @@
+@implements IDisposable
+@inject LocaleService Locale
+
+@* The root of the locale cascade.
+   ------------------------------------------------------------------------
+   Option B — in-session re-render, no reload — needs one thing to work: every
+   component that displays localized text has to actually re-render when the
+   locale changes. This is what makes that happen. It subscribes to the service,
+   holds the active locale as a *value*, and cascades it; a value change is what
+   Blazor's own render cycle reacts to.
+
+   The cascade carries the AppLocale rather than the LocaleService, and that
+   distinction is load-bearing. Cascading the service would hand every component
+   a reference to an object whose contents change without the reference
+   changing, which is exactly the kind of update Blazor cannot see. Cascading
+   the enum means a locale change is a new value, and a new value re-renders
+   everything below it. *@
+
+<CascadingValue Value="current" IsFixed="false">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private AppLocale current;
+
+    protected override void OnInitialized()
+    {
+        current = Locale.Current;
+        Locale.OnChanged += Refresh;
+    }
+
+    public void Dispose() => Locale.OnChanged -= Refresh;
+
+    private void Refresh()
+    {
+        current = Locale.Current;
+        InvokeAsync(StateHasChanged);
+    }
+}

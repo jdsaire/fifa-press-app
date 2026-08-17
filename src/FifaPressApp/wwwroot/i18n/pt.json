@@ -1,0 +1,59 @@
+{
+  "code": "pt",
+  "name": "Português",
+  "months": [
+    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+  ],
+  "monthsShort": [
+    "jan", "fev", "mar", "abr", "mai", "jun",
+    "jul", "ago", "set", "out", "nov", "dez"
+  ],
+  "dateFormats": {
+    "monthDayYear": "{day} de {month} de {year}",
+    "dayMonthYear": "{day} de {month} de {year}",
+    "dayMonthYearTime": "{day} de {month} de {year}, {time}",
+    "dayShortMonthTime": "{day} {shortMonth}, {time}",
+    "dayMonth": "{day} de {month}"
+  },
+  "strings": {
+    "app.name": "FIFA Press App",
+
+    "nav.record": "Meu acesso",
+    "nav.matches": "Jogos",
+    "nav.help": "Ajuda",
+    "nav.signIn": "Entrar",
+    "nav.signOut": "Sair",
+    "nav.language": "Idioma",
+    "nav.signedInAs": "Sessão iniciada como",
+    "nav.menu": "Menu de navegação",
+
+    "theme.toLight": "Mudar para o tema claro",
+    "theme.toDark": "Mudar para o tema escuro",
+
+    "track.memberAssociationQuota": "Cota da associação membro",
+    "track.rightsHolder": "Detentor de direitos",
+    "track.freelance": "Independente",
+    "track.unknown": "Desconhecido",
+
+    "status.granted": "Acesso concedido",
+    "status.revoked": "Acesso retirado",
+    "status.requested": "Solicitado, ainda sem decisão",
+    "status.notRequested": "Não solicitado",
+
+    "phase.groupStage": "Fase de grupos",
+    "phase.roundOf32": "Décimos-sextos de final",
+    "phase.roundOf16": "Oitavos de final",
+    "phase.quarterFinals": "Quartas de final",
+    "phase.semiFinals": "Semifinais",
+    "phase.thirdPlace": "Disputa do terceiro lugar",
+    "phase.final": "Final",
+    "phase.group": "Grupo {letter}",
+
+    "common.help": "Ajuda",
+    "common.backToMatches": "Voltar aos jogos",
+    "common.whatToDoNext": "O que fazer agora",
+    "common.loadingMatch": "A carregar este jogo…",
+    "common.noMatchNumber": "Nenhum jogo tem este número."
+  }
+}

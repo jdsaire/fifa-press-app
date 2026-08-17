@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+
+@* Everything is inside the locale cascade, including the sidebar — the nav
+   labels are as localized as the page body, and a switch that re-rendered only
+   the content column would leave half the screen in the previous language. *@
+<LocaleProvider>
 <a href="#main-content" class="skip-link">Skip to main content</a>
 <div class="page">
     <div class="sidebar">
@@ -14,3 +19,4 @@
         </article>
     </main>
 </div>
+</LocaleProvider>

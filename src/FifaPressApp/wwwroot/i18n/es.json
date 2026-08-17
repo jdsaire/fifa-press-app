@@ -1,0 +1,59 @@
+{
+  "code": "es",
+  "name": "Español",
+  "months": [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+  ],
+  "monthsShort": [
+    "ene", "feb", "mar", "abr", "may", "jun",
+    "jul", "ago", "sept", "oct", "nov", "dic"
+  ],
+  "dateFormats": {
+    "monthDayYear": "{day} de {month} de {year}",
+    "dayMonthYear": "{day} de {month} de {year}",
+    "dayMonthYearTime": "{day} de {month} de {year}, {time}",
+    "dayShortMonthTime": "{day} {shortMonth}, {time}",
+    "dayMonth": "{day} de {month}"
+  },
+  "strings": {
+    "app.name": "FIFA Press App",
+
+    "nav.record": "Mi acceso",
+    "nav.matches": "Partidos",
+    "nav.help": "Ayuda",
+    "nav.signIn": "Iniciar sesión",
+    "nav.signOut": "Cerrar sesión",
+    "nav.language": "Idioma",
+    "nav.signedInAs": "Sesión iniciada como",
+    "nav.menu": "Menú de navegación",
+
+    "theme.toLight": "Cambiar al tema claro",
+    "theme.toDark": "Cambiar al tema oscuro",
+
+    "track.memberAssociationQuota": "Cupo de la asociación miembro",
+    "track.rightsHolder": "Titular de derechos",
+    "track.freelance": "Independiente",
+    "track.unknown": "Desconocido",
+
+    "status.granted": "Acceso concedido",
+    "status.revoked": "Acceso retirado",
+    "status.requested": "Solicitado, sin decisión todavía",
+    "status.notRequested": "No solicitado",
+
+    "phase.groupStage": "Fase de grupos",
+    "phase.roundOf32": "Dieciseisavos de final",
+    "phase.roundOf16": "Octavos de final",
+    "phase.quarterFinals": "Cuartos de final",
+    "phase.semiFinals": "Semifinales",
+    "phase.thirdPlace": "Partido por el tercer puesto",
+    "phase.final": "Final",
+    "phase.group": "Grupo {letter}",
+
+    "common.help": "Ayuda",
+    "common.backToMatches": "Volver a los partidos",
+    "common.whatToDoNext": "Qué hacer ahora",
+    "common.loadingMatch": "Cargando este partido…",
+    "common.noMatchNumber": "Ningún partido tiene este número."
+  }
+}

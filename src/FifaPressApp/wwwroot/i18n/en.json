@@ -1,0 +1,59 @@
+{
+  "code": "en",
+  "name": "English",
+  "months": [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ],
+  "monthsShort": [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ],
+  "dateFormats": {
+    "monthDayYear": "{month} {day}, {year}",
+    "dayMonthYear": "{day} {month} {year}",
+    "dayMonthYearTime": "{day} {month} {year}, {time}",
+    "dayShortMonthTime": "{day} {shortMonth}, {time}",
+    "dayMonth": "{day} {month}"
+  },
+  "strings": {
+    "app.name": "FIFA Press App",
+
+    "nav.record": "My Access",
+    "nav.matches": "Matches",
+    "nav.help": "Help",
+    "nav.signIn": "Sign in",
+    "nav.signOut": "Sign out",
+    "nav.language": "Language",
+    "nav.signedInAs": "Signed in as",
+    "nav.menu": "Navigation menu",
+
+    "theme.toLight": "Switch to light theme",
+    "theme.toDark": "Switch to dark theme",
+
+    "track.memberAssociationQuota": "Member association quota",
+    "track.rightsHolder": "Rights holder",
+    "track.freelance": "Freelance",
+    "track.unknown": "Unknown",
+
+    "status.granted": "Access granted",
+    "status.revoked": "Access withdrawn",
+    "status.requested": "Requested, not yet decided",
+    "status.notRequested": "Not requested",
+
+    "phase.groupStage": "Group stage",
+    "phase.roundOf32": "Round of 32",
+    "phase.roundOf16": "Round of 16",
+    "phase.quarterFinals": "Quarter-finals",
+    "phase.semiFinals": "Semi-finals",
+    "phase.thirdPlace": "Third-place play-off",
+    "phase.final": "Final",
+    "phase.group": "Group {letter}",
+
+    "common.help": "Help",
+    "common.backToMatches": "Back to matches",
+    "common.whatToDoNext": "What to do next",
+    "common.loadingMatch": "Loading this match…",
+    "common.noMatchNumber": "No match has this number."
+  }
+}
