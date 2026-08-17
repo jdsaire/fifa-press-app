@@ -50,7 +50,7 @@ else
 
     <p class="detail__kickoff">
         @L[Locale, "detail.kicksOff"]
-        <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
+        <time datetime="@fixture.KickoffLocal.ToString("o")">@L.Date(Locale, fixture.KickoffLocal, "dayMonthYearTime")</time>
         <strong>@fixture.TimeZoneLabel</strong> · <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture)
     </p>
 
@@ -147,12 +147,12 @@ else
                     <dt>@L[Locale, "detail.gateYourRecord"]</dt>
                     <dd>
                         @StatusWord(status) —
-                        <time datetime="@lastSyncedUtc.ToString("o")">as of @lastSyncedUtc.ToString("d MMM, HH:mm")</time> UTC
+                        <time datetime="@lastSyncedUtc.ToString("o")">@L.Format(Locale, "detail.gateAsOf", ("timestamp", L.Date(Locale, lastSyncedUtc, "dayShortMonthTime")))</time> UTC
                     </dd>
                     <dt>@L[Locale, "detail.gateVenueList"]</dt>
                     <dd>
                         @StatusWord(venueStatus) —
-                        <time datetime="@VenueListAsOf.ToString("o")">as of @VenueListAsOf.ToString("d MMM, HH:mm")</time> UTC
+                        <time datetime="@VenueListAsOf.ToString("o")">@L.Format(Locale, "detail.gateAsOf", ("timestamp", L.Date(Locale, VenueListAsOf, "dayShortMonthTime")))</time> UTC
                     </dd>
                 </dl>
                 <p>@L[Locale, "detail.gateResolution"]</p>

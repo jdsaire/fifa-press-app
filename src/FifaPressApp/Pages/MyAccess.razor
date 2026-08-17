@@ -129,7 +129,7 @@ else
     {
         <p class="my-access__no-changes">
             @L[Locale, "record.noChangesBefore"]
-            <time datetime="@lastSyncedUtc.ToString("o")">@lastSyncedUtc.ToString("d MMMM yyyy, HH:mm")</time> UTC.
+            <time datetime="@lastSyncedUtc.ToString("o")">@L.Date(Locale, lastSyncedUtc, "dayMonthYearTime")</time> UTC.
             @L[Locale, "record.noChangesAfter"]
         </p>
     }

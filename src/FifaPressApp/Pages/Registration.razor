@@ -61,7 +61,7 @@ else
 
     <p class="request__meta">
         <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture) ·
-        <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
+        <time datetime="@fixture.KickoffLocal.ToString("o")">@L.Date(Locale, fixture.KickoffLocal, "dayMonthYearTime")</time>
         @fixture.TimeZoneLabel
     </p>
 

@@ -11,7 +11,7 @@
     @if (ShowExactTimestamp)
     {
         <span class="stale-indicator__stamp">
-            (<time datetime="@LastSyncedUtc.ToString("o")">@LastSyncedUtc.ToString("d MMM, HH:mm")</time> UTC)
+            (<time datetime="@LastSyncedUtc.ToString("o")">@L.Date(Locale, LastSyncedUtc, "dayShortMonthTime")</time> UTC)
         </span>
     }
 </p>

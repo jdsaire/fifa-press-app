@@ -25,7 +25,7 @@
 
     <p class="change-row__when">
         <time datetime="@Change.EffectiveUtc.ToString("o")">
-            @L[Locale, IsForeseeable ? "changeRow.takesEffect" : "changeRow.tookEffect"] @Change.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
+            @L[Locale, IsForeseeable ? "changeRow.takesEffect" : "changeRow.tookEffect"] @L.Date(Locale, Change.EffectiveUtc, "dayMonthYearTime") UTC
         </time>
     </p>
 
@@ -39,7 +39,7 @@
             <p class="change-row__superseded-value">@Superseded.WhatChangedText.For(Locale)</p>
             <p class="change-row__superseded-when">
                 <time datetime="@Superseded.EffectiveUtc.ToString("o")">
-                    @L[Locale, "changeRow.recorded"] @Superseded.EffectiveUtc.ToString("d MMMM yyyy, HH:mm") UTC
+                    @L[Locale, "changeRow.recorded"] @L.Date(Locale, Superseded.EffectiveUtc, "dayMonthYearTime") UTC
                 </time>
             </p>
         </div>
@@ -60,7 +60,7 @@
                         ("phase", FixtureLabels.Phase(L, Locale, DependsOnFixture)),
                         ("venue", DependsOnFixture.Venue),
                         ("city", DependsOnFixture.City))
-                    <time datetime="@DependsOnFixture.KickoffLocal.ToString("o")">@DependsOnFixture.KickoffLocal.ToString("d MMMM")</time>
+                    <time datetime="@DependsOnFixture.KickoffLocal.ToString("o")">@L.Date(Locale, DependsOnFixture.KickoffLocal, "dayMonth")</time>
                     (@DependsOnFixture.TimeZoneLabel).
                 </p>
             }
