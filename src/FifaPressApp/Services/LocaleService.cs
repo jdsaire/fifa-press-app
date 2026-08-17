@@ -1,18 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FifaPressApp.Models;
 
 namespace FifaPressApp.Services;
-
-/// <summary>
-/// The three languages this app is built in. English first because it is the
-/// authoring language and the fallback, not because it is more important.
-/// </summary>
-public enum AppLocale
-{
-    En,
-    Es,
-    Pt,
-}
 
 /// <summary>
 /// One locale's strings, month names and date patterns, as loaded from its JSON

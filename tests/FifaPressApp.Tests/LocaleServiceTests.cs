@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FifaPressApp.Models;
 using FifaPressApp.Services;
 using Xunit;
 

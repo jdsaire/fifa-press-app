@@ -112,12 +112,24 @@ public class TwoRecordsTests
             effectiveUtc: new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.MatchAccessRevoked,
             track: track,
-            whatChanged: "Something is conditional on an unplayed fixture.",
-            reason: "The allocation contracts once that fixture settles it.",
-            nextStep: "Wait for the fixture.",
+            whatChanged: new LocalizedText(
+                "Something is conditional on an unplayed fixture.",
+                "Algo depende de un partido no jugado.",
+                "Algo depende de um jogo não disputado."),
+            reason: new LocalizedText(
+                "The allocation contracts once that fixture settles it.",
+                "La asignación se reduce en cuanto ese partido lo resuelva.",
+                "A alocação reduz-se assim que esse jogo o resolver."),
+            nextStep: new LocalizedText(
+                "Wait for the fixture.",
+                "Espera al partido.",
+                "Aguarde pelo jogo."),
             affectsMatchNumber: 98,
             dependsOnMatchNumber: 93,
-            conditionText: "If it goes one way the access is withdrawn; if not, it stands.");
+            conditionText: new LocalizedText(
+                "If it goes one way the access is withdrawn; if not, it stands.",
+                "Si ocurre una cosa se retira el acceso; si no, se mantiene.",
+                "Se acontecer uma coisa o acesso é retirado; se não, mantém-se."));
 
         Assert.Equal(
             Urgency.Foreseeable,

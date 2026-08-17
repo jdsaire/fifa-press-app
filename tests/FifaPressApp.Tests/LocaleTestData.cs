@@ -1,5 +1,6 @@
 using System.Net;
 using System.Runtime.CompilerServices;
+using FifaPressApp.Models;
 using FifaPressApp.Services;
 
 namespace FifaPressApp.Tests;
