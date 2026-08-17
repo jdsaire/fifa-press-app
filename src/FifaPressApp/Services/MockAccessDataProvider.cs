@@ -27,10 +27,30 @@ namespace FifaPressApp.Services;
 public sealed class MockAccessDataProvider : IAccessDataProvider
 {
     /// <summary>
-    /// The credential this version reads. There is one holder, because this is
-    /// a single-record surface.
+    /// The member-association quota holder's credential — the record every other
+    /// document in this project describes.
     /// </summary>
-    public const string DemoCredentialId = "MP-2026-04817";
+    public const string AminaCredentialId = "MP-2026-04817";
+
+    /// <summary>
+    /// The rights-holder's credential. The <c>RH</c> prefix distinguishes the
+    /// track from Amina's <c>MP</c> at a glance.
+    /// </summary>
+    public const string TomasCredentialId = "RH-2026-00219";
+
+    /// <summary>
+    /// The first seeded record, under the name the earlier tests know it by.
+    ///
+    /// <para>
+    /// This constant used to mean something stronger — "the credential this
+    /// version reads", because there was one holder and this was a single-record
+    /// surface. That is no longer true: two records are seeded, and every read
+    /// resolves against whichever credential the session holds. The name is kept
+    /// so the tests written against it still compile; the claim it used to make
+    /// is gone, and this remark exists so nobody restores it from the name.
+    /// </para>
+    /// </summary>
+    public const string DemoCredentialId = AminaCredentialId;
 
     /// <summary>
     /// The simulated tournament instant: one minute after the last Round-of-32
@@ -106,7 +126,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
     private readonly HttpClient http;
     private readonly List<Change> changes;
-    private readonly Accreditation accreditation;
+    private readonly IReadOnlyList<Accreditation> accreditations;
 
     private Task<FixtureImportResult>? scheduleLoad;
     private FixtureImportResult? schedule;
@@ -114,8 +134,15 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
     public MockAccessDataProvider(HttpClient http)
     {
         this.http = http;
-        accreditation = SeedAccreditation();
-        changes = SeedChanges(accreditation.Track);
+
+        // Two records, seeded together. The changes are seeded per record and
+        // then held in one list, exactly as a real store would hold them: every
+        // read filters by credential, so a record can only ever show its own.
+        var amina = SeedAmina();
+        var tomas = SeedTomas();
+
+        accreditations = [amina, tomas];
+        changes = [.. SeedAminasChanges(amina.Track), .. SeedTomassChanges(tomas.Track)];
     }
 
     /// <inheritdoc />
@@ -137,8 +164,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
         // "cache first" buys: the caller has its answer before it ever yields,
         // so the headline paints on the first render with no spinner in front
         // of it and no network in the way.
-        var record = credentialId == accreditation.CredentialId ? accreditation : null;
-        return Task.FromResult(Cached<Accreditation?>(record));
+        return Task.FromResult(Cached<Accreditation?>(Find(credentialId)));
     }
 
     /// <inheritdoc />
@@ -198,7 +224,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
             writtenUtc: SimulatedNow,
             effectiveUtc: SimulatedNow,
             kind: ChangeKind.RequestDecided,
-            track: accreditation.Track,
+            track: TrackFor(credentialId),
             whatChanged: $"Access to match {matchNumber} is now recorded as requested.",
             reason: "You submitted a request from the match page. It is written to your record "
                   + "before any decision is taken, so a request in progress is never invisible.",
@@ -227,7 +253,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
             writtenUtc: SimulatedNow,
             effectiveUtc: SimulatedNow,
             kind: ChangeKind.Withdrawal,
-            track: accreditation.Track,
+            track: TrackFor(credentialId),
             whatChanged: target.AffectsMatchNumber is int match
                 ? $"Your request for access to match {match} is withdrawn."
                 : "Your request is withdrawn.",
@@ -372,6 +398,25 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
     private bool IsResolved(Fixture fixture) => fixture.KickoffLocal <= SimulatedNow;
 
+    /// <summary>
+    /// The record behind a credential, or null. A credential this store does not
+    /// know is not an error — it is the empty state the record screen already
+    /// renders, and it says "nothing has been issued against this number"
+    /// rather than failing.
+    /// </summary>
+    private Accreditation? Find(string credentialId) => accreditations
+        .FirstOrDefault(record => record.CredentialId == credentialId);
+
+    /// <summary>
+    /// The track a write is authored against. A change carries the ceiling of
+    /// the holder it belongs to, so writing to Tomás's record with Amina's track
+    /// would silently give his change her urgency.
+    /// </summary>
+    private Track TrackFor(string credentialId) =>
+        Find(credentialId)?.Track
+        ?? throw new ArgumentException(
+            $"No record exists for credential {credentialId}.", nameof(credentialId));
+
     private static AccessResponse<T> Cached<T>(T value) =>
         new(value, SeededLastSyncedUtc, WasServedFromCache: true);
 
@@ -410,9 +455,9 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
     // ----------------------------------------------------------- mock data
 
-    private static Accreditation SeedAccreditation() => new()
+    private static Accreditation SeedAmina() => new()
     {
-        CredentialId = DemoCredentialId,
+        CredentialId = AminaCredentialId,
         HolderName = "Amina Bello",
         Outlet = "The National Daily",
         Track = new Track(TrackId.MemberAssociationQuota, HasNamedContact: false),
@@ -422,11 +467,55 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
         LastSyncedUtc = SeededLastSyncedUtc,
     };
 
-    private static List<Change> SeedChanges(Track track) =>
+    /// <summary>
+    /// The second record.
+    ///
+    /// <para>
+    /// <b>Every field is held as close to Amina's as the persona allows, and
+    /// that is the design.</b> The one variable that matters is
+    /// <c>HasNamedContact</c>: it is what moves the notification ceiling to
+    /// ImmediateOnly, and it is what makes the same conditional change silent
+    /// here and interrupting on her record. Six other differences would make the
+    /// contrast unattributable.
+    /// </para>
+    ///
+    /// <para>
+    /// The outlet is named generically. Tomás coordinates for a rights-holding
+    /// broadcaster; naming a real one would be a trademark problem this project
+    /// has no reason to take on.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>This is his own credential and nothing more.</b> In reality he
+    /// coordinates forty to a hundred and twenty of them, and this app
+    /// deliberately does not show that: a second record is a second individual
+    /// holder, not the start of a crew-management view.
+    /// </para>
+    /// </summary>
+    private static Accreditation SeedTomas() => new()
+    {
+        CredentialId = TomasCredentialId,
+        HolderName = "Tomás L.",
+        Outlet = "A rights-holding broadcaster",
+        Track = new Track(TrackId.RightsHolder, HasNamedContact: true),
+        Status = AccreditationStatus.Approved,
+        ValidUntil = new DateTime(2026, 7, 19, 23, 59, 0, DateTimeKind.Utc),
+        ZoneAccess =
+        [
+            "Media tribune",
+            "Mixed zone",
+            "Press conference room",
+            "Broadcast position",
+            "Camera platform",
+        ],
+        LastSyncedUtc = SeededLastSyncedUtc,
+    };
+
+    private static List<Change> SeedAminasChanges(Track track) =>
     [
         new Change(
             changeId: "ch-001",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 6, 5, 10, 0, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 6, 11, 0, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.MatchAccessGranted,
@@ -439,7 +528,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
         new Change(
             changeId: "ch-002",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 6, 28, 8, 30, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 6, 29, 12, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.ZoneAccessNarrowed,
@@ -452,7 +541,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
         new Change(
             changeId: "ch-003",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 6, 30, 16, 15, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 6, 30, 16, 15, 0, DateTimeKind.Utc),
             kind: ChangeKind.AdministrativeCorrection,
@@ -468,7 +557,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
         new Change(
             changeId: "ch-004",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 7, 1, 9, 0, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 7, 1, 9, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.ZoneAccessWidened,
@@ -480,7 +569,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
         new Change(
             changeId: "ch-005",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 7, 3, 11, 20, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.MatchAccessRevoked,
@@ -498,5 +587,85 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
                          + "quarter-final access is withdrawn and your accreditation continues "
                          + "unchanged for every other match. If it is not, your quarter-final "
                          + "access stands as it is now."),
+    ];
+
+    /// <summary>
+    /// Tomás's three changes, and the reason the second record exists.
+    ///
+    /// <para>
+    /// <b><c>ch-008</c> is the demonstration.</b> It is structurally identical to
+    /// Amina's <c>ch-005</c> — same kind, same affected fixture, same dependency
+    /// on an unplayed one — and it resolves differently for one reason:
+    /// <c>Classify</c> returns Foreseeable for both, and Tomás's ImmediateOnly
+    /// ceiling then makes his Silent while hers stays Foreseeable and
+    /// interrupts. Nothing in <c>Track</c> or <c>Change</c> was added to produce
+    /// that; the mechanism was already built and simply had nothing to
+    /// demonstrate itself against while one record existed.
+    /// </para>
+    ///
+    /// <para>
+    /// <c>ch-007</c> is here so the ceiling is not mistaken for silence. It
+    /// reduces what he holds and lands inside the immediate window, so it
+    /// interrupts him exactly as it would interrupt her. The ceiling suppresses
+    /// the foreseeable, never the immediate.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Withholding holds throughout.</b> The fixture <c>ch-008</c> waits on
+    /// is named by round, venue and date — never by team, in any language.
+    /// </para>
+    /// </summary>
+    private static List<Change> SeedTomassChanges(Track track) =>
+    [
+        new Change(
+            changeId: "ch-006",
+            credentialId: TomasCredentialId,
+            writtenUtc: new DateTime(2026, 6, 8, 9, 30, 0, DateTimeKind.Utc),
+            effectiveUtc: new DateTime(2026, 6, 13, 0, 0, 0, DateTimeKind.Utc),
+            kind: ChangeKind.MatchAccessGranted,
+            track: track,
+            whatChanged: "Broadcast position confirmed for your group-stage fixtures.",
+            reason: "Your organisation's rights package covers these fixtures, and the venue "
+                  + "allocation was finalised once the host cities published their broadcast "
+                  + "compound plans.",
+            nextStep: "Collect your credential at the accreditation centre before your first "
+                    + "match.",
+            affectsMatchNumber: 22),
+
+        new Change(
+            changeId: "ch-007",
+            credentialId: TomasCredentialId,
+            writtenUtc: new DateTime(2026, 7, 2, 9, 0, 0, DateTimeKind.Utc),
+            effectiveUtc: new DateTime(2026, 7, 4, 6, 0, 0, DateTimeKind.Utc),
+            kind: ChangeKind.ZoneAccessNarrowed,
+            track: track,
+            whatChanged: "Camera platform access at the Houston venue is withdrawn from 4 July.",
+            reason: "The venue operator rebuilt the platform allocation after a structural "
+                  + "inspection, and the revised plan carries fewer positions than the one your "
+                  + "package was issued against.",
+            nextStep: "Ask your FIFA Media Partnerships contact to place your platform position "
+                    + "on the revised allocation before the fixture.",
+            affectsMatchNumber: 90),
+
+        new Change(
+            changeId: "ch-008",
+            credentialId: TomasCredentialId,
+            writtenUtc: new DateTime(2026, 7, 3, 9, 45, 0, DateTimeKind.Utc),
+            effectiveUtc: new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc),
+            kind: ChangeKind.MatchAccessRevoked,
+            track: track,
+            whatChanged: "Your quarter-final broadcast position depends on the Round of 16 "
+                       + "fixture in Dallas on 6 July.",
+            reason: "Your organisation's quarter-final allocation is set by which teams remain "
+                  + "inside its rights territory. The allocation contracts as soon as that "
+                  + "fixture settles it.",
+            nextStep: "Your FIFA Media Partnerships contact will confirm the position either way "
+                    + "once the fixture is played. Nothing needs to be re-applied for.",
+            affectsMatchNumber: 98,
+            dependsOnMatchNumber: 93,
+            conditionText: "If the fixture removes the territory's remaining team, your "
+                         + "quarter-final position is withdrawn and every other position you "
+                         + "hold continues unchanged. If it does not, the position stands as it "
+                         + "is now."),
     ];
 }
