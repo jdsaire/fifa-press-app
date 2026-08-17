@@ -27,6 +27,15 @@
                 Help
             </NavLink>
         </div>
+        @* A fourth row, and the last one, so it inherits the bottom padding the
+           list already gives its final item. It is a control rather than a
+           destination: it has no href, so it is not a NavLink and no active
+           state can ever apply to it. It is in the list rather than above the
+           content column because this list is already the same element at both
+           breakpoints — a row added to it collapses on a phone for free. *@
+        <div class="nav-item px-3">
+            <ThemeTrigger />
+        </div>
     </nav>
 </div>
 

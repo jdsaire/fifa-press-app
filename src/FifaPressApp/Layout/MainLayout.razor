@@ -6,13 +6,9 @@
     </div>
 
     <main>
-        @* A strip of its own, above the content column, holding only the theme
-           control. Present at every breakpoint, right-aligned at both, and
-           independent of the sidebar header — see MainLayout.razor.css. *@
-        <div class="theme-strip">
-            <ThemeTrigger />
-        </div>
-
+        @* main holds only the content column. The theme control used to sit in a
+           strip above it; it is now a row in the nav list, where it survives the
+           breakpoint collapse without any layout of its own. *@
         <article class="content px-4" id="main-content" tabindex="-1">
             @Body
         </article>

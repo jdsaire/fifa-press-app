@@ -17,28 +17,11 @@ main {
         var(--color-sidebar-grad-end) 70%);
 }
 
-/* The theme strip.
-   ------------------------------------------------------------------------
-   A new element, and named as one rather than dressed up as a restyle. The
-   obvious place for a theme toggle here was inside .top-row, which already
-   exists at both widths and would have cost no new markup at all. It was
-   rejected: above 641px .top-row is the header of a left-hand sidebar column,
-   so a control described as "top right" would sit at the top *left* of the
-   viewport on a laptop and top right on a phone. Moving depending on the
-   device is precisely the small inconsistency this app cannot afford, given
-   that its whole claim is that you can trust what the screen tells you.
-
-   So: a slim bar of its own, above the content column, right-aligned, at every
-   breakpoint. It is independent of .top-row and holds nothing but the
-   trigger. */
-.theme-strip {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    min-height: var(--space-3);
-    padding: var(--space-1) var(--space-3);
-    background-color: var(--color-surface);
-}
+/* The theme strip that used to sit here is gone, not repurposed. It existed
+   because "top right at every breakpoint" and a left-hand sidebar are
+   incompatible instructions, so the control needed a home outside the sidebar.
+   That is no longer the instruction: the trigger is now a row in the nav list
+   itself, so main goes back to holding only the content column. */
 
 @media (min-width: 641px) {
     .page {
@@ -56,9 +39,5 @@ main {
         max-width: 60rem;
         padding-left: var(--space-4) !important;
         padding-right: 1.5rem !important;
-    }
-
-    .theme-strip {
-        padding-right: 1.5rem;
     }
 }
