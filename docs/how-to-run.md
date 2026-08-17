@@ -77,8 +77,15 @@ dotnet test tests/FifaPressApp.Tests
 
 However you got here, try this walkthrough — it exercises everything covered in [`learning-mode/`](../learning-mode/):
 
-1. **View the match list** — the home page, showing every mock World Cup match as a card.
-2. **Open a detail page** — click "View Details" on any match.
-3. **Register (request access)** — click "Register," fill in a name and a real-looking email, submit. Notice the "Registered" badge appear back on the list and detail pages.
-4. **Submit an invalid form** — go to another match's registration page and try submitting with the name or email left blank, or an email that doesn't look like one.
-5. **Visit a deliberately bad URL** — try an address like `.../events/9999` (a number with no matching match) or something completely made up like `.../nonsense`, and see the two different graceful messages each one produces.
+1. **Start at the landing page** (`/`) — what the app is, that it's a demonstration, and two ways in: sign in, or browse without an account.
+2. **Sign in as Amina** — both demo accounts are published on the sign-in screen with their passwords. Notice the field disable and the button say "Signing in…" for a moment; that's a real (simulated) write, not an instant one.
+3. **Read her record** (`/record`) — the headline paints instantly, "What changed" lists every entry newest-first, and each one is closed by default. Click one open: the collapsed line already told you *what* changed; opening it gets you *why* and what you can do next.
+4. **Sign out, then sign in as Tomás** — the second demo account, published beside the first. His record looks similar on purpose, so the one thing that's actually different — how loudly a conditional change interrupts him versus her — is the thing worth noticing, not six unrelated differences at once.
+5. **Switch language** from the sidebar — English, Spanish, Portuguese. Notice the session survives it: you're still signed in, still looking at the same record, just reading it in a different language. Switch the theme too; it's independent of both the language and the session.
+6. **Request access to a match** — from `/matches`, open any fixture and request access. You're returned straight to the record rather than to a separate "thanks" screen, and the new entry animates in, already open — that *is* the confirmation.
+7. **Sign out and try `/record` directly** — the app asks who you are rather than pretending the page doesn't exist; it says plainly that this is a demonstration, not a security check.
+8. **Browse without an account** — Matches and Help stay reachable the whole time you were doing all of the above. Open Help and notice every section starts closed; open a couple, and notice the others stay exactly as they were.
+9. **Search a fixture in Spanish or Portuguese** — while the app is in one of those languages, search the match list for the translated round name (e.g. *octavos* for Round of 16 in Spanish). It finds the same fixtures English search would.
+10. **Look for a team name on an unplayed fixture** — search for any two teams still to meet later in the schedule. You won't find them paired on a fixture that hasn't kicked off, in any language: the schedule is a record of a completed tournament, and this app is built not to read ahead.
+11. **Submit an invalid request form** — leave the name or email blank, or use something that doesn't look like an email, and watch the per-field errors.
+12. **Visit a deliberately bad URL** — try an address like `.../events/9999` (a number with no matching match) or something completely made up like `.../nonsense`, and see the two different graceful messages each one produces.

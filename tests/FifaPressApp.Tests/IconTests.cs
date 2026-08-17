@@ -19,6 +19,7 @@ public class IconTests
     public void EveryIconIsDecorativeAndInheritsItsColour(string name)
     {
         using var context = new BunitContext();
+        context.WithLocale();
 
         var icon = context.Render<Icon>(parameters => parameters.Add(component => component.Name, name));
 
@@ -38,6 +39,7 @@ public class IconTests
     public void AnUnknownIconNameDrawsNothingRatherThanFailing()
     {
         using var context = new BunitContext();
+        context.WithLocale();
 
         var icon = context.Render<Icon>(parameters => parameters.Add(component => component.Name, "trophy"));
 
@@ -48,6 +50,7 @@ public class IconTests
     public void CardKeepsItsDateAndLocationTextAlongsideTheIcons()
     {
         using var context = new BunitContext();
+        context.WithLocale();
 
         var card = context.Render<EventCard>(parameters => parameters
             .Add(component => component.EventName, "Round of 16 — teams not yet decided")
@@ -75,6 +78,7 @@ public class IconTests
         // The icons land in the read-only branch only. The editing branch and
         // its two-way binding are not this run's to reconsider.
         using var context = new BunitContext();
+        context.WithLocale();
 
         var card = context.Render<EventCard>(parameters => parameters
             .Add(component => component.EventName, "Something editable")
@@ -92,6 +96,7 @@ public class IconTests
         var fixture = TestData.Fixture(1, PhaseKind.GroupStage, "A");
 
         using var context = new BunitContext();
+        context.WithLocale();
         context.Services.AddSingleton<FifaPressApp.Services.IAccessDataProvider>(
             new StubAccessDataProvider([fixture]));
 

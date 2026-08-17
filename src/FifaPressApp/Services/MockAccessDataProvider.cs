@@ -27,10 +27,30 @@ namespace FifaPressApp.Services;
 public sealed class MockAccessDataProvider : IAccessDataProvider
 {
     /// <summary>
-    /// The credential this version reads. There is one holder, because this is
-    /// a single-record surface.
+    /// The member-association quota holder's credential — the record every other
+    /// document in this project describes.
     /// </summary>
-    public const string DemoCredentialId = "MP-2026-04817";
+    public const string AminaCredentialId = "MP-2026-04817";
+
+    /// <summary>
+    /// The rights-holder's credential. The <c>RH</c> prefix distinguishes the
+    /// track from Amina's <c>MP</c> at a glance.
+    /// </summary>
+    public const string TomasCredentialId = "RH-2026-00219";
+
+    /// <summary>
+    /// The first seeded record, under the name the earlier tests know it by.
+    ///
+    /// <para>
+    /// This constant used to mean something stronger — "the credential this
+    /// version reads", because there was one holder and this was a single-record
+    /// surface. That is no longer true: two records are seeded, and every read
+    /// resolves against whichever credential the session holds. The name is kept
+    /// so the tests written against it still compile; the claim it used to make
+    /// is gone, and this remark exists so nobody restores it from the name.
+    /// </para>
+    /// </summary>
+    public const string DemoCredentialId = AminaCredentialId;
 
     /// <summary>
     /// The simulated tournament instant: one minute after the last Round-of-32
@@ -106,7 +126,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
     private readonly HttpClient http;
     private readonly List<Change> changes;
-    private readonly Accreditation accreditation;
+    private readonly IReadOnlyList<Accreditation> accreditations;
 
     private Task<FixtureImportResult>? scheduleLoad;
     private FixtureImportResult? schedule;
@@ -114,8 +134,15 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
     public MockAccessDataProvider(HttpClient http)
     {
         this.http = http;
-        accreditation = SeedAccreditation();
-        changes = SeedChanges(accreditation.Track);
+
+        // Two records, seeded together. The changes are seeded per record and
+        // then held in one list, exactly as a real store would hold them: every
+        // read filters by credential, so a record can only ever show its own.
+        var amina = SeedAmina();
+        var tomas = SeedTomas();
+
+        accreditations = [amina, tomas];
+        changes = [.. SeedAminasChanges(amina.Track), .. SeedTomassChanges(tomas.Track)];
     }
 
     /// <inheritdoc />
@@ -137,8 +164,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
         // "cache first" buys: the caller has its answer before it ever yields,
         // so the headline paints on the first render with no spinner in front
         // of it and no network in the way.
-        var record = credentialId == accreditation.CredentialId ? accreditation : null;
-        return Task.FromResult(Cached<Accreditation?>(record));
+        return Task.FromResult(Cached<Accreditation?>(Find(credentialId)));
     }
 
     /// <inheritdoc />
@@ -198,14 +224,12 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
             writtenUtc: SimulatedNow,
             effectiveUtc: SimulatedNow,
             kind: ChangeKind.RequestDecided,
-            track: accreditation.Track,
-            whatChanged: $"Access to match {matchNumber} is now recorded as requested.",
-            reason: "You submitted a request from the match page. It is written to your record "
-                  + "before any decision is taken, so a request in progress is never invisible.",
-            nextStep: "Nothing to do now. When a decision is taken it appears here as its own "
-                    + "change, with the reason attached.",
+            track: TrackFor(credentialId),
+            whatChanged: ChangeTemplates.RequestWhatChanged(matchNumber),
+            reason: ChangeTemplates.RequestReason,
+            nextStep: ChangeTemplates.RequestNextStep,
             nextStepIsActionable: false,
-            decidedBy: "FIFA Event Media Operations (simulated — no request is actually sent)",
+            decidedBy: ChangeTemplates.RequestDecidedBy,
             affectsMatchNumber: matchNumber);
 
         changes.Add(written);
@@ -227,13 +251,10 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
             writtenUtc: SimulatedNow,
             effectiveUtc: SimulatedNow,
             kind: ChangeKind.Withdrawal,
-            track: accreditation.Track,
-            whatChanged: target.AffectsMatchNumber is int match
-                ? $"Your request for access to match {match} is withdrawn."
-                : "Your request is withdrawn.",
-            reason: "You withdrew this request yourself. The original request stays in the record "
-                  + "below, because a record that erases what it replaces is not a record.",
-            nextStep: "You can request access to this match again at any time before kickoff.",
+            track: TrackFor(credentialId),
+            whatChanged: ChangeTemplates.WithdrawalWhatChanged(target.AffectsMatchNumber),
+            reason: ChangeTemplates.WithdrawalReason,
+            nextStep: ChangeTemplates.WithdrawalNextStep,
             supersedesChangeId: target.ChangeId,
             affectsMatchNumber: target.AffectsMatchNumber);
 
@@ -372,6 +393,25 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
     private bool IsResolved(Fixture fixture) => fixture.KickoffLocal <= SimulatedNow;
 
+    /// <summary>
+    /// The record behind a credential, or null. A credential this store does not
+    /// know is not an error — it is the empty state the record screen already
+    /// renders, and it says "nothing has been issued against this number"
+    /// rather than failing.
+    /// </summary>
+    private Accreditation? Find(string credentialId) => accreditations
+        .FirstOrDefault(record => record.CredentialId == credentialId);
+
+    /// <summary>
+    /// The track a write is authored against. A change carries the ceiling of
+    /// the holder it belongs to, so writing to Tomás's record with Amina's track
+    /// would silently give his change her urgency.
+    /// </summary>
+    private Track TrackFor(string credentialId) =>
+        Find(credentialId)?.Track
+        ?? throw new ArgumentException(
+            $"No record exists for credential {credentialId}.", nameof(credentialId));
+
     private static AccessResponse<T> Cached<T>(T value) =>
         new(value, SeededLastSyncedUtc, WasServedFromCache: true);
 
@@ -410,9 +450,9 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
 
     // ----------------------------------------------------------- mock data
 
-    private static Accreditation SeedAccreditation() => new()
+    private static Accreditation SeedAmina() => new()
     {
-        CredentialId = DemoCredentialId,
+        CredentialId = AminaCredentialId,
         HolderName = "Amina Bello",
         Outlet = "The National Daily",
         Track = new Track(TrackId.MemberAssociationQuota, HasNamedContact: false),
@@ -422,81 +462,354 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
         LastSyncedUtc = SeededLastSyncedUtc,
     };
 
-    private static List<Change> SeedChanges(Track track) =>
+    /// <summary>
+    /// The second record.
+    ///
+    /// <para>
+    /// <b>Every field is held as close to Amina's as the persona allows, and
+    /// that is the design.</b> The one variable that matters is
+    /// <c>HasNamedContact</c>: it is what moves the notification ceiling to
+    /// ImmediateOnly, and it is what makes the same conditional change silent
+    /// here and interrupting on her record. Six other differences would make the
+    /// contrast unattributable.
+    /// </para>
+    ///
+    /// <para>
+    /// The outlet is named generically. Tomás coordinates for a rights-holding
+    /// broadcaster; naming a real one would be a trademark problem this project
+    /// has no reason to take on.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>This is his own credential and nothing more.</b> In reality he
+    /// coordinates forty to a hundred and twenty of them, and this app
+    /// deliberately does not show that: a second record is a second individual
+    /// holder, not the start of a crew-management view.
+    /// </para>
+    /// </summary>
+    private static Accreditation SeedTomas() => new()
+    {
+        CredentialId = TomasCredentialId,
+        HolderName = "Tomás L.",
+        Outlet = "A rights-holding broadcaster",
+        Track = new Track(TrackId.RightsHolder, HasNamedContact: true),
+        Status = AccreditationStatus.Approved,
+        ValidUntil = new DateTime(2026, 7, 19, 23, 59, 0, DateTimeKind.Utc),
+        ZoneAccess =
+        [
+            "Media tribune",
+            "Mixed zone",
+            "Press conference room",
+            "Broadcast position",
+            "Camera platform",
+        ],
+        LastSyncedUtc = SeededLastSyncedUtc,
+    };
+
+    /// <summary>
+    /// Amina's five changes, each authored in all three languages.
+    ///
+    /// <para>
+    /// The English is unchanged from what this record has always said. The
+    /// Spanish and Portuguese are written beside it rather than derived from it:
+    /// this is record content, not interface chrome, and a real accreditation
+    /// system would author the three at the source the same way.
+    /// </para>
+    /// </summary>
+    private static List<Change> SeedAminasChanges(Track track) =>
     [
         new Change(
             changeId: "ch-001",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 6, 5, 10, 0, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 6, 11, 0, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.MatchAccessGranted,
             track: track,
-            whatChanged: "Match access granted for your group-stage allocation.",
-            reason: "Your member association confirmed its opening quota split, and your name was "
+            whatChanged: new LocalizedText(
+                En: "Match access granted for your group-stage allocation.",
+                Es: "Acceso a partidos concedido para tu cupo de la fase de grupos.",
+                Pt: "Acesso a jogos concedido para a sua cota da fase de grupos."),
+            reason: new LocalizedText(
+                En: "Your member association confirmed its opening quota split, and your name was "
                   + "on it.",
-            nextStep: "Collect your credential at the accreditation centre before your first match.",
+                Es: "Tu asociación miembro confirmó su reparto inicial de cupos y tu nombre "
+                  + "figuraba en él.",
+                Pt: "A sua associação membro confirmou a divisão inicial de cotas e o seu nome "
+                  + "constava dela."),
+            nextStep: new LocalizedText(
+                En: "Collect your credential at the accreditation centre before your first match.",
+                Es: "Recoge tu acreditación en el centro de acreditaciones antes de tu primer "
+                  + "partido.",
+                Pt: "Retire a sua credencial no centro de acreditação antes do seu primeiro jogo."),
             affectsMatchNumber: 1),
 
         new Change(
             changeId: "ch-002",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 6, 28, 8, 30, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 6, 29, 12, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.ZoneAccessNarrowed,
             track: track,
-            whatChanged: "Pitch-side photo position removed from your zone access.",
-            reason: "The host city reduced the photo pool for knockout fixtures after the venue "
+            whatChanged: new LocalizedText(
+                En: "Pitch-side photo position removed from your zone access.",
+                Es: "Se retira de tus zonas de acceso la posición de fotografía a pie de campo.",
+                Pt: "A posição de fotografia junto ao campo foi retirada das suas zonas de acesso."),
+            reason: new LocalizedText(
+                En: "The host city reduced the photo pool for knockout fixtures after the venue "
                   + "operator revised the perimeter plan.",
-            nextStep: "Apply for a pool position through your member association if you need one "
-                    + "for a specific match."),
+                Es: "La ciudad sede redujo el pool fotográfico para los partidos de eliminación "
+                  + "directa después de que el operador del estadio revisara el plan del perímetro.",
+                Pt: "A cidade-sede reduziu o pool fotográfico para os jogos a eliminar depois de o "
+                  + "operador do estádio ter revisto o plano do perímetro."),
+            nextStep: new LocalizedText(
+                En: "Apply for a pool position through your member association if you need one "
+                  + "for a specific match.",
+                Es: "Solicita una posición del pool a través de tu asociación miembro si "
+                  + "necesitas una para un partido concreto.",
+                Pt: "Solicite uma posição do pool através da sua associação membro se precisar de "
+                  + "uma para um jogo específico.")),
 
         new Change(
             changeId: "ch-003",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 6, 30, 16, 15, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 6, 30, 16, 15, 0, DateTimeKind.Utc),
             kind: ChangeKind.AdministrativeCorrection,
             track: track,
-            whatChanged: "Mixed zone access restored to your credential.",
-            reason: "Mixed zone was withdrawn together with the photo position two days ago. That "
+            whatChanged: new LocalizedText(
+                En: "Mixed zone access restored to your credential.",
+                Es: "Se restablece el acceso a la zona mixta en tu acreditación.",
+                Pt: "O acesso à zona mista foi reposto na sua credencial."),
+            reason: new LocalizedText(
+                En: "Mixed zone was withdrawn together with the photo position two days ago. That "
                   + "was a clerical error in the perimeter revision; only the photo position was "
                   + "meant to move.",
-            nextStep: "Nothing to do. Your credential already carries mixed zone access again.",
+                Es: "La zona mixta se retiró junto con la posición de fotografía hace dos días. "
+                  + "Fue un error administrativo en la revisión del perímetro; solo debía moverse "
+                  + "la posición de fotografía.",
+                Pt: "A zona mista foi retirada juntamente com a posição de fotografia há dois "
+                  + "dias. Foi um erro administrativo na revisão do perímetro; apenas a posição de "
+                  + "fotografia deveria ter mudado."),
+            nextStep: new LocalizedText(
+                En: "Nothing to do. Your credential already carries mixed zone access again.",
+                Es: "No hay nada que hacer. Tu acreditación ya vuelve a incluir el acceso a la "
+                  + "zona mixta.",
+                Pt: "Não há nada a fazer. A sua credencial já volta a incluir o acesso à zona "
+                  + "mista."),
             nextStepIsActionable: false,
-            decidedBy: "Host city accreditation office",
+            decidedBy: new LocalizedText(
+                En: "Host city accreditation office",
+                Es: "Oficina de acreditaciones de la ciudad sede",
+                Pt: "Gabinete de acreditação da cidade-sede"),
             supersedesChangeId: "ch-002"),
 
         new Change(
             changeId: "ch-004",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 7, 1, 9, 0, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 7, 1, 9, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.ZoneAccessWidened,
             track: track,
-            whatChanged: "Press conference room added for the remainder of the tournament.",
-            reason: "Your member association's knockout allocation includes conference access, "
+            whatChanged: new LocalizedText(
+                En: "Press conference room added for the remainder of the tournament.",
+                Es: "Se añade la sala de conferencias de prensa para el resto del torneo.",
+                Pt: "A sala de conferências de imprensa foi adicionada para o resto do torneio."),
+            reason: new LocalizedText(
+                En: "Your member association's knockout allocation includes conference access, "
                   + "which your original credential did not carry.",
-            nextStep: "Nothing to do. The access is already on your credential."),
+                Es: "El cupo de eliminación directa de tu asociación miembro incluye el acceso a "
+                  + "conferencias, que tu acreditación original no llevaba.",
+                Pt: "A cota da fase a eliminar da sua associação membro inclui o acesso a "
+                  + "conferências, que a sua credencial original não tinha."),
+            nextStep: new LocalizedText(
+                En: "Nothing to do. The access is already on your credential.",
+                Es: "No hay nada que hacer. El acceso ya está en tu acreditación.",
+                Pt: "Não há nada a fazer. O acesso já consta da sua credencial.")),
 
         new Change(
             changeId: "ch-005",
-            credentialId: DemoCredentialId,
+            credentialId: AminaCredentialId,
             writtenUtc: new DateTime(2026, 7, 3, 11, 20, 0, DateTimeKind.Utc),
             effectiveUtc: new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc),
             kind: ChangeKind.MatchAccessRevoked,
             track: track,
-            whatChanged: "Your quarter-final allocation depends on the Round of 16 fixture in "
-                       + "Dallas on 6 July.",
-            reason: "Your member association's quarter-final quota is set by how far its team "
+            whatChanged: new LocalizedText(
+                En: "Your quarter-final allocation depends on the Round of 16 fixture in "
+                  + "Dallas on 6 July.",
+                Es: "Tu cupo para cuartos de final depende del partido de octavos de final en "
+                  + "Dallas del 6 de julio.",
+                Pt: "A sua cota para os quartos de final depende do jogo dos oitavos de final em "
+                  + "Dallas, a 6 de julho."),
+            reason: new LocalizedText(
+                En: "Your member association's quarter-final quota is set by how far its team "
                   + "goes. The quota contracts as soon as that fixture removes it from the "
                   + "tournament.",
-            nextStep: "Hold your Dallas travel until after that fixture, or book something you "
-                    + "can change. You will not need to re-apply either way.",
+                Es: "El cupo de cuartos de final de tu asociación miembro lo determina hasta "
+                  + "dónde llegue su selección. El cupo se reduce en cuanto ese partido la deje "
+                  + "fuera del torneo.",
+                Pt: "A cota dos quartos de final da sua associação membro é definida pela "
+                  + "distância a que a sua seleção chegar. A cota reduz-se assim que esse jogo a "
+                  + "afastar do torneio."),
+            nextStep: new LocalizedText(
+                En: "Hold your Dallas travel until after that fixture, or book something you "
+                  + "can change. You will not need to re-apply either way.",
+                Es: "Espera a después de ese partido para cerrar tu viaje a Dallas, o reserva "
+                  + "algo que puedas cambiar. En cualquier caso no tendrás que volver a "
+                  + "solicitarlo.",
+                Pt: "Adie a sua viagem a Dallas para depois desse jogo, ou reserve algo que possa "
+                  + "alterar. Em qualquer dos casos não terá de voltar a candidatar-se."),
             affectsMatchNumber: 98,
             dependsOnMatchNumber: 93,
-            conditionText: "If the association's team is eliminated in that fixture, your "
-                         + "quarter-final access is withdrawn and your accreditation continues "
-                         + "unchanged for every other match. If it is not, your quarter-final "
-                         + "access stands as it is now."),
+            conditionText: new LocalizedText(
+                En: "If the association's team is eliminated in that fixture, your "
+                  + "quarter-final access is withdrawn and your accreditation continues "
+                  + "unchanged for every other match. If it is not, your quarter-final "
+                  + "access stands as it is now.",
+                Es: "Si la selección de la asociación queda eliminada en ese partido, se retira "
+                  + "tu acceso a cuartos de final y tu acreditación continúa sin cambios para "
+                  + "todos los demás partidos. Si no queda eliminada, tu acceso a cuartos de "
+                  + "final se mantiene tal como está ahora.",
+                Pt: "Se a seleção da associação for eliminada nesse jogo, o seu acesso aos "
+                  + "quartos de final é retirado e a sua acreditação continua inalterada para "
+                  + "todos os outros jogos. Se não for eliminada, o seu acesso aos quartos de "
+                  + "final mantém-se como está agora.")),
+    ];
+
+    /// <summary>
+    /// Tomás's three changes, and the reason the second record exists.
+    ///
+    /// <para>
+    /// <b><c>ch-008</c> is the demonstration.</b> It is structurally identical to
+    /// Amina's <c>ch-005</c> — same kind, same affected fixture, same dependency
+    /// on an unplayed one — and it resolves differently for one reason:
+    /// <c>Classify</c> returns Foreseeable for both, and Tomás's ImmediateOnly
+    /// ceiling then makes his Silent while hers stays Foreseeable and
+    /// interrupts. Nothing in <c>Track</c> or <c>Change</c> was added to produce
+    /// that; the mechanism was already built and simply had nothing to
+    /// demonstrate itself against while one record existed.
+    /// </para>
+    ///
+    /// <para>
+    /// <c>ch-007</c> is here so the ceiling is not mistaken for silence. It
+    /// reduces what he holds and lands inside the immediate window, so it
+    /// interrupts him exactly as it would interrupt her. The ceiling suppresses
+    /// the foreseeable, never the immediate.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Withholding holds throughout.</b> The fixture <c>ch-008</c> waits on
+    /// is named by round, venue and date — never by team, in any language.
+    /// </para>
+    /// </summary>
+    private static List<Change> SeedTomassChanges(Track track) =>
+    [
+        new Change(
+            changeId: "ch-006",
+            credentialId: TomasCredentialId,
+            writtenUtc: new DateTime(2026, 6, 8, 9, 30, 0, DateTimeKind.Utc),
+            effectiveUtc: new DateTime(2026, 6, 13, 0, 0, 0, DateTimeKind.Utc),
+            kind: ChangeKind.MatchAccessGranted,
+            track: track,
+            whatChanged: new LocalizedText(
+                En: "Broadcast position confirmed for your group-stage fixtures.",
+                Es: "Posición de transmisión confirmada para tus partidos de la fase de grupos.",
+                Pt: "Posição de transmissão confirmada para os seus jogos da fase de grupos."),
+            reason: new LocalizedText(
+                En: "Your organisation's rights package covers these fixtures, and the venue "
+                  + "allocation was finalised once the host cities published their broadcast "
+                  + "compound plans.",
+                Es: "El paquete de derechos de tu organización cubre estos partidos, y la "
+                  + "asignación en el estadio quedó cerrada cuando las ciudades sede publicaron "
+                  + "sus planes del recinto de transmisión.",
+                Pt: "O pacote de direitos da sua organização cobre estes jogos, e a alocação no "
+                  + "estádio foi fechada quando as cidades-sede publicaram os planos do complexo "
+                  + "de transmissão."),
+            nextStep: new LocalizedText(
+                En: "Collect your credential at the accreditation centre before your first "
+                  + "match.",
+                Es: "Recoge tu acreditación en el centro de acreditaciones antes de tu primer "
+                  + "partido.",
+                Pt: "Retire a sua credencial no centro de acreditação antes do seu primeiro jogo."),
+            affectsMatchNumber: 22),
+
+        new Change(
+            changeId: "ch-007",
+            credentialId: TomasCredentialId,
+            writtenUtc: new DateTime(2026, 7, 2, 9, 0, 0, DateTimeKind.Utc),
+            effectiveUtc: new DateTime(2026, 7, 4, 6, 0, 0, DateTimeKind.Utc),
+            kind: ChangeKind.ZoneAccessNarrowed,
+            track: track,
+            whatChanged: new LocalizedText(
+                En: "Camera platform access at the Houston venue is withdrawn from 4 July.",
+                Es: "Se retira el acceso a la plataforma de cámaras en el estadio de Houston a "
+                  + "partir del 4 de julio.",
+                Pt: "O acesso à plataforma de câmaras no estádio de Houston é retirado a partir "
+                  + "de 4 de julho."),
+            reason: new LocalizedText(
+                En: "The venue operator rebuilt the platform allocation after a structural "
+                  + "inspection, and the revised plan carries fewer positions than the one your "
+                  + "package was issued against.",
+                Es: "El operador del estadio rehízo la asignación de plataformas tras una "
+                  + "inspección estructural, y el plan revisado tiene menos posiciones que aquel "
+                  + "con el que se emitió tu paquete.",
+                Pt: "O operador do estádio refez a alocação das plataformas após uma inspeção "
+                  + "estrutural, e o plano revisto tem menos posições do que aquele com que o seu "
+                  + "pacote foi emitido."),
+            nextStep: new LocalizedText(
+                En: "Ask your FIFA Media Partnerships contact to place your platform position "
+                  + "on the revised allocation before the fixture.",
+                Es: "Pide a tu contacto de FIFA Media Partnerships que incluya tu posición en la "
+                  + "asignación revisada antes del partido.",
+                Pt: "Peça ao seu contacto da FIFA Media Partnerships para incluir a sua posição "
+                  + "na alocação revista antes do jogo."),
+            affectsMatchNumber: 90),
+
+        new Change(
+            changeId: "ch-008",
+            credentialId: TomasCredentialId,
+            writtenUtc: new DateTime(2026, 7, 3, 9, 45, 0, DateTimeKind.Utc),
+            effectiveUtc: new DateTime(2026, 7, 6, 14, 0, 0, DateTimeKind.Utc),
+            kind: ChangeKind.MatchAccessRevoked,
+            track: track,
+            whatChanged: new LocalizedText(
+                En: "Your quarter-final broadcast position depends on the Round of 16 "
+                  + "fixture in Dallas on 6 July.",
+                Es: "Tu posición de transmisión en cuartos de final depende del partido de "
+                  + "octavos de final en Dallas del 6 de julio.",
+                Pt: "A sua posição de transmissão nos quartos de final depende do jogo dos "
+                  + "oitavos de final em Dallas, a 6 de julho."),
+            reason: new LocalizedText(
+                En: "Your organisation's quarter-final allocation is set by which teams remain "
+                  + "inside its rights territory. The allocation contracts as soon as that "
+                  + "fixture settles it.",
+                Es: "La asignación de tu organización para cuartos de final la determina qué "
+                  + "selecciones siguen dentro de su territorio de derechos. La asignación se "
+                  + "reduce en cuanto ese partido lo resuelva.",
+                Pt: "A alocação da sua organização para os quartos de final é definida por quais "
+                  + "seleções permanecem dentro do seu território de direitos. A alocação "
+                  + "reduz-se assim que esse jogo o resolver."),
+            nextStep: new LocalizedText(
+                En: "Your FIFA Media Partnerships contact will confirm the position either way "
+                  + "once the fixture is played. Nothing needs to be re-applied for.",
+                Es: "Tu contacto de FIFA Media Partnerships confirmará la posición en cualquiera "
+                  + "de los dos casos, una vez jugado el partido. No hay que volver a solicitar "
+                  + "nada.",
+                Pt: "O seu contacto da FIFA Media Partnerships confirmará a posição em qualquer "
+                  + "dos casos, depois de o jogo ser disputado. Não é preciso voltar a "
+                  + "candidatar-se a nada."),
+            affectsMatchNumber: 98,
+            dependsOnMatchNumber: 93,
+            conditionText: new LocalizedText(
+                En: "If the fixture removes the territory's remaining team, your "
+                  + "quarter-final position is withdrawn and every other position you "
+                  + "hold continues unchanged. If it does not, the position stands as it "
+                  + "is now.",
+                Es: "Si ese partido elimina a la selección que queda en el territorio, se retira "
+                  + "tu posición de cuartos de final y todas las demás posiciones que tienes "
+                  + "continúan sin cambios. Si no la elimina, la posición se mantiene tal como "
+                  + "está ahora.",
+                Pt: "Se esse jogo eliminar a seleção que resta no território, a sua posição nos "
+                  + "quartos de final é retirada e todas as outras posições que detém continuam "
+                  + "inalteradas. Se não a eliminar, a posição mantém-se como está agora.")),
     ];
 }

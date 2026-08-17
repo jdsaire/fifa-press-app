@@ -1,20 +1,36 @@
 ﻿@inherits LayoutComponentBase
-<a href="#main-content" class="skip-link">Skip to main content</a>
+@implements IDisposable
+@inject LocaleService L
+
+@* Everything is inside the locale cascade, including the sidebar — the nav
+   labels are as localized as the page body, and a switch that re-rendered only
+   the content column would leave half the screen in the previous language. *@
+<LocaleProvider>
+@* The one string outside the cascade, because this component is the
+   cascade's parent and cannot receive its own value. It reads the service
+   directly and subscribes for the re-render — the exception that proves
+   the rule, and the only place in the app allowed to do it. *@
+<a href="#main-content" class="skip-link">@L[L.Current, "nav.skipToContent"]</a>
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-        @* A strip of its own, above the content column, holding only the theme
-           control. Present at every breakpoint, right-aligned at both, and
-           independent of the sidebar header — see MainLayout.razor.css. *@
-        <div class="theme-strip">
-            <ThemeTrigger />
-        </div>
-
+        @* main holds only the content column. The theme control used to sit in a
+           strip above it; it is now a row in the nav list, where it survives the
+           breakpoint collapse without any layout of its own. *@
         <article class="content px-4" id="main-content" tabindex="-1">
             @Body
         </article>
     </main>
 </div>
+</LocaleProvider>
+
+@code {
+    protected override void OnInitialized() => L.OnChanged += Refresh;
+
+    public void Dispose() => L.OnChanged -= Refresh;
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+}

@@ -96,3 +96,13 @@
 .my-access__help-link {
     margin-top: var(--space-3);
 }
+
+/* The gate, stated as an offer rather than a refusal. Same treatment as the
+   empty state it sits beside, because it is the same kind of message: a true
+   statement about why there is nothing here yet. */
+.my-access__signed-out {
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    padding: var(--space-3);
+    max-width: 40rem;
+}

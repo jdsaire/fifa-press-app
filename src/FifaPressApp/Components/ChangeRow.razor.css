@@ -90,3 +90,116 @@
     padding-top: var(--space-2);
     margin-bottom: 0;
 }
+
+/* The disclosure.
+   ------------------------------------------------------------------------
+   The row is the control. The default triangle marker is replaced by a chevron
+   on the right, so the summary reads as a row that opens rather than as a
+   bulleted list item — but the element is still <summary>, so everything the
+   browser gives it for free (keyboard operation, the expanded state announced
+   to a screen reader, working with no JavaScript) is untouched. */
+.change-row__disclosure {
+    /* The card's own padding is on .change-row; this holds nothing of its own. */
+    margin: 0;
+}
+
+.change-row__summary {
+    display: block;
+    position: relative;
+    padding-right: var(--space-4);
+    cursor: pointer;
+    list-style: none;
+}
+
+.change-row__summary::-webkit-details-marker {
+    display: none;
+}
+
+.change-row__summary::after {
+    content: "";
+    position: absolute;
+    top: 0.6rem;
+    right: var(--space-2);
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid var(--color-stale-text);
+    border-bottom: 2px solid var(--color-stale-text);
+    transform: rotate(45deg);
+    transition: transform 160ms ease-out;
+}
+
+.change-row__disclosure[open] > .change-row__summary::after {
+    transform: rotate(-135deg);
+}
+
+.change-row__summary:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-default);
+}
+
+/* The last thing in the collapsed layer, and the only text the disclosure adds:
+   it names what is behind the row rather than saying "more". A person deciding
+   whether to open something should be told what they would be opening. */
+.change-row__more {
+    display: inline-block;
+    font-size: var(--font-size-small);
+    color: var(--color-link);
+    margin-bottom: 0;
+}
+
+.change-row__disclosure[open] > .change-row__summary .change-row__more {
+    /* Once it is open, the label has done its job and would only repeat what is
+       now visible below it. */
+    display: none;
+}
+
+.change-row__disclosure[open] > .change-row__summary .change-row__when {
+    margin-bottom: var(--space-3);
+}
+
+.change-row__detail {
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-stale-text);
+    margin-top: var(--space-2);
+}
+
+/* The arrival.
+   ------------------------------------------------------------------------
+   A row that has just been written slides and fades in rather than snapping
+   into a list it was not in a moment ago. This is the confirmation moment the
+   request path never had: v10 made the write's latency observable, and this
+   makes its arrival observable.
+
+   Short on purpose. The point is to be noticed, not to be watched — an
+   entrance a person has to wait out is a delay wearing an animation's
+   clothing. */
+@keyframes change-row-arrive {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.change-row--arriving {
+    animation: change-row-arrive 320ms ease-out;
+    border-color: var(--color-success);
+}
+
+/* Someone who has asked their system for less motion has asked for less
+   motion. The row still marks itself as the new one with its border and its
+   opened state — the information survives; only the movement goes. */
+@media (prefers-reduced-motion: reduce) {
+    .change-row--arriving {
+        animation: none;
+    }
+
+    .change-row__summary::after {
+        transition: none;
+    }
+}

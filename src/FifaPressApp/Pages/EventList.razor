@@ -18,28 +18,29 @@
 
 @page "/matches"
 @inject IAccessDataProvider Access
+@inject LocaleService L
 
-<PageTitle>Matches</PageTitle>
+<PageTitle>@L[Locale, "matches.title"]</PageTitle>
 
-<h1>Matches</h1>
+<h1>@L[Locale, "matches.title"]</h1>
 
 @if (loadFailed)
 {
     <div class="matches__error" role="alert">
-        <p>The match schedule could not be loaded, so this list is empty rather than complete.</p>
-        <button type="button" class="btn btn-primary" @onclick="ReloadAsync">Try again</button>
+        <p>@L[Locale, "matches.errorBody"]</p>
+        <button type="button" class="btn btn-primary" @onclick="ReloadAsync">@L[Locale, "common.tryAgain"]</button>
     </div>
 }
 else
 {
     <StaleIndicator LastSyncedUtc="lastSyncedUtc"
                     AsOfUtc="Access.AsOfUtc"
-                    Subject="this schedule"
+                    SubjectKey="matches.staleSubject"
                     StaleAfter="TimeSpan.FromHours(24)" />
 
-    <input type="search" class="form-control mb-3" placeholder="Search by team, venue or city"
+    <input type="search" class="form-control mb-3" placeholder="@L[Locale, "matches.searchPlaceholder"]"
            value="@searchTerm" @oninput="OnSearchInput"
-           aria-label="Search matches by team, venue or city" />
+           aria-label="@L[Locale, "matches.searchLabel"]" />
 
     @* THERE IS NO CONFEDERATION FILTER, AND THAT IS DELIBERATE.
        The schedule this app reads has eight columns — match, date, two clocks,
@@ -51,30 +52,30 @@ else
        for it is authorized. *@
     <div class="matches__filters">
         <div class="matches__filter">
-            <label for="matches-group">Group</label>
+            <label for="matches-group">@L[Locale, "matches.groupLabel"]</label>
             <select id="matches-group" class="form-select" value="@groupSelection" @onchange="OnGroupChanged">
-                <option value="@FixtureQuery.AllGroups">All groups</option>
+                <option value="@FixtureQuery.AllGroups">@L[Locale, "matches.allGroups"]</option>
                 @foreach (var letter in GroupLetters)
                 {
-                    <option value="@letter">Group @letter</option>
+                    <option value="@letter">@L.Format(Locale, "phase.group", ("letter", letter))</option>
                 }
-                <option value="@FixtureQuery.KnockoutRounds">Knockout rounds</option>
+                <option value="@FixtureQuery.KnockoutRounds">@L[Locale, "matches.knockoutRounds"]</option>
             </select>
         </div>
 
         <div class="matches__filter">
-            <label for="matches-status">Match status</label>
+            <label for="matches-status">@L[Locale, "matches.statusLabel"]</label>
             <select id="matches-status" class="form-select" value="@statusFilter" @onchange="OnStatusChanged">
-                <option value="@MatchStatusFilter.All">All matches</option>
-                <option value="@MatchStatusFilter.Played">Played</option>
-                <option value="@MatchStatusFilter.NotYetPlayed">Not yet played</option>
+                <option value="@MatchStatusFilter.All">@L[Locale, "matches.allMatches"]</option>
+                <option value="@MatchStatusFilter.Played">@L[Locale, "matches.played"]</option>
+                <option value="@MatchStatusFilter.NotYetPlayed">@L[Locale, "matches.notYetPlayed"]</option>
             </select>
         </div>
     </div>
 
     @if (!loaded)
     {
-        <p class="matches__loading">Loading the schedule…</p>
+        <p class="matches__loading">@L[Locale, "matches.loading"]</p>
     }
     else if (FilteredFixtures.Count == 0)
     {
@@ -91,18 +92,18 @@ else
             {
                 <div class="col-12 col-md-6" @key="fixture.MatchNumber">
                     <div class="matches__item">
-                        <EventCard EventName="@fixture.DisplayLabel"
+                        <EventCard EventName="@FixtureLabels.Display(L, Locale, fixture)"
                                    EventDate="fixture.KickoffLocal"
                                    Location="@($"{fixture.Venue}, {fixture.City}")"
                                    ReadOnly="true"
                                    AllowEdit="false" />
                         <p class="matches__meta">
-                            <Icon Name="phase" />@fixture.PhaseLabel ·
+                            <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture) ·
                             <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("HH:mm")</time>
                             @fixture.TimeZoneLabel
                         </p>
-                        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{fixture.MatchNumber}")">View details</NavLink>
-                        <NavLink class="btn btn-primary btn-sm" href="@($"request/{fixture.MatchNumber}")">Request access</NavLink>
+                        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{fixture.MatchNumber}")">@L[Locale, "matches.viewDetails"]</NavLink>
+                        <NavLink class="btn btn-primary btn-sm" href="@($"request/{fixture.MatchNumber}")">@L[Locale, "matches.requestAccess"]</NavLink>
                     </div>
                 </div>
             }
@@ -111,7 +112,7 @@ else
 
     @if (TotalPages > 1)
     {
-        <nav aria-label="Match list pages" class="mt-3">
+        <nav aria-label="@L[Locale, "matches.pagesLabel"]" class="mt-3">
             @for (var i = 1; i <= TotalPages; i++)
             {
                 var pageNumber = i;
@@ -127,6 +128,9 @@ else
 }
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private const int PageSize = 10;
 
     private IReadOnlyList<Fixture> allFixtures = [];
@@ -177,7 +181,7 @@ else
     // about how it matches was reconsidered. The filters narrow what it
     // returns; they never alter what it matches.
     private List<Fixture> FilteredFixtures =>
-        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter);
+        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale);
 
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
 
@@ -219,25 +223,25 @@ else
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                active.Add($"a search for \"{searchTerm}\"");
+                active.Add(L.Format(Locale, "matches.controlSearch", ("term", searchTerm)));
             }
 
             if (groupSelection == FixtureQuery.KnockoutRounds)
             {
-                active.Add("the knockout rounds only");
+                active.Add(L[Locale, "matches.controlKnockout"]);
             }
             else if (groupSelection != FixtureQuery.AllGroups)
             {
-                active.Add($"group {groupSelection} only");
+                active.Add(L.Format(Locale, "matches.controlGroup", ("letter", groupSelection)));
             }
 
             if (statusFilter == MatchStatusFilter.Played)
             {
-                active.Add("matches already played only");
+                active.Add(L[Locale, "matches.controlPlayed"]);
             }
             else if (statusFilter == MatchStatusFilter.NotYetPlayed)
             {
-                active.Add("matches not yet played only");
+                active.Add(L[Locale, "matches.controlNotPlayed"]);
             }
 
             return active;
@@ -255,17 +259,18 @@ else
 
             if (active.Count == 0)
             {
-                return "No matches to show.";
+                return L[Locale, "matches.emptyNone"];
             }
 
-            var message = $"No matches found. Narrowing this list right now: {string.Join(", ", active)}.";
+            var message = L.Format(Locale, "matches.emptyNarrowed",
+                ("controls", string.Join(", ", active)));
 
             // Kept wherever a team-name search could be the cause, because a
             // reader who typed a team name and got nothing has no other way of
             // knowing the app is withholding it rather than missing it.
             return string.IsNullOrWhiteSpace(searchTerm)
                 ? message
-                : message + " Fixtures that have not been played yet do not list their teams, so searching by team name will not find them.";
+                : message + " " + L[Locale, "matches.emptyWithholdingNote"];
         }
     }
 }

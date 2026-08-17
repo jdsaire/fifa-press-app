@@ -1,0 +1,156 @@
+@implements IAsyncDisposable
+@inject LocaleService Locale
+@inject IJSRuntime JS
+
+@* The root of the locale cascade, and the one place the language talks to the
+   browser.
+   ------------------------------------------------------------------------
+   Option B — in-session re-render, no reload — needs one thing to work: every
+   component that displays localized text has to actually re-render when the
+   locale changes. This is what makes that happen. It subscribes to the service,
+   holds the active locale as a *value*, and cascades it; a value change is what
+   Blazor's own render cycle reacts to.
+
+   The cascade carries the AppLocale rather than the LocaleService, and that
+   distinction is load-bearing. Cascading the service would hand every component
+   a reference to an object whose contents change without the reference
+   changing, which is exactly the kind of update Blazor cannot see. Cascading
+   the enum means a locale change is a new value, and a new value re-renders
+   everything below it.
+
+   IT ALSO OWNS THE INTEROP, for the same reason ThemeTrigger owns theme.js:
+   whichever component is responsible for a piece of state is the one that
+   should persist it. Persistence and the document's lang attribute both live
+   here rather than in the switch, so a locale set from anywhere — including a
+   stored choice on startup — is applied and remembered identically. *@
+
+<CascadingValue Value="current" IsFixed="false">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private IJSObjectReference? module;
+    private AppLocale current;
+
+    protected override void OnInitialized()
+    {
+        current = Locale.Current;
+        Locale.OnChanged += Refresh;
+    }
+
+    /// <summary>
+    /// Resolves the language on first render: an explicit stored choice wins,
+    /// and otherwise the app opens in its fixed default, English.
+    ///
+    /// <para>
+    /// <b>Deliberately not resolved from the browser's declared language.</b> An
+    /// earlier version of this read <c>navigator.languages</c> the way
+    /// <c>ThemeTrigger</c> reads the system's dark-mode preference, on the
+    /// argument that someone who has told their browser they read Spanish has
+    /// already answered the question once. That was reversed: EN is the fixed
+    /// default on a first visit, full stop, and ES/PT are reached only through
+    /// the language switch or a choice this module already remembered. The
+    /// asymmetry with theme is intentional, not an oversight — see
+    /// <c>locale.ts</c>'s own remarks.
+    /// </para>
+    /// </summary>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/locale.js");
+
+            var stored = await module.InvokeAsync<string?>("getStoredLocale");
+
+            if (stored is not null)
+            {
+                // Set() raises OnChanged, which re-renders the tree through
+                // Refresh below and applies + stores the resolved locale there.
+                // It is a no-op when the stored value is already the active
+                // locale, so returning to a page in the language it was left in
+                // costs nothing.
+                Locale.Set(LocaleService.FromCode(stored));
+            }
+            else
+            {
+                // Nothing stored: the app is already rendering in the fixed
+                // default (English), so only the document's lang attribute needs
+                // setting — there is no locale change to announce.
+                await module.InvokeVoidAsync("applyLocale", LocaleService.CodeOf(Locale.Current));
+            }
+        }
+        catch (JSException)
+        {
+            // Without the module the app still works in whichever language is
+            // active; only the ability to remember it across a reload, and to
+            // tell a screen reader which language it is reading, are lost. Worth
+            // degrading quietly rather than surfacing as an error.
+            module = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Locale.OnChanged -= Refresh;
+
+        if (module is not null)
+        {
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The page is going away; nothing to release.
+            }
+        }
+    }
+
+    private void Refresh()
+    {
+        current = Locale.Current;
+
+        InvokeAsync(async () =>
+        {
+            StateHasChanged();
+            await PersistAsync();
+        });
+    }
+
+    /// <summary>
+    /// Applies the language to the document and remembers it. Applied and stored
+    /// together, exactly as <c>ThemeTrigger</c> does: storing it is what makes
+    /// the choice outlast the tab, and applying it is what makes a screen reader
+    /// read the page in the language it is actually in.
+    /// </summary>
+    private async Task PersistAsync()
+    {
+        if (module is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var code = LocaleService.CodeOf(current);
+            await module.InvokeVoidAsync("applyLocale", code);
+            await module.InvokeVoidAsync("storeLocale", code);
+        }
+        catch (JSException)
+        {
+            // The language still applies to what is on screen.
+        }
+        catch (JSDisconnectedException)
+        {
+            // The page is going away.
+        }
+    }
+}

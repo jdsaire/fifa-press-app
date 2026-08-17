@@ -18,6 +18,10 @@ A pre-written CSS toolkit — ready-made styling for buttons, cards, layout grid
 
 A local copy of data kept so it doesn't have to be fetched again. "Cache-first" means showing that copy immediately and treating the network as a top-up afterwards — as opposed to asking the network first and falling back to the copy, which still makes someone wait. It's why this app's headline appears with no spinner in front of it, and why every read also reports how old it is. Covered in [02-access-record-frontend/04, "Reading the Cache Before the Network."](02-access-record-frontend/04-Reading-the-Cache-Before-the-Network.md)
 
+## Cascading value
+
+A way for a Blazor component to make a piece of data available to every component nested inside it, without passing it down as an explicit parameter to each one individually. `LocaleProvider.razor` cascades the app's active language this way, once, near the top of every page, so any component anywhere below it can read the current language without every parent in between having to pass it along. Covered in [03-addendum-implementation/03, "Speaking Three Languages Without a Reload."](03-addendum-implementation/03-Speaking-Three-Languages-Without-A-Reload.md)
+
 ## Component
 
 A self-contained, reusable chunk of a Blazor app that bundles its own markup (what shows up) and its own C# (what it does) into one `.razor` file. `EventCard` is this project's example. Covered in [01, "What Even Is Blazor WebAssembly?"](01-architecture-foundation/01-Building-the-Foundation.md#what-even-is-blazor-webassembly) and ["Meet the Building Block."](01-architecture-foundation/01-Building-the-Foundation.md#meet-the-building-block-the-eventcard-component)
@@ -56,9 +60,17 @@ Blazor's built-in component for building a form with validation baked in. Paired
 
 A component's way of reporting "this changed" back out to whatever page is using it, typed as `EventCallback<T>`. Paired with a matching parameter (`EventName` and `EventNameChanged`, for example), it's the other half of two-way data binding. Covered in [01, "Two-Way Data Binding, Explained Before Any Syntax."](01-architecture-foundation/01-Building-the-Foundation.md#two-way-data-binding-explained-before-any-syntax)
 
+## ICU
+
+International Components for Unicode — the data a program needs to correctly format dates, numbers, and text for a given language and region. Blazor WebAssembly downloads one bundle of this data when the app starts, chosen based on whichever language it opened in, and that bundle doesn't necessarily cover every language the app might later switch to. It's why this app writes its own month names and date patterns into its language files instead of relying on .NET's built-in culture formatting. Covered in [03-addendum-implementation/03, "Speaking Three Languages Without a Reload."](03-addendum-implementation/03-Speaking-Three-Languages-Without-A-Reload.md)
+
 ## Interface
 
 A list of what something can do, with none of the how — the operations it must provide, and no code that provides any of them. A separate class then implements it, promising to supply all of them for real. Pages in this app ask for `IAccessDataProvider`, never for the class behind it, so replacing that class with one that talks to a real service is a change to a single line in `Program.cs` rather than a change to every page. Covered in [02-access-record-frontend/01, "Putting the Data Behind a Door."](02-access-record-frontend/01-Putting-the-Data-Behind-a-Door.md)
+
+## Interop (JavaScript interop)
+
+The bridge that lets C# code running as WebAssembly call out to JavaScript, and get an answer back — used for the small number of things only the browser's own JavaScript engine can do directly, like reading local storage or checking a system setting. This app's entire interop surface is two small files, `theme.js` and `locale.js`. Covered in [03-addendum-implementation/04, "Why Two Files Got Their Own Language."](03-addendum-implementation/04-Why-Two-Files-Got-Their-Own-Language.md)
 
 ## `@key`
 
@@ -96,6 +108,10 @@ Short for Software Development Kit — the set of tools (compiler, runtime, comm
 
 An ordinary C# class that isn't tied to any single page — created once when the app starts, and shared by whichever pages need it. `SessionTracker` and `AttendanceTracker` are both services. Covered in [03, "Two Different Trackers, On Purpose."](01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#two-different-trackers-on-purpose-session-vs-attendance)
 
+## Singleton
+
+A service registered so that exactly one instance of it exists for the whole browser tab, shared by every page that asks for it, for as long as the tab stays open. `SessionTracker`, `LocaleService`, and `SimulatedSessionProvider` are all registered this way — it's what lets "which language is active" or "who is signed in" survive moving from one page to another, the same way [state](#state) does. Covered in [03, "Two Different Trackers, On Purpose."](01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#two-different-trackers-on-purpose-session-vs-attendance)
+
 ## State
 
 Information a service remembers that outlives any single page visit — for as long as the browser tab stays open, but no longer. It's why a "Registered" badge still shows up after navigating away from the access-request page and back. Covered in [03, "Why Keeping Them Separate Was a Deliberate Choice."](01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#why-keeping-them-separate-was-a-deliberate-choice)
@@ -103,6 +119,10 @@ Information a service remembers that outlives any single page visit — for as l
 ## Two-way data binding
 
 A built-in bridge between a value and what's shown on screen, working in both directions: change the value, the screen updates; edit the screen, the value updates. `EventCard`'s three fields all work this way. Covered in [01, "Two-Way Data Binding, Explained Before Any Syntax."](01-architecture-foundation/01-Building-the-Foundation.md#two-way-data-binding-explained-before-any-syntax)
+
+## TypeScript
+
+A language that adds optional type-checking on top of JavaScript — you can say what kind of value something is supposed to be, and a compiler checks that the code is telling the truth before it ever runs. It compiles down to plain JavaScript, so none of the checking survives into what actually ships; the safety is entirely a build-time thing. This app's two interop files are written this way. Covered in [03-addendum-implementation/04, "Why Two Files Got Their Own Language."](03-addendum-implementation/04-Why-Two-Files-Got-Their-Own-Language.md)
 
 ## WebAssembly (WASM)
 

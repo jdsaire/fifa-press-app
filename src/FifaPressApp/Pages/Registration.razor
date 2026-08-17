@@ -17,55 +17,70 @@
 
 @page "/request/{Id:int}"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
+@inject ChangeArrivalTracker Arrivals
 @inject NavigationManager Navigation
+@inject LocaleService L
 
 <PageTitle>@PageHeading</PageTitle>
 
 <nav aria-label="breadcrumb" class="mb-2">
-    <NavLink href="matches">Matches</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
+    <NavLink href="matches">@L[Locale, "detail.breadcrumb"]</NavLink> <span aria-hidden="true">/</span> <span>@PageHeading</span>
 </nav>
 
 <h1>@PageHeading</h1>
 
-@if (!loaded)
+@if (!Session.IsSignedIn)
 {
-    <p class="request__loading">Loading this match…</p>
+    @* This is a write to a personal record, which is the reason it is gated
+       and the reason worth stating: a request submitted with no holder
+       attached either goes nowhere or goes to an arbitrary record, and both
+       are worse than asking who you are first. *@
+    <p class="request__signed-out">
+        @L[Locale, "request.signedOut"]
+        <a href="signin">@L[Locale, "request.signedOutLink"]</a>
+        @L[Locale, "request.signedOutAfter"]
+    </p>
+}
+else if (!loaded)
+{
+    <p class="request__loading">@L[Locale, "common.loadingMatch"]</p>
 }
 else if (fixture is null)
 {
-    <p class="request__error" role="alert">No match has this number.</p>
+    <p class="request__error" role="alert">@L[Locale, "common.noMatchNumber"]</p>
 }
 else
 {
-    <p>You are requesting access to:</p>
+    <p>@L[Locale, "request.intro"]</p>
 
-    <EventCard EventName="@fixture.DisplayLabel"
+    <EventCard EventName="@FixtureLabels.Display(L, Locale, fixture)"
                EventDate="fixture.KickoffLocal"
                Location="@($"{fixture.Venue}, {fixture.City}")"
                ReadOnly="true"
                AllowEdit="false" />
 
     <p class="request__meta">
-        <Icon Name="phase" />@fixture.PhaseLabel ·
-        <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("d MMMM yyyy, HH:mm")</time>
+        <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture) ·
+        <time datetime="@fixture.KickoffLocal.ToString("o")">@L.Date(Locale, fixture.KickoffLocal, "dayMonthYearTime")</time>
         @fixture.TimeZoneLabel
     </p>
 
     <RequestAccessForm @bind-Name="name"
                        @bind-Email="email"
                        Submitting="submitting"
-                       ErrorMessage="@errorMessage"
+                       ErrorMessage="@(errorMessage is null ? null : L[Locale, errorMessage])"
                        OnSubmit="SubmitAsync" />
 
-    <p class="request__mocked">
-        Simulated request. Nothing is sent anywhere in this version — submitting
-        writes a change to the simulated record and returns you to it.
-    </p>
+    <p class="request__mocked">@L[Locale, "request.mocked"]</p>
 }
 
-<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">Back to matches</NavLink>
+<NavLink class="btn btn-outline-secondary btn-sm mt-3" href="matches">@L[Locale, "common.backToMatches"]</NavLink>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     /// <summary>The match number, taken from the address.</summary>
     [Parameter]
     public int Id { get; set; }
@@ -78,12 +93,20 @@ else
     private string? errorMessage;
 
     private string PageHeading => fixture is null
-        ? "Match not found"
-        : $"Request access to match {fixture.MatchNumber}";
+        ? L[Locale, "detail.notFound"]
+        : L.Format(Locale, "request.heading", ("number", fixture.MatchNumber));
 
     protected override async Task OnParametersSetAsync()
     {
         loaded = false;
+
+        if (!Session.IsSignedIn)
+        {
+            // The offer is already rendered above. Nothing is fetched for a
+            // visitor who cannot submit the form the fetch is for.
+            Navigation.NavigateTo("signin", replace: true);
+            return;
+        }
 
         try
         {
@@ -99,6 +122,17 @@ else
 
     private async Task SubmitAsync()
     {
+        if (Session.CredentialId is not string credentialId)
+        {
+            // Belt and braces. The form is not rendered without a session, so
+            // this is unreachable through the interface — and it is here
+            // because a write with no holder attached is the one outcome this
+            // gate exists to prevent, and "unreachable" is a property of
+            // today's markup rather than of the write path.
+            errorMessage = "request.sessionEnded";
+            return;
+        }
+
         submitting = true;
         errorMessage = null;
 
@@ -108,17 +142,21 @@ else
             // success flag to check, because the change is the outcome — and a
             // write that could report success without producing one would be
             // exactly the second write path this record forbids.
-            await Access.RequestMatchAccessAsync(MockAccessDataProvider.DemoCredentialId, Id);
+            var written = await Access.RequestMatchAccessAsync(credentialId, Id);
+
+            // The record screen is about to mount fresh and will not otherwise
+            // be able to tell this row from the ones already in the log.
+            Arrivals.Announce(written.ChangeId);
 
             // Straight back to the record, where the change is now the newest
             // entry. What was typed stays in the fields until this navigation
             // completes, so a failure leaves the form recoverable.
-            Navigation.NavigateTo("");
+            Navigation.NavigateTo("record");
         }
         catch (Exception)
         {
             submitting = false;
-            errorMessage = "That request could not be recorded. Your details are still here — try again.";
+            errorMessage = "request.failed";
         }
     }
 }

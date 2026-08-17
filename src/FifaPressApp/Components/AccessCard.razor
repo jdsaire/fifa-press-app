@@ -12,22 +12,24 @@
    is approved *until* a date, and match access is per fixture. Collapsing them
    into a single "status" is the confusion this split exists to prevent. *@
 
+@inject LocaleService L
+
 <section class="access-card" aria-labelledby="@HeadingId">
-    <h2 class="access-card__heading" id="@HeadingId">What you hold now</h2>
+    <h2 class="access-card__heading" id="@HeadingId">@L[Locale, "accessCard.heading"]</h2>
 
     <div class="access-card__block">
-        <h3 class="access-card__block-heading">Accreditation</h3>
+        <h3 class="access-card__block-heading">@L[Locale, "accessCard.accreditation"]</h3>
 
         <p class="access-card__status access-card__status--@Accreditation.Status.ToString().ToLowerInvariant()">
             @StatusSentence
         </p>
 
         <dl class="access-card__details">
-            <dt>Zones</dt>
+            <dt>@L[Locale, "accessCard.zones"]</dt>
             <dd>
                 @if (Accreditation.ZoneAccess.Count == 0)
                 {
-                    <text>No zones are on your credential.</text>
+                    <text>@L[Locale, "accessCard.noZones"]</text>
                 }
                 else
                 {
@@ -38,24 +40,26 @@
     </div>
 
     <div class="access-card__block">
-        <h3 class="access-card__block-heading">Match access</h3>
+        <h3 class="access-card__block-heading">@L[Locale, "accessCard.matchAccess"]</h3>
         @if (MatchAccess is not null)
         {
             @MatchAccess
         }
         else
         {
-            <p>No match access has been recorded yet.</p>
+            <p>@L[Locale, "accessCard.noMatchAccess"]</p>
         }
     </div>
 
     <p class="access-card__mocked">
-        Simulated accreditation record. This version is not connected to any
-        accreditation system, and no credential store exists behind it.
+        @L[Locale, "accessCard.mocked"]
     </p>
 </section>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     [Parameter, EditorRequired]
     public Accreditation Accreditation { get; set; } = default!;
 
@@ -80,15 +84,12 @@
     private string StatusSentence => Accreditation.Status switch
     {
         AccreditationStatus.Approved when Accreditation.ValidUntil is DateTime until =>
-            $"Approved until {until:d MMMM yyyy}.",
-        AccreditationStatus.Approved =>
-            "Approved. No end date is recorded on your credential.",
-        AccreditationStatus.Pending =>
-            "Not decided yet. Your application is with the accreditation team.",
-        AccreditationStatus.Refused =>
-            "Refused. See the changes below for the reason and what remains open.",
-        AccreditationStatus.Withdrawn =>
-            "Withdrawn. See the changes below for when and why.",
-        _ => "Status unknown.",
+            L.Format(Locale, "accessCard.approvedUntil",
+                ("date", L.Date(Locale, until, "dayMonthYear"))),
+        AccreditationStatus.Approved => L[Locale, "accessCard.approvedNoEnd"],
+        AccreditationStatus.Pending => L[Locale, "accessCard.pending"],
+        AccreditationStatus.Refused => L[Locale, "accessCard.refused"],
+        AccreditationStatus.Withdrawn => L[Locale, "accessCard.withdrawn"],
+        _ => L[Locale, "accessCard.unknown"],
     };
 }

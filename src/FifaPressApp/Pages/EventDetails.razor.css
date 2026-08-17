@@ -69,3 +69,11 @@
     color: var(--color-stale-text);
     margin-top: var(--space-2);
 }
+
+/* Sits where the access status would be, at the same weight. The boundary is
+   stated in place rather than by removing the section, so nothing on the page
+   silently disappears depending on who is reading it. */
+.detail__signed-out {
+    color: var(--color-stale-text);
+    max-width: 40rem;
+}

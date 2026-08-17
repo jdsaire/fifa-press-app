@@ -39,5 +39,13 @@ Records of each build run against this repo: the plan approved before the work s
   authored, then applies targeted patches — once three principal-gated open items were resolved —
   that flip all four from proposed to Final. Documentation only: no `src/` file and no frozen gate
   file changed.
+- [`v12/`](v12/) — builds the four Run 4D addendum files into working code, across five gated
+  boundaries: a dark theme re-anchored to solid black; a simulated, honestly-documented sign-in with
+  two seeded holders demonstrating the same conditional change resolving two different ways; the
+  app in English, Spanish and Portuguese with the session surviving a language switch; a small,
+  strictly-typed TypeScript interop layer whose compiled output is committed so nothing about
+  building or deploying the app needs Node; and two-layer disclosure on the change log and Help.
+  Frontend and documentation only — the app project's `.csproj`, `ux-ui/`, `wwwroot/lib/`, and every
+  workflow file are byte-identical to `ac5555c` throughout. Tests: 82 → 409.
 
 Each version folder has its own README with more detail on what that run covered.

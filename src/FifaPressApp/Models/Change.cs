@@ -89,36 +89,43 @@ public sealed class Change
         DateTime effectiveUtc,
         ChangeKind kind,
         Track track,
-        string whatChanged,
-        string reason,
-        string nextStep,
+        LocalizedText whatChanged,
+        LocalizedText reason,
+        LocalizedText nextStep,
         bool nextStepIsActionable = true,
-        string? decidedBy = null,
+        LocalizedText? decidedBy = null,
         string? supersedesChangeId = null,
         int? affectsMatchNumber = null,
         int? dependsOnMatchNumber = null,
-        string? conditionText = null)
+        LocalizedText? conditionText = null)
     {
-        // The three required fields, checked before anything else. Throwing
-        // here is the point: an invalid change never becomes an object, so no
-        // screen ever has to decide how to render a missing reason.
-        Require(whatChanged, nameof(whatChanged));
-        Require(reason, nameof(reason));
-        Require(nextStep, nameof(nextStep));
+        // The three required fields, checked before anything else, IN EVERY
+        // LANGUAGE. Throwing here is the point: an invalid change never becomes
+        // an object, so no screen ever has to decide how to render a missing
+        // reason — and applying the checks per locale is what stops a
+        // half-translated change existing at all, which would otherwise be a
+        // blank line that only appears once somebody switches language.
+        RequireAll(whatChanged, nameof(whatChanged));
+        RequireAll(reason, nameof(reason));
+        RequireAll(nextStep, nameof(nextStep));
 
         // A reason that just restates the outcome is not a reason. "Your
         // access was revoked" explains nothing that "what changed" did not
         // already say, and accepting it would let the record look complete
-        // while telling the holder nothing.
-        if (Normalize(reason) == Normalize(whatChanged))
+        // while telling the holder nothing. Checked per locale, so a Spanish
+        // reason cannot restate the Spanish outcome either.
+        foreach (var locale in Locales)
         {
-            throw new ArgumentException(
-                "Reason must explain why the change happened, not restate what changed.",
-                nameof(reason));
+            if (Normalize(reason.For(locale)) == Normalize(whatChanged.For(locale)))
+            {
+                throw new ArgumentException(
+                    "Reason must explain why the change happened, not restate what changed.",
+                    nameof(reason));
+            }
         }
 
         // A change with nothing the holder can act on still owes them a name.
-        if (!nextStepIsActionable && string.IsNullOrWhiteSpace(decidedBy))
+        if (!nextStepIsActionable && (decidedBy is null || HasAnyBlank(decidedBy)))
         {
             throw new ArgumentException(
                 "DecidedBy is required when the next step is not actionable.",
@@ -127,7 +134,7 @@ public sealed class Change
 
         // A change that hangs on an unplayed fixture has to say what the
         // condition is, or it reads as a decision already taken.
-        if (dependsOnMatchNumber is not null && string.IsNullOrWhiteSpace(conditionText))
+        if (dependsOnMatchNumber is not null && (conditionText is null || HasAnyBlank(conditionText)))
         {
             throw new ArgumentException(
                 "ConditionText is required when a change depends on a fixture.",
@@ -149,15 +156,15 @@ public sealed class Change
         WrittenUtc = writtenUtc;
         EffectiveUtc = effectiveUtc;
         Kind = kind;
-        WhatChanged = whatChanged;
-        Reason = reason;
-        NextStep = nextStep;
+        WhatChangedText = whatChanged;
+        ReasonText = reason;
+        NextStepText = nextStep;
         NextStepIsActionable = nextStepIsActionable;
-        DecidedBy = decidedBy;
+        DecidedByText = decidedBy;
         SupersedesChangeId = supersedesChangeId;
         AffectsMatchNumber = affectsMatchNumber;
         DependsOnMatchNumber = dependsOnMatchNumber;
-        ConditionText = conditionText;
+        ConditionTextLocalized = conditionText;
 
         // Computed once, here, from the change's own facts and the holder's
         // track. There is no parameter for it and no setter, so no caller can
@@ -188,11 +195,43 @@ public sealed class Change
     /// </summary>
     public Urgency Urgency { get; }
 
-    public string WhatChanged { get; }
+    /// <summary>What changed, in all three languages.</summary>
+    public LocalizedText WhatChangedText { get; }
 
-    public string Reason { get; }
+    /// <summary>Why it changed, in all three languages.</summary>
+    public LocalizedText ReasonText { get; }
 
-    public string NextStep { get; }
+    /// <summary>What the holder can do about it, in all three languages.</summary>
+    public LocalizedText NextStepText { get; }
+
+    /// <summary>
+    /// The English canonical form. <b>Not for rendering.</b>
+    ///
+    /// <para>
+    /// Screens resolve the language they are in from the cascading
+    /// <see cref="AppLocale"/> and call <c>WhatChangedText.For(locale)</c>. This
+    /// accessor exists so that code with no locale in hand — tests, logs, the
+    /// withholding checks — has one stable string to reason about, and so that
+    /// the assertions written against this record before it was localized still
+    /// compile and still mean what they meant.
+    /// </para>
+    ///
+    /// <para>
+    /// It deliberately does <i>not</i> read an ambient "current locale". An
+    /// earlier attempt at exactly that leaked across parallel test classes and
+    /// broke unrelated tests — and the deeper problem is that an ambient read
+    /// lets a component render localized text without participating in the
+    /// render pass a locale change triggers, which is a stale string nobody
+    /// notices until they switch language.
+    /// </para>
+    /// </summary>
+    public string WhatChanged => WhatChangedText.En;
+
+    /// <inheritdoc cref="WhatChanged" />
+    public string Reason => ReasonText.En;
+
+    /// <inheritdoc cref="WhatChanged" />
+    public string NextStep => NextStepText.En;
 
     /// <summary>
     /// Whether <see cref="NextStep"/> is something the holder can act on. When
@@ -201,7 +240,20 @@ public sealed class Change
     /// </summary>
     public bool NextStepIsActionable { get; }
 
-    public string? DecidedBy { get; }
+    /// <summary>
+    /// Who decided, in all three languages.
+    ///
+    /// <para>
+    /// <c>11_I18N.md</c> §4.2's R5 names four fields; this is a fifth, and it is
+    /// localized because it is user-visible — <c>ChangeRow</c> renders "Decided
+    /// by …" — and leaving it English would fail the requirement that every
+    /// user-visible string render in all three locales.
+    /// </para>
+    /// </summary>
+    public LocalizedText? DecidedByText { get; }
+
+    /// <inheritdoc cref="WhatChanged" />
+    public string? DecidedBy => DecidedByText?.En;
 
     /// <summary>
     /// The change this one replaces. The replaced change is not deleted; both
@@ -230,9 +282,12 @@ public sealed class Change
 
     /// <summary>
     /// The condition, worded as a condition and never as a commitment. Names
-    /// both outcomes.
+    /// both outcomes, in all three languages.
     /// </summary>
-    public string? ConditionText { get; }
+    public LocalizedText? ConditionTextLocalized { get; }
+
+    /// <inheritdoc cref="WhatChanged" />
+    public string? ConditionText => ConditionTextLocalized?.En;
 
     /// <summary>
     /// Whether this change reduces what the holder can do. Reducing changes are
@@ -295,12 +350,20 @@ public sealed class Change
             : Urgency.Foreseeable;
     }
 
-    private static void Require(string value, string parameterName)
+    private static readonly AppLocale[] Locales = [AppLocale.En, AppLocale.Es, AppLocale.Pt];
+
+    private static bool HasAnyBlank(LocalizedText text) =>
+        text.All.Any(entry => string.IsNullOrWhiteSpace(entry.Text));
+
+    private static void RequireAll(LocalizedText value, string parameterName)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        foreach (var (locale, text) in value.All)
         {
-            throw new ArgumentException(
-                $"A change cannot be created without {parameterName}.", parameterName);
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                throw new ArgumentException(
+                    $"A change cannot be created without {parameterName} in {locale}.", parameterName);
+            }
         }
     }
 

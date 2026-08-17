@@ -5,12 +5,26 @@
    drifts into sounding like a commitment turns a warning into a promise the
    service cannot keep. *@
 
+@inject LocaleService L
+
 <span class="foreseeable-badge">
     <span class="foreseeable-badge__mark" aria-hidden="true">•</span>
-    @Label
+    @Text
 </span>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    /// <summary>
+    /// An override, for a caller with something more specific to say. It
+    /// defaults to null rather than to an English sentence: a literal default on
+    /// a [Parameter] is assigned once at construction and never re-evaluated,
+    /// which is exactly the stale-string bug 11 §5.2 names — the badge would
+    /// keep the language the app was in when it was first rendered.
+    /// </summary>
     [Parameter]
-    public string Label { get; set; } = "Not decided yet — depends on a match still to be played";
+    public string? Label { get; set; }
+
+    private string Text => Label ?? L[Locale, "foreseeable.label"];
 }

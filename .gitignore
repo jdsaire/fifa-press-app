@@ -1,2 +1,7 @@
 bin/
 obj/
+
+# The interop toolchain is a development-time dependency, not part of the app.
+# The compiled JavaScript it produces IS committed — see src/interop/README.md —
+# so nothing in CI or in a local `dotnet run` needs any of this.
+node_modules/

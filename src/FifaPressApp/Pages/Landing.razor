@@ -1,0 +1,103 @@
+@* Landing — the front door, and the only screen with no content of its own.
+   ------------------------------------------------------------------------
+   Two audiences at once: someone evaluating the work, and the journalist the
+   app is built for. It serves the first without pretending not to be a
+   demonstration, which is why the disclosure sits in the second paragraph
+   rather than in a footer.
+
+   NOT A MARKETING PAGE. No feature grid, no testimonials, no invented
+   statistics, no logos. This is the easiest screen in the app to over-design,
+   precisely because it has no real content to defer to — so it states what the
+   app does, that it is simulated, and how to proceed, and then stops.
+
+   The demo credentials are deliberately NOT here. They belong beside the form
+   they are typed into, one click away. A reviewer who lands on a credential
+   dump learns what to type before learning what they are looking at, and
+   publishing them twice would create two places to keep in sync. *@
+
+@page "/"
+@inject NavigationManager Navigation
+@inject SimulatedSessionProvider Session
+@inject LocaleService L
+
+<PageTitle>@L[Locale, "app.name"]</PageTitle>
+
+@if (justSignedOut)
+{
+    @* Signing out says so. Leaving a person to infer it from a sidebar that
+       quietly lost two rows is the same class of silence this app exists to
+       replace, at a smaller scale. *@
+    <p class="landing__signed-out" role="status">
+        <strong>@L[Locale, "landing.signedOutStrong"]</strong>
+        @L[Locale, "landing.signedOutBody"]
+    </p>
+}
+
+<h1>@L[Locale, "landing.title"]</h1>
+
+<p class="landing__lede">@L[Locale, "landing.lede"]</p>
+
+<p class="landing__disclosure" role="note">
+    <strong>@L[Locale, "landing.disclosureStrong"]</strong>
+    @L[Locale, "landing.disclosureBody"]
+</p>
+
+<div class="landing__entries">
+    <section class="landing__entry">
+        <h2>@L[Locale, "landing.signInHeading"]</h2>
+        <p>@L[Locale, "landing.signInBody"]</p>
+        <a class="btn btn-primary" href="signin">@L[Locale, "landing.signInCta"]</a>
+    </section>
+
+    <section class="landing__entry">
+        <h2>@L[Locale, "landing.browseHeading"]</h2>
+        <p>@L[Locale, "landing.browseBody"]</p>
+        <p class="landing__public-links">
+            <a href="matches">@L[Locale, "landing.browseMatches"]</a> ·
+            <a href="help">@L[Locale, "landing.browseHelp"]</a>
+        </p>
+    </section>
+</div>
+
+<section class="landing__what-you-get">
+    <h2>@L[Locale, "landing.whatYouGetHeading"]</h2>
+    <ul>
+        <li>
+            <strong>@L[Locale, "landing.point1Strong"]</strong>
+            @L[Locale, "landing.point1Body"]
+        </li>
+        <li>
+            <strong>@L[Locale, "landing.point2Strong"]</strong>
+            @L[Locale, "landing.point2Body"]
+        </li>
+        <li>
+            <strong>@L[Locale, "landing.point3Strong"]</strong>
+            @L[Locale, "landing.point3Body"]
+        </li>
+    </ul>
+</section>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    private bool justSignedOut;
+
+    /// <summary>
+    /// A signed-in visitor has no use for the front door. Redirecting rather
+    /// than rendering a second entry point keeps one answer to "where is my
+    /// record", which is the whole reason the record got a named route.
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        if (Session.IsSignedIn)
+        {
+            Navigation.NavigateTo("record", replace: true);
+            return;
+        }
+
+        // Asked once and cleared by the asking, so a refresh does not repeat an
+        // announcement about something that happened a while ago.
+        justSignedOut = Session.ConsumeSignOutAnnouncement();
+    }
+}

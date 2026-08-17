@@ -18,9 +18,11 @@
    the surface for it is not specified. Its absence here is a decision taken
    elsewhere, not an oversight to be helpfully filled in. *@
 
+@inject LocaleService L
+
 <form class="request-form" @onsubmit="HandleSubmitAsync" @onsubmit:preventDefault="true">
     <div class="request-form__field">
-        <label for="@NameInputId">Your name</label>
+        <label for="@NameInputId">@L[Locale, "requestForm.nameLabel"]</label>
         <input id="@NameInputId"
                class="form-control"
                value="@Name"
@@ -31,12 +33,12 @@
                aria-invalid="@(ShowNameError ? "true" : null)" />
         @if (ShowNameError)
         {
-            <div id="@NameErrorId" class="request-form__error" role="alert" aria-live="polite">@nameError</div>
+            <div id="@NameErrorId" class="request-form__error" role="alert" aria-live="polite">@L[Locale, nameError!]</div>
         }
     </div>
 
     <div class="request-form__field">
-        <label for="@EmailInputId">Your email</label>
+        <label for="@EmailInputId">@L[Locale, "requestForm.emailLabel"]</label>
         <input id="@EmailInputId"
                type="email"
                inputmode="email"
@@ -49,7 +51,7 @@
                aria-invalid="@(ShowEmailError ? "true" : null)" />
         @if (ShowEmailError)
         {
-            <div id="@EmailErrorId" class="request-form__error" role="alert" aria-live="polite">@emailError</div>
+            <div id="@EmailErrorId" class="request-form__error" role="alert" aria-live="polite">@L[Locale, emailError!]</div>
         }
     </div>
 
@@ -59,11 +61,14 @@
     }
 
     <button type="submit" class="btn btn-primary" disabled="@Submitting">
-        @(Submitting ? "Sending request…" : "Request access")
+        @L[Locale, Submitting ? "requestForm.submitting" : "requestForm.submit"]
     </button>
 </form>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     [Parameter]
     public string Name { get; set; } = string.Empty;
 
@@ -148,14 +153,18 @@
         await OnSubmit.InvokeAsync();
     }
 
+    // The validators return resource KEYS rather than sentences, resolved at
+    // render time. Storing a resolved sentence in a field would freeze it in
+    // whichever language was active when the field was last typed in — the
+    // stale-string bug, in its least visible form.
     private static string? ValidateName(string value) =>
-        string.IsNullOrWhiteSpace(value) ? "Enter the name on your credential." : null;
+        string.IsNullOrWhiteSpace(value) ? "requestForm.nameRequired" : null;
 
     private static string? ValidateEmail(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return "Enter the email address on your credential.";
+            return "requestForm.emailRequired";
         }
 
         // Presence and shape only. A stricter pattern here rejects real
@@ -163,6 +172,6 @@
         var at = value.IndexOf('@');
         return at > 0 && value.IndexOf('.', at) > at + 1
             ? null
-            : "That does not look like an email address.";
+            : "requestForm.emailShape";
     }
 }

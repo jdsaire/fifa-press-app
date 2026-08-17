@@ -76,6 +76,7 @@ public class RequestSubmittingStateTests
     public void FormShowsTheSubmittingStateWhenItIsToldItIsSubmitting()
     {
         using var context = new BunitContext();
+        context.WithLocale();
 
         var form = context.Render<RequestAccessForm>(parameters => parameters
             .Add(component => component.Name, "Amina Bello")
@@ -92,6 +93,7 @@ public class RequestSubmittingStateTests
     public void FormIsFullyUsableWhenItIsNotSubmitting()
     {
         using var context = new BunitContext();
+        context.WithLocale();
 
         var form = context.Render<RequestAccessForm>(parameters => parameters
             .Add(component => component.Name, "Amina Bello")
@@ -110,6 +112,7 @@ public class RequestSubmittingStateTests
         // flight, the form rendered with that state shows it. This is the render
         // pass the shipped build never got.
         using var context = new BunitContext();
+        context.WithLocale();
         var provider = TestData.ProviderOverRealSchedule();
 
         var submitting = false;

@@ -1,0 +1,48 @@
+@inject LocaleService L
+
+@* The language switch.
+   ------------------------------------------------------------------------
+   A row of its own, not folded into the theme control. Language and theme are
+   independent choices along different axes, and one combined control would make
+   a person cycle through six states to reach one of them.
+
+   Three fixed options, rendered as three buttons rather than a dropdown: a
+   picker's affordance exists to manage a list too long to show, and three is
+   not that. The current one is marked with aria-pressed rather than being
+   removed or disabled, so the control always has the same shape and a screen
+   reader is told which is active rather than having to infer it from what is
+   missing.
+
+   THE SESSION SURVIVES THIS. Option B is an in-session re-render with no
+   reload, so there is nothing here that could end a session — no navigation, no
+   storage write, no page load. See the note in NavMenu.razor and the tests. *@
+
+<div class="language-switch" role="group" aria-label="@L[Locale, "nav.language"]">
+    <span class="language-switch__label">@L[Locale, "nav.language"]</span>
+    <div class="language-switch__options">
+        @foreach (var option in LocaleService.All)
+        {
+            <button type="button"
+                    class="language-switch__option @(option == Locale ? "language-switch__option--current" : null)"
+                    aria-pressed="@(option == Locale ? "true" : "false")"
+                    lang="@LocaleService.CodeOf(option)"
+                    title="@L.NameOf(option)"
+                    @onclick="() => Switch(option)">
+                @LocaleService.CodeOf(option).ToUpperInvariant()
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    /// <summary>
+    /// Changes the active locale, and does nothing else. Not a navigation, not
+    /// a reload, not a write — the whole tree re-renders because the cascaded
+    /// value changed, and every other piece of app state is untouched by
+    /// construction rather than by being carefully preserved.
+    /// </summary>
+    private void Switch(AppLocale locale) => L.Set(locale);
+}

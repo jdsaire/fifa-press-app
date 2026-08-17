@@ -1,15 +1,21 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject LocaleService L
 
 @* The theme control.
    ------------------------------------------------------------------------
-   Lives in a slim strip of its own above the content column, right-aligned, at
-   every breakpoint — see MainLayout.razor.css for why it is not tucked into the
-   sidebar header, which was the cheaper option and the wrong one.
+   Lives as the last row of the nav list in NavMenu.razor, shaped like the three
+   destination rows above it — an appearance control among the sections rather
+   than chrome floating above the content column. It is a button, not a NavLink:
+   it has no href and is never a place you can be.
 
    Until the module has loaded, this renders a disabled button rather than
-   nothing at all, so the strip does not change height underneath the content
-   the moment the app finishes starting. *@
+   nothing at all, so the row does not change height underneath the list the
+   moment the app finishes starting.
+
+   The mechanism below — the module import, the stored/system resolution, the
+   apply-and-store pair — is unchanged by the move. This was a placement
+   decision, not a mechanism one. *@
 
 <button type="button"
         class="theme-trigger"
@@ -22,11 +28,16 @@
 </button>
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private IJSObjectReference? module;
     private string current = "light";
     private bool isReady;
 
-    private string ButtonLabel => current == "dark" ? "Switch to light theme" : "Switch to dark theme";
+    // An expression-bodied property, so it recomputes every render and cannot
+    // hold a label in the language the app was in when this component loaded.
+    private string ButtonLabel => L[Locale, current == "dark" ? "theme.toLight" : "theme.toDark"];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

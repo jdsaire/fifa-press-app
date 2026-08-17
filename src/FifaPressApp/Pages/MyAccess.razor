@@ -1,9 +1,17 @@
-@* My Access — the primary surface, and the app's front door.
+@* My Access — the primary surface for a signed-in holder.
    ------------------------------------------------------------------------
    Answers "what do I hold, what changed, and what can I do" without a tap and
-   without a network. The match list used to live at "/" and has been demoted to
+   without a network. The match list used to live at "/" and was demoted to
    /matches: landing on fixtures would restate the app this repo already had,
    and no fixture screen can answer what changed about a person's own access.
+
+   It now sits at a named route rather than at "/", which is reserved for the
+   public landing view. A "/" that branched on session state would make one
+   component decide which *page* it is, tangling the landing's content into this
+   screen's error and empty states. The named route also fixes the nav's first
+   row: href="" with Match="NavLinkMatch.All" existed only because an empty href
+   prefix-matches every address, and href="record" gets a correct active state
+   from ordinary prefix matching.
 
    THE LOADING RULE IS THE POINT. The provider resolves reads from local state
    first, so the headline below is already in hand when this component first
@@ -17,29 +25,42 @@
    barrier, a refusal — discovery-by-failure with the app's endorsement on it.
    So StaleIndicator renders always, never only when something is old. *@
 
-@page "/"
+@page "/record"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
+@inject NavigationManager Navigation
+@inject ChangeArrivalTracker Arrivals
+@inject LocaleService L
 
-<PageTitle>My access</PageTitle>
+<PageTitle>@L[Locale, "record.title"]</PageTitle>
 
-<h1>My access</h1>
+<h1>@L[Locale, "record.title"]</h1>
 
-@if (loadFailed && record is null)
+@if (!Session.IsSignedIn)
+{
+    @* Gated, and stated as what it is. An access record is personal by
+       definition, and one anybody can read without identifying themselves is
+       not the person's own state — which is the app's whole premise.
+
+       Never a 403, never "access denied", never anything borrowed from the
+       vocabulary of a real authorization system: there is no security here to
+       describe. The person is on their way to the sign-in screen, where the
+       full simulation notice explains what this is. *@
+    <p class="my-access__signed-out">
+        @L[Locale, "record.signedOut"]
+        <a href="signin">@L[Locale, "record.signedOutLink"]</a>
+        @L[Locale, "record.signedOutAfter"]
+    </p>
+}
+else if (loadFailed && record is null)
 {
     @* Error — fetch failed, no cache. A dead end with no way out is not an
        acceptable end state, so this routes somewhere a person can act. *@
     <div class="my-access__error" role="alert">
-        <h2>No access state is available offline</h2>
-        <p>
-            Your record could not be loaded and nothing is stored on this device
-            yet, so this app cannot tell you what you currently hold.
-        </p>
-        <p>
-            Do not rely on this screen at a barrier. Take your credential to the
-            accreditation desk and ask them to read your current state from
-            their own system.
-        </p>
-        <a class="btn btn-primary" href="help">What to do next</a>
+        <h2>@L[Locale, "record.errorHeading"]</h2>
+        <p>@L[Locale, "record.errorBody1"]</p>
+        <p>@L[Locale, "record.errorBody2"]</p>
+        <a class="btn btn-primary" href="help">@L[Locale, "common.whatToDoNext"]</a>
     </div>
 }
 else if (record is null)
@@ -49,14 +70,9 @@ else if (record is null)
        facts, and a person who confuses them will wait for a notification that
        is never coming. *@
     <div class="my-access__empty">
-        <h2>No accreditation record yet</h2>
-        <p>
-            Nothing has been issued against this credential number. If you have
-            applied, your application is still with the accreditation team and
-            has not reached a decision — that stage has no updates to show, and
-            this screen will fill in once it does.
-        </p>
-        <p><a href="help">What this service does and does not cover</a></p>
+        <h2>@L[Locale, "record.emptyHeading"]</h2>
+        <p>@L[Locale, "record.emptyBody"]</p>
+        <p><a href="help">@L[Locale, "record.emptyLink"]</a></p>
     </div>
 }
 else
@@ -66,7 +82,7 @@ else
         <MatchAccess>
             @if (matchAccess.Count == 0)
             {
-                <p>No match access has been requested or granted yet.</p>
+                <p>@L[Locale, "record.noMatchAccess"]</p>
             }
             else
             {
@@ -74,7 +90,11 @@ else
                     @foreach (var line in matchAccess)
                     {
                         <li @key="line.MatchNumber">
-                            <span class="my-access__match-label">@line.Label</span>
+                            @* The label is computed here, at render time, from the number and status
+                               the line carries. It used to be baked into the line by Rebuild(),
+                               which ran once — the stale-string bug, in the one place it
+                               genuinely occurred. *@
+                            <span class="my-access__match-label">@LabelFor(line.MatchNumber)</span>
                             <span class="my-access__match-status my-access__match-status--@line.Status.ToString().ToLowerInvariant()">
                                 @StatusWord(line.Status)
                             </span>
@@ -88,7 +108,7 @@ else
     @* 2. Staleness. Always, not only when old. *@
     <StaleIndicator LastSyncedUtc="lastSyncedUtc"
                     AsOfUtc="Access.AsOfUtc"
-                    Subject="your access" />
+                    SubjectKey="record.staleSubject" />
 
     @if (loadFailed)
     {
@@ -96,8 +116,7 @@ else
            the refresh had succeeded is the quiet lie this whole app exists to
            stop, so the failure is stated rather than swallowed. *@
         <p class="my-access__refresh-failed" role="alert">
-            The last attempt to refresh this failed. What you see above is the
-            state stored on this device, at the time shown.
+            @L[Locale, "record.refreshFailed"]
         </p>
     }
 
@@ -105,14 +124,14 @@ else
        earlier one carries that earlier one inside it rather than leaving it
        loose in the list — which is what makes it read as a change and not just
        as two unrelated statements. *@
-    <h2 class="my-access__changes-heading">What changed</h2>
+    <h2 class="my-access__changes-heading">@L[Locale, "record.changesHeading"]</h2>
 
     @if (visibleChanges.Count == 0)
     {
         <p class="my-access__no-changes">
-            No changes since
-            <time datetime="@lastSyncedUtc.ToString("o")">@lastSyncedUtc.ToString("d MMMM yyyy, HH:mm")</time> UTC.
-            Silence here means nothing has moved, not that nothing has been checked.
+            @L[Locale, "record.noChangesBefore"]
+            <time datetime="@lastSyncedUtc.ToString("o")">@L.Date(Locale, lastSyncedUtc, "dayMonthYearTime")</time> UTC.
+            @L[Locale, "record.noChangesAfter"]
         </p>
     }
     else
@@ -122,36 +141,40 @@ else
             <ChangeRow @key="change.ChangeId"
                        Change="change"
                        Superseded="@Superseded(change)"
-                       DependsOnFixture="@DependsOnFixture(change)" />
+                       DependsOnFixture="@DependsOnFixture(change)"
+                       JustArrived="@(change.ChangeId == arrivedChangeId)" />
         }
     }
 
     @* 5. Identity and track — stable, secondary, and never competing with the
        headline. *@
     <section class="my-access__identity">
-        <h2>Your credential</h2>
+        <h2>@L[Locale, "record.credentialHeading"]</h2>
         <dl>
-            <dt>Name</dt>
+            <dt>@L[Locale, "record.name"]</dt>
             <dd>@record.HolderName</dd>
-            <dt>Outlet</dt>
+            <dt>@L[Locale, "record.outlet"]</dt>
             <dd>@record.Outlet</dd>
-            <dt>Credential number</dt>
+            @* Never translated or reformatted in any locale: an identifier is
+               not language content. *@
+            <dt>@L[Locale, "record.credentialNumber"]</dt>
             <dd>@record.CredentialId</dd>
-            <dt>Track</dt>
+            <dt>@L[Locale, "record.track"]</dt>
             <dd>@TrackName(record.Track.TrackId)</dd>
         </dl>
-        <p class="my-access__mocked">
-            Simulated holder details. No credential store exists in this version.
-        </p>
+        <p class="my-access__mocked">@L[Locale, "record.mocked"]</p>
     </section>
 
     @* 6. Help, always reachable. *@
     <p class="my-access__help-link">
-        <a href="help">What this service does not do, and who to contact</a>
+        <a href="help">@L[Locale, "record.helpLink"]</a>
     </p>
 }
 
 @code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
     private Accreditation? record;
     private IReadOnlyList<Change> allChanges = [];
     private List<Change> visibleChanges = [];
@@ -161,20 +184,50 @@ else
     private DateTime lastSyncedUtc;
     private bool loadFailed;
 
-    /// <summary>One line in the per-fixture block inside the headline.</summary>
-    private sealed record MatchAccessLine(int MatchNumber, string Label, MatchAccessStatus Status);
+    /// <summary>
+    /// The change this person just wrote, if they arrived here from having
+    /// written one. Read once, on the way in: the tracker clears as it
+    /// answers, so a refresh does not replay a confirmation for something
+    /// that happened a while ago.
+    /// </summary>
+    private string? arrivedChangeId;
+
+    /// <summary>
+    /// One line in the per-fixture block inside the headline.
+    ///
+    /// <para>
+    /// It carries the match number and its status, and deliberately not a
+    /// label. The label used to be baked in here by <c>Rebuild()</c>, which runs
+    /// once from <c>OnInitializedAsync</c> — so every line kept whichever
+    /// language the app was in at that moment and never changed again. That is
+    /// exactly the defect <c>11_I18N.md</c> §5.2 describes, and this is the one
+    /// place in the app where it genuinely existed.
+    /// </para>
+    /// </summary>
+    private sealed record MatchAccessLine(int MatchNumber, MatchAccessStatus Status);
 
     protected override async Task OnInitializedAsync()
     {
+        arrivedChangeId = Arrivals.Consume();
+
+        // Signed out, there is no record to read and nothing below applies. The
+        // markup above has already rendered the offer; this moves the person to
+        // the screen that explains what signing in here does and does not mean.
+        if (Session.CredentialId is not string credentialId)
+        {
+            Navigation.NavigateTo("signin", replace: true);
+            return;
+        }
+
         // Both of these resolve from local state and complete without yielding,
         // so the first render already has the headline. Nothing below blocks it.
         try
         {
-            var accreditation = await Access.GetAccreditationAsync(MockAccessDataProvider.DemoCredentialId);
+            var accreditation = await Access.GetAccreditationAsync(credentialId);
             record = accreditation.Value;
             lastSyncedUtc = accreditation.LastSyncedUtc;
 
-            var changes = await Access.GetChangesAsync(MockAccessDataProvider.DemoCredentialId);
+            var changes = await Access.GetChangesAsync(credentialId);
             allChanges = changes.Value;
 
             Rebuild();
@@ -206,7 +259,7 @@ else
             .Select(change => change.AffectsMatchNumber!.Value)
             .Distinct()
             .OrderBy(number => number)
-            .Select(number => new MatchAccessLine(number, LabelFor(number), StatusFor(number)))
+            .Select(number => new MatchAccessLine(number, StatusFor(number)))
             .ToList();
     }
 
@@ -247,8 +300,11 @@ else
     /// </summary>
     private string LabelFor(int matchNumber) =>
         fixtures.TryGetValue(matchNumber, out var fixture)
-            ? $"Match {matchNumber} — {fixture.DisplayLabel}, {fixture.City}"
-            : $"Match {matchNumber}";
+            ? L.Format(Locale, "record.matchLabelWithFixture",
+                ("number", matchNumber),
+                ("label", FixtureLabels.Display(L, Locale, fixture)),
+                ("city", fixture.City))
+            : L.Format(Locale, "record.matchLabel", ("number", matchNumber));
 
     private MatchAccessStatus StatusFor(int matchNumber)
     {
@@ -280,19 +336,19 @@ else
     /// A revoked-but-conditional entry is not yet revoked, and saying so
     /// plainly here matters more than the word being short.
     /// </summary>
-    private static string StatusWord(MatchAccessStatus status) => status switch
+    private string StatusWord(MatchAccessStatus status) => L[Locale, status switch
     {
-        MatchAccessStatus.Granted => "Access granted",
-        MatchAccessStatus.Revoked => "Access withdrawn",
-        MatchAccessStatus.Requested => "Requested, not yet decided",
-        _ => "Not requested",
-    };
+        MatchAccessStatus.Granted => "status.granted",
+        MatchAccessStatus.Revoked => "status.revoked",
+        MatchAccessStatus.Requested => "status.requested",
+        _ => "status.notRequested",
+    }];
 
-    private static string TrackName(TrackId track) => track switch
+    private string TrackName(TrackId track) => L[Locale, track switch
     {
-        TrackId.MemberAssociationQuota => "Member association quota",
-        TrackId.RightsHolder => "Rights holder",
-        TrackId.Freelance => "Freelance",
-        _ => "Unknown",
-    };
+        TrackId.MemberAssociationQuota => "track.memberAssociationQuota",
+        TrackId.RightsHolder => "track.rightsHolder",
+        TrackId.Freelance => "track.freelance",
+        _ => "track.unknown",
+    }];
 }

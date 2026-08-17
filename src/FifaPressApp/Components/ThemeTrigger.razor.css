@@ -1,24 +1,43 @@
+/* The trigger is a nav row now, so it is styled as one rather than as a bordered
+   button that happens to sit in a list. Every value below is the one
+   NavMenu.razor.css already gives `.nav-item ::deep a` — same height, same
+   radius, same padding, same colour token — so the fourth row is the same shape
+   as the three above it. It is deliberately not a copy that can drift: if that
+   rule's height changes, this one has to change with it, which is what the
+   matching test is for.
+
+   The styling lives here rather than in NavMenu.razor.css because both files'
+   scoped selectors would land on the same specificity and the winner would be
+   whichever the bundler wrote last. Owning it here removes that coin-flip. */
 .theme-trigger {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: var(--space-2);
+    width: 100%;
+    height: 3rem;
+    line-height: 3rem;
+    padding-left: var(--space-2);
     background: none;
-    border: 1px solid var(--color-stale-text);
+    border: none;
     border-radius: var(--radius-default);
-    color: var(--color-text);
+    color: var(--color-nav-item);
     font-size: var(--font-size-small);
-    padding: var(--space-1) var(--space-2);
+    text-align: left;
     cursor: pointer;
 }
 
+/* Hover matches the nav links': translucency over whatever gradient sits
+   beneath, so it carries to the second theme with no token of its own. There is
+   no active-state rule here on purpose — the trigger has no href and is never a
+   destination, so it must never look like the row you are currently on. */
 .theme-trigger:hover:not(:disabled) {
-    border-color: var(--color-link);
-    color: var(--color-link);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-sidebar-text);
 }
 
 .theme-trigger:focus-visible {
     outline: 2px solid var(--color-focus-ring);
-    outline-offset: 2px;
+    outline-offset: -2px;
 }
 
 .theme-trigger:disabled {
