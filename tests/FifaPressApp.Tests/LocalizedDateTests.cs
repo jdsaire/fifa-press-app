@@ -3,6 +3,7 @@ using FifaPressApp.Components;
 using FifaPressApp.Models;
 using FifaPressApp.Pages;
 using FifaPressApp.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -40,6 +41,25 @@ public class LocalizedDateTests
         return new Harness(context, locale, session);
     }
 
+    /// <summary>
+    /// Renders a component and then switches language.
+    ///
+    /// <para>
+    /// LocaleProvider resolves the stored language on its first render, so a
+    /// locale set on the service <i>before</i> that render is overwritten by the
+    /// resolution — correctly, because that is what startup does. Switching
+    /// after the first render is both the way around it and the thing a person
+    /// actually does.
+    /// </para>
+    /// </summary>
+    private static IRenderedComponent<T> RenderThenSwitch<T>(Harness harness, AppLocale locale)
+        where T : IComponent
+    {
+        var page = harness.Context.Render<T>();
+        harness.Locale.Set(locale);
+        return page;
+    }
+
     [Theory]
     // ch-005's effective date, which the record renders as "Takes effect …".
     [InlineData(AppLocale.En, "6 July 2026, 14:00")]
@@ -51,9 +71,8 @@ public class LocalizedDateTests
         using var context = harness.Context;
 
         await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
-        harness.Locale.Set(locale);
 
-        var markup = context.Render<MyAccess>().Markup;
+        var markup = RenderThenSwitch<MyAccess>(harness, locale).Markup;
 
         Assert.Contains(expected, markup);
     }
@@ -68,9 +87,10 @@ public class LocalizedDateTests
         using var context = harness.Context;
 
         await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
-        harness.Locale.Set(locale);
 
-        Assert.Contains(expected, context.Render<MyAccess>().Find(".stale-indicator__stamp").TextContent);
+        Assert.Contains(
+            expected,
+            RenderThenSwitch<MyAccess>(harness, locale).Find(".stale-indicator__stamp").TextContent);
     }
 
     [Theory]
@@ -87,9 +107,10 @@ public class LocalizedDateTests
         using var context = harness.Context;
 
         await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
-        harness.Locale.Set(locale);
 
-        Assert.Contains(expected, context.Render<MyAccess>().Find(".stale-indicator__label").TextContent);
+        Assert.Contains(
+            expected,
+            RenderThenSwitch<MyAccess>(harness, locale).Find(".stale-indicator__label").TextContent);
     }
 
     [Theory]
@@ -100,6 +121,7 @@ public class LocalizedDateTests
     {
         var harness = NewHarness();
         using var context = harness.Context;
+
         harness.Locale.Set(locale);
 
         var synced = new DateTime(2026, 7, 3, 19, 31, 0, DateTimeKind.Utc);
@@ -127,7 +149,6 @@ public class LocalizedDateTests
     {
         var harness = NewHarness();
         using var context = harness.Context;
-        harness.Locale.Set(locale);
 
         var card = context.Render<EventCard>(parameters => parameters
             .Add(component => component.EventName, "Round of 16 — teams not yet decided")
@@ -135,6 +156,8 @@ public class LocalizedDateTests
             .Add(component => component.Location, "AT&T Stadium, Dallas")
             .Add(component => component.ReadOnly, true)
             .Add(component => component.AllowEdit, false));
+
+        harness.Locale.Set(locale);
 
         Assert.Equal(expected, card.Find("time").TextContent);
     }
@@ -147,7 +170,6 @@ public class LocalizedDateTests
         // for a person to read.
         var harness = NewHarness();
         using var context = harness.Context;
-        harness.Locale.Set(AppLocale.Pt);
 
         var card = context.Render<EventCard>(parameters => parameters
             .Add(component => component.EventName, "x")
@@ -155,6 +177,8 @@ public class LocalizedDateTests
             .Add(component => component.Location, "y")
             .Add(component => component.ReadOnly, true)
             .Add(component => component.AllowEdit, false));
+
+        harness.Locale.Set(AppLocale.Pt);
 
         Assert.Equal("2026-07-04", card.Find("time").GetAttribute("datetime"));
     }
@@ -188,7 +212,6 @@ public class LocalizedDateTests
     {
         var harness = NewHarness();
         using var context = harness.Context;
-        harness.Locale.Set(locale);
 
         var markup = context.Render<EventDetails>(parameters => parameters.Add(p => p.Id, 22)).Markup;
 

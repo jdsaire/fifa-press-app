@@ -45,6 +45,7 @@ public class InteropTests
 
     [Theory]
     [InlineData("theme.ts", "theme.js")]
+    [InlineData("locale.ts", "locale.js")]
     public void EveryFunctionTheTypeScriptExportsIsInTheCompiledJavaScript(string source, string compiled)
     {
         var expected = ExportedFunctions(Source(source));
@@ -143,6 +144,66 @@ public class InteropTests
     }
 
     // ------------------------------------------------------- the toolchain
+
+    // -------------------------------------------------- the locale module
+
+    [Theory]
+    [InlineData("getStoredLocale")]
+    [InlineData("getBrowserLocale")]
+    [InlineData("applyLocale")]
+    [InlineData("storeLocale")]
+    [InlineData("clearStoredLocale")]
+    public void TheLocaleModuleExportsEveryFunctionTheProviderCalls(string name)
+    {
+        Assert.Contains($"export function {name}", Compiled("locale.js"));
+    }
+
+    [Fact]
+    public void TheTwoModulesUseDifferentStorageKeys()
+    {
+        // One key for two settings would make choosing a language forget the
+        // theme. They are siblings, not the same thing.
+        Assert.Contains("'fifa-press-app.theme'", Compiled("theme.js"));
+        Assert.Contains("'fifa-press-app.locale'", Compiled("locale.js"));
+    }
+
+    [Fact]
+    public void TheLocaleModuleSetsTheLangAttributeAndNeverClearsIt()
+    {
+        // A document is always in some language, and an absent lang leaves a
+        // screen reader guessing — a worse answer than a wrong one.
+        var compiled = Compiled("locale.js");
+
+        Assert.Contains("setAttribute('lang'", compiled);
+        Assert.DoesNotContain("removeAttribute('lang')", compiled);
+    }
+
+    [Fact]
+    public void TheLocaleModuleIsShapedLikeItsSibling()
+    {
+        // The two modules are deliberately the same shape: a stored read, an
+        // ambient-preference read, an apply, a store, a clear. A reader who has
+        // understood one has understood both. Both halves of each name are
+        // normalised — the subject (Theme/Locale) and the source of the ambient
+        // preference, which is the operating system for one and the browser's
+        // declared languages for the other.
+        static IReadOnlyList<string> Shape(string code) =>
+            Regex.Matches(code, @"export function (\w+)")
+                .Select(match => Regex.Replace(match.Groups[1].Value, "Theme|Locale|System|Browser", "X"))
+                .OrderBy(name => name, StringComparer.Ordinal)
+                .ToList();
+
+        Assert.Equal(Shape(Compiled("theme.js")), Shape(Compiled("locale.js")));
+    }
+
+    [Fact]
+    public void TheStoredLocaleReadNarrowsToTheThreeLanguagesTheAppHas()
+    {
+        // A stored value from a future version of the app, or a hand-edited
+        // one, must not become an active locale the resources have no entry
+        // for.
+        Assert.Contains("value === 'en' || value === 'es' || value === 'pt'", Compiled("locale.js"));
+    }
 
     [Fact]
     public void TheToolchainIsDevelopmentOnlyAndOutsideTheAppProject()

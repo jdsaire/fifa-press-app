@@ -38,6 +38,25 @@ public class LanguageSwitchTests
         return new Harness(context, locale, session);
     }
 
+    /// <summary>
+    /// Renders a component and then switches language.
+    ///
+    /// <para>
+    /// LocaleProvider resolves the stored language on its first render, so a
+    /// locale set on the service <i>before</i> that render is overwritten by the
+    /// resolution — correctly, because that is what startup does. Switching
+    /// after the first render is both the way around it and the thing a person
+    /// actually does.
+    /// </para>
+    /// </summary>
+    private static IRenderedComponent<T> RenderThenSwitch<T>(Harness harness, AppLocale locale)
+        where T : IComponent
+    {
+        var page = harness.Context.Render<T>();
+        harness.Locale.Set(locale);
+        return page;
+    }
+
     [Fact]
     public void TheSwitchOffersThreeFixedOptionsRatherThanAPicker()
     {
@@ -189,9 +208,8 @@ public class LanguageSwitchTests
         using var context = harness.Context;
 
         await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
-        harness.Locale.Set(locale);
 
-        var page = context.Render<MyAccess>();
+        var page = RenderThenSwitch<MyAccess>(harness, locale);
 
         Assert.Contains(heading, page.Find("h1").TextContent);
     }
@@ -204,9 +222,8 @@ public class LanguageSwitchTests
     {
         var harness = NewHarness();
         using var context = harness.Context;
-        harness.Locale.Set(locale);
 
-        Assert.Contains(heading, context.Render<EventList>().Find("h1").TextContent);
+        Assert.Contains(heading, RenderThenSwitch<EventList>(harness, locale).Find("h1").TextContent);
     }
 
     [Theory]
@@ -217,9 +234,8 @@ public class LanguageSwitchTests
     {
         var harness = NewHarness();
         using var context = harness.Context;
-        harness.Locale.Set(locale);
 
-        Assert.Contains(heading, context.Render<SignIn>().Find("h1").TextContent);
+        Assert.Contains(heading, RenderThenSwitch<SignIn>(harness, locale).Find("h1").TextContent);
     }
 
     [Theory]
@@ -230,10 +246,11 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var english = context.Render<Landing>().Find("h1").TextContent;
+        var page = context.Render<Landing>();
+        var english = page.Find("h1").TextContent;
 
         harness.Locale.Set(locale);
-        var translated = context.Render<Landing>().Find("h1").TextContent;
+        var translated = page.Find("h1").TextContent;
 
         Assert.NotEqual(english, translated);
         Assert.False(string.IsNullOrWhiteSpace(translated));
@@ -314,9 +331,8 @@ public class LanguageSwitchTests
         using var context = harness.Context;
 
         await harness.Session.SignInAsync("RH-2026-00219", "tomas-demo-2026");
-        harness.Locale.Set(locale);
 
-        var markup = context.Render<MyAccess>().Markup;
+        var markup = RenderThenSwitch<MyAccess>(harness, locale).Markup;
 
         // Match 93 has not kicked off at the simulated instant, and Tomás's
         // ch-008 waits on it. Neither team in it may appear, in any language.
@@ -334,8 +350,8 @@ public class LanguageSwitchTests
     {
         var harness = NewHarness();
         using var context = harness.Context;
-        harness.Locale.Set(locale);
 
+        harness.Locale.Set(locale);
         var unplayed = TestData.Fixture(93, PhaseKind.RoundOf16, groupLetter: null);
 
         Assert.Contains(expected, FixtureLabels.Display(harness.Locale, locale, unplayed));
