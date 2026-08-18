@@ -21,6 +21,11 @@ came first and which builds on which.
   Run 4B. Specification only, no code — see its own README for what it can and cannot establish. Now
   also carries a four-file Run 4D design addendum, finalized, closing out open items before Run 4E
   builds against it.
+- [`04-evaluation/`](04-evaluation/README.md) — a task-based usability and accessibility re-audit of
+  the app after Run 4E, scored against six simulated task-attempts rather than source alone: 26 of
+  `00`'s findings dispositioned, five new findings raised, and a four-item remediation scope
+  sequencing the fixes this repo builds against next. See its own README for what it can and cannot
+  establish.
 
 **From now on, every new UX dossier lands here** as the next numbered folder, rather than as its
 own top-level directory at repo root.

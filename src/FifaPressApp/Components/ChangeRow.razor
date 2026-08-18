@@ -28,6 +28,15 @@
 @inject LocaleService L
 
 <article class="change-row @(IsForeseeable ? "change-row--foreseeable" : null) @(JustArrived ? "change-row--arriving" : null)">
+    @if (JustArrived)
+    {
+        @* The visual confirmation above — the row opening and animating in — has
+           no counterpart for a screen reader, which sees the same markup as any
+           other row. This is the same aria-live pattern the app's own form
+           errors already use (SignIn.razor, RequestAccessForm.razor), applied
+           here to a successful write for the first time. *@
+        <p class="visually-hidden" role="status" aria-live="polite">@Change.WhatChangedText.For(Locale)</p>
+    }
     <details class="change-row__disclosure" open="@JustArrived">
         <summary class="change-row__summary">
             @if (IsForeseeable)

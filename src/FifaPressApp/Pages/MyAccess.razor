@@ -98,6 +98,34 @@ else
                             <span class="my-access__match-status my-access__match-status--@line.Status.ToString().ToLowerInvariant()">
                                 @StatusWord(line.Status)
                             </span>
+
+                            @* Withdrawal, gated to a Requested line only — a Granted, Revoked or
+                               NotRequested line has nothing pending to withdraw. Inline confirm
+                               rather than a modal, matching this app's own register (NavMenu.razor's
+                               sign-out has no confirmation "because there is nothing to lose"; a
+                               withdrawal is a real recorded write, so it gets a lightweight confirm
+                               instead of a heavier modal). *@
+                            @if (line.Status == MatchAccessStatus.Requested)
+                            {
+                                if (withdrawingMatchNumber == line.MatchNumber)
+                                {
+                                    <span class="my-access__withdraw-confirm">
+                                        @L[Locale, "record.withdrawConfirmPrompt"]
+                                        <button type="button" class="btn btn-primary btn-sm" @onclick="() => WithdrawAsync(line.PendingChangeId!)">
+                                            @L[Locale, "record.withdrawConfirmYes"]
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="() => withdrawingMatchNumber = null">
+                                            @L[Locale, "record.withdrawConfirmCancel"]
+                                        </button>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-link btn-sm" @onclick="() => withdrawingMatchNumber = line.MatchNumber">
+                                        @L[Locale, "record.withdrawButton"]
+                                    </button>
+                                }
+                            }
                         </li>
                     }
                 </ul>
@@ -193,6 +221,13 @@ else
     private string? arrivedChangeId;
 
     /// <summary>
+    /// The match number currently showing its withdraw confirm step, or null.
+    /// One at a time, and cleared as soon as a decision — confirm or cancel —
+    /// is made.
+    /// </summary>
+    private int? withdrawingMatchNumber;
+
+    /// <summary>
     /// One line in the per-fixture block inside the headline.
     ///
     /// <para>
@@ -203,8 +238,14 @@ else
     /// exactly the defect <c>11_I18N.md</c> §5.2 describes, and this is the one
     /// place in the app where it genuinely existed.
     /// </para>
+    ///
+    /// <para>
+    /// <see cref="PendingChangeId"/> is populated only when <see cref="Status"/>
+    /// is <see cref="MatchAccessStatus.Requested"/> — it is the change a
+    /// withdrawal would target, and no other status has one to withdraw.
+    /// </para>
     /// </summary>
-    private sealed record MatchAccessLine(int MatchNumber, MatchAccessStatus Status);
+    private sealed record MatchAccessLine(int MatchNumber, MatchAccessStatus Status, string? PendingChangeId);
 
     protected override async Task OnInitializedAsync()
     {
@@ -259,8 +300,37 @@ else
             .Select(change => change.AffectsMatchNumber!.Value)
             .Distinct()
             .OrderBy(number => number)
-            .Select(number => new MatchAccessLine(number, StatusFor(number)))
+            .Select(number =>
+            {
+                var (status, pendingChangeId) = StatusFor(number);
+                return new MatchAccessLine(number, status, pendingChangeId);
+            })
             .ToList();
+    }
+
+    /// <summary>
+    /// Withdraws the pending request identified by <paramref name="changeId"/>.
+    /// No navigation occurs, so the returned change is announced directly
+    /// through <see cref="arrivedChangeId"/> rather than round-tripping through
+    /// <see cref="ChangeArrivalTracker"/> — the same "just arrived" mechanism
+    /// the request write path uses, on the one confirmation pattern the app
+    /// has, applied here for the second time.
+    /// </summary>
+    private async Task WithdrawAsync(string changeId)
+    {
+        if (Session.CredentialId is not string credentialId)
+        {
+            return;
+        }
+
+        var written = await Access.WithdrawRequestAsync(credentialId, changeId);
+
+        allChanges = [.. allChanges, written];
+        arrivedChangeId = written.ChangeId;
+        withdrawingMatchNumber = null;
+
+        Rebuild();
+        StateHasChanged();
     }
 
     private async Task LoadFixtureLabelsAsync()
@@ -306,20 +376,30 @@ else
                 ("city", fixture.City))
             : L.Format(Locale, "record.matchLabel", ("number", matchNumber));
 
-    private MatchAccessStatus StatusFor(int matchNumber)
+    /// <summary>
+    /// Resolves a match's status and, when it is <see cref="MatchAccessStatus.Requested"/>,
+    /// the id of the pending change a withdrawal would target — from one lookup,
+    /// not two, so this doesn't run the same LINQ query twice for one line.
+    /// </summary>
+    private (MatchAccessStatus Status, string? PendingChangeId) StatusFor(int matchNumber)
     {
         var latest = visibleChanges
-            .Where(change => change.AffectsMatchNumber == matchNumber)
+            .Where(change => change.AffectsMatchNumber == matchNumber
+                          && change.EffectiveUtc <= Access.AsOfUtc)
             .OrderByDescending(change => change.EffectiveUtc)
             .FirstOrDefault();
 
-        return latest?.Kind switch
+        var status = latest?.Kind switch
         {
             ChangeKind.MatchAccessGranted => MatchAccessStatus.Granted,
             ChangeKind.MatchAccessRevoked => MatchAccessStatus.Revoked,
             ChangeKind.RequestDecided => MatchAccessStatus.Requested,
             _ => MatchAccessStatus.NotRequested,
         };
+
+        var pendingChangeId = status == MatchAccessStatus.Requested ? latest!.ChangeId : null;
+
+        return (status, pendingChangeId);
     }
 
     private Change? Superseded(Change change) =>

@@ -47,5 +47,9 @@ Records of each build run against this repo: the plan approved before the work s
   building or deploying the app needs Node; and two-layer disclosure on the change log and Help.
   Frontend and documentation only — the app project's `.csproj`, `ux-ui/`, `wwwroot/lib/`, and every
   workflow file are byte-identical to `ac5555c` throughout. Tests: 82 → 409.
+- [`v13/`](v13/) — injects the completed `04-evaluation` dossier (nine gate deliverables, a
+  task-based re-audit) into `ux-ui/04-evaluation/`, then executes its four-item remediation scope: a
+  status-logic fix, an accessibility fix, and a two-part Withdrawal affordance — open since v9, the
+  first time it closes. Frontend, locale files, and documentation only. Tests: 409 → 421.
 
 Each version folder has its own README with more detail on what that run covered.
