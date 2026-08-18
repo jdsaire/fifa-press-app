@@ -309,7 +309,8 @@ else
     private MatchAccessStatus StatusFor(int matchNumber)
     {
         var latest = visibleChanges
-            .Where(change => change.AffectsMatchNumber == matchNumber)
+            .Where(change => change.AffectsMatchNumber == matchNumber
+                          && change.EffectiveUtc <= Access.AsOfUtc)
             .OrderByDescending(change => change.EffectiveUtc)
             .FirstOrDefault();
 

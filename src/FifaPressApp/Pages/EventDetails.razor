@@ -232,7 +232,7 @@ else
                 changes = changeResponse.Value;
                 lastSyncedUtc = changeResponse.LastSyncedUtc;
 
-                status = FoldStatus(DateTime.MaxValue);
+                status = FoldStatus(Access.AsOfUtc);
                 venueStatus = FoldStatus(VenueListAsOf);
                 dependentChange = changes.FirstOrDefault(change => change.DependsOnMatchNumber == Id);
             }
