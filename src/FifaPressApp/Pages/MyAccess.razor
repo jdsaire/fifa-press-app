@@ -203,8 +203,14 @@ else
     /// exactly the defect <c>11_I18N.md</c> §5.2 describes, and this is the one
     /// place in the app where it genuinely existed.
     /// </para>
+    ///
+    /// <para>
+    /// <see cref="PendingChangeId"/> is populated only when <see cref="Status"/>
+    /// is <see cref="MatchAccessStatus.Requested"/> — it is the change a
+    /// withdrawal would target, and no other status has one to withdraw.
+    /// </para>
     /// </summary>
-    private sealed record MatchAccessLine(int MatchNumber, MatchAccessStatus Status);
+    private sealed record MatchAccessLine(int MatchNumber, MatchAccessStatus Status, string? PendingChangeId);
 
     protected override async Task OnInitializedAsync()
     {
@@ -259,7 +265,11 @@ else
             .Select(change => change.AffectsMatchNumber!.Value)
             .Distinct()
             .OrderBy(number => number)
-            .Select(number => new MatchAccessLine(number, StatusFor(number)))
+            .Select(number =>
+            {
+                var (status, pendingChangeId) = StatusFor(number);
+                return new MatchAccessLine(number, status, pendingChangeId);
+            })
             .ToList();
     }
 
@@ -306,7 +316,12 @@ else
                 ("city", fixture.City))
             : L.Format(Locale, "record.matchLabel", ("number", matchNumber));
 
-    private MatchAccessStatus StatusFor(int matchNumber)
+    /// <summary>
+    /// Resolves a match's status and, when it is <see cref="MatchAccessStatus.Requested"/>,
+    /// the id of the pending change a withdrawal would target — from one lookup,
+    /// not two, so this doesn't run the same LINQ query twice for one line.
+    /// </summary>
+    private (MatchAccessStatus Status, string? PendingChangeId) StatusFor(int matchNumber)
     {
         var latest = visibleChanges
             .Where(change => change.AffectsMatchNumber == matchNumber
@@ -314,13 +329,17 @@ else
             .OrderByDescending(change => change.EffectiveUtc)
             .FirstOrDefault();
 
-        return latest?.Kind switch
+        var status = latest?.Kind switch
         {
             ChangeKind.MatchAccessGranted => MatchAccessStatus.Granted,
             ChangeKind.MatchAccessRevoked => MatchAccessStatus.Revoked,
             ChangeKind.RequestDecided => MatchAccessStatus.Requested,
             _ => MatchAccessStatus.NotRequested,
         };
+
+        var pendingChangeId = status == MatchAccessStatus.Requested ? latest!.ChangeId : null;
+
+        return (status, pendingChangeId);
     }
 
     private Change? Superseded(Change change) =>
