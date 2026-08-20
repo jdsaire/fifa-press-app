@@ -78,6 +78,17 @@ public class LocaleServiceTests
             // identifies a thing rather than describing it to English, and this
             // is one — translating it would invent a department nobody can find.
             "help.contact.fifaStrong",
+
+            // Three countries whose names are spelled identically in English,
+            // Spanish and Portuguese. Same reasoning as phase.final directly
+            // above: a fact about the languages, not a translation somebody
+            // forgot. They are listed one by one rather than exempting the
+            // whole team.* namespace, so the other forty-five stay under the
+            // check — if "team.Germany" ever shipped as "Germany" in all three
+            // files, this test would still be the thing that caught it.
+            "team.Argentina",
+            "team.Portugal",
+            "team.Senegal",
         };
 
         foreach (var key in locale.Keys(AppLocale.En))

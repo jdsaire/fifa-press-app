@@ -221,8 +221,30 @@ public static class FixtureImporter
             throw new FormatException($"Line {lineNumber}: '{value}' names an empty side.");
         }
 
-        return (home, away);
+        return (Canonical(home), Canonical(away));
     }
+
+    /// <summary>
+    /// One spelling per country.
+    ///
+    /// <para>
+    /// The tracked schedule names the Democratic Republic of the Congo two
+    /// ways — <c>Congo DR</c> in some rows and <c>DR Congo</c> in others. That
+    /// is a defect in the source file, and the cheapest place to absorb it is
+    /// here, at the single point the file becomes data. The alternative is two
+    /// spellings of one nation propagating into the presentation layer's
+    /// lookup, into all three locale files, and into search — where a reader
+    /// typing one spelling would find half the country's fixtures.
+    /// </para>
+    ///
+    /// <para>
+    /// This normalizes a spelling; it does not translate, abbreviate or tidy
+    /// anything. The labels stay canonical English by contract, which is what
+    /// the model's own note and the frozen search tests both depend on.
+    /// </para>
+    /// </summary>
+    private static string Canonical(string team) =>
+        team.Equals("DR Congo", StringComparison.OrdinalIgnoreCase) ? "Congo DR" : team;
 
     private static (PhaseKind Phase, string? GroupLetter) ParsePhase(string value, int lineNumber)
     {

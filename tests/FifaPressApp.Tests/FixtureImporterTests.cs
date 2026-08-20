@@ -175,4 +175,45 @@ public class FixtureImporterTests
                 .Distinct()
                 .Order());
     }
+
+    [Fact]
+    public void BothCongoSpellingsCollapseToOneCanonicalEntry()
+    {
+        // The tracked schedule names one country two ways — "Congo DR" in some
+        // rows and "DR Congo" in others. Absorbed here, at the single point the
+        // file becomes data, because the alternative is two spellings of one
+        // nation propagating into the presentation layer's lookup, into all
+        // three locale files, and into search, where a reader typing one
+        // spelling would find only half the country's fixtures.
+        var result = FixtureImporter.Parse(
+            $"{Header}\n"
+            + "1,11-Jun-26,15:00,13:00,Congo DR v Senegal,Group A,Estadio Azteca,Mexico City\n"
+            + "2,11-Jun-26,22:00,20:00,DR Congo v Ghana,Group A,Estadio Akron,Guadalajara\n");
+
+        var teams = result.Matchups.Values
+            .SelectMany(matchup => new[] { matchup.Home, matchup.Away })
+            .Where(team => team.Contains("Congo", StringComparison.OrdinalIgnoreCase))
+            .Distinct()
+            .ToList();
+
+        Assert.Equal(["Congo DR"], teams);
+    }
+
+    [Fact]
+    public void TheTrackedScheduleItselfNamesFortyEightCountriesNotFortyNine()
+    {
+        // The same assertion against the real file rather than a fabricated
+        // pair of rows: the raw CSV carries forty-nine distinct spellings, and
+        // exactly one of them is a duplicate of another country.
+        var result = FixtureImporter.Parse(TestData.ScheduleCsv());
+
+        var teams = result.Matchups.Values
+            .SelectMany(matchup => new[] { matchup.Home, matchup.Away })
+            .Distinct()
+            .ToList();
+
+        Assert.Equal(48, teams.Count);
+        Assert.Contains("Congo DR", teams);
+        Assert.DoesNotContain("DR Congo", teams);
+    }
 }

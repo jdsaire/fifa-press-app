@@ -38,8 +38,38 @@ public static class FixtureLabels
     public static string Display(LocaleService locale, AppLocale which, Fixture fixture) =>
         fixture is { IsResolved: true, HomeLabel: not null, AwayLabel: not null }
             ? locale.Format(which, "fixture.versus",
-                ("home", fixture.HomeLabel), ("away", fixture.AwayLabel))
+                ("home", Team(locale, which, fixture.HomeLabel)),
+                ("away", Team(locale, which, fixture.AwayLabel)))
             : locale.Format(which, "fixture.undecided", ("phase", Phase(locale, which, fixture)));
+
+    /// <summary>
+    /// A country's name in the language the screen is in.
+    ///
+    /// <para>
+    /// <b>Reached only from the resolved branch above, and that is structural
+    /// rather than careful.</b> A fixture that has not kicked off carries no
+    /// labels at all, so it takes the <c>fixture.undecided</c> path and never
+    /// arrives here — the withholding rule is not re-implemented in this
+    /// method, it simply cannot be reached in violation of it.
+    /// </para>
+    ///
+    /// <para>
+    /// Keyed on the canonical English name, which is what the model carries and
+    /// what search matches against. English values are identity mappings held
+    /// explicitly in the locale file rather than special-cased here, so this
+    /// method behaves the same in all three languages instead of having a
+    /// branch that only one language takes.
+    /// </para>
+    ///
+    /// <para>
+    /// A name with no entry renders as the canonical English it arrived as —
+    /// never an empty string, never a raw resource key. A country added to the
+    /// schedule later therefore degrades to English rather than breaking a
+    /// card.
+    /// </para>
+    /// </summary>
+    private static string Team(LocaleService locale, AppLocale which, string canonical) =>
+        locale.Has(which, $"team.{canonical}") ? locale[which, $"team.{canonical}"] : canonical;
 
     /// <summary>The round, including the group letter where there is one.</summary>
     public static string Phase(LocaleService locale, AppLocale which, Fixture fixture) =>
