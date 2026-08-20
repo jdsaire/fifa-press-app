@@ -12,7 +12,15 @@
 // later; it is the honest scope of a foundational demonstration, and claiming
 // otherwise would be the one dishonesty this project has refused throughout.
 
+using FifaPressApp.Api.Storage;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// The record store, as a singleton: one in-memory collection for the life of
+// the process, which is what "in-memory storage" means here. See
+// AccreditationStore for why there is no database and why that is a scope
+// decision rather than an omission.
+builder.Services.AddSingleton<AccreditationStore>();
 
 // The OpenAPI document, registered bare. It is how a reader discovers the
 // routes without reading the code, and it is the whole of this API's tooling.

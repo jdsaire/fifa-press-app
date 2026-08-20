@@ -24,4 +24,11 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
   </ItemGroup>
 
+  <!-- The two demo records and their eight changes, copied beside the binary
+       so the store can read them at startup. The same data the frontend's mock
+       has always held, so the before/after comparison is like-for-like. -->
+  <ItemGroup>
+    <Content Update="Data/seed.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

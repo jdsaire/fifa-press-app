@@ -1,0 +1,274 @@
+{
+  "accreditations": [
+    {
+      "credentialId": "MP-2026-04817",
+      "holderName": "Amina Bello",
+      "outlet": "The National Daily",
+      "trackId": "MemberAssociationQuota",
+      "hasNamedContact": false,
+      "status": "Approved",
+      "validUntil": "2026-07-19T23:59:00Z",
+      "zoneAccess": [
+        "Media tribune",
+        "Mixed zone",
+        "Press conference room"
+      ],
+      "lastSyncedUtc": "2026-07-03T17:15:00Z"
+    },
+    {
+      "credentialId": "RH-2026-00219",
+      "holderName": "Tomás L.",
+      "outlet": "A rights-holding broadcaster",
+      "trackId": "RightsHolder",
+      "hasNamedContact": true,
+      "status": "Approved",
+      "validUntil": "2026-07-19T23:59:00Z",
+      "zoneAccess": [
+        "Media tribune",
+        "Mixed zone",
+        "Press conference room",
+        "Broadcast position",
+        "Camera platform"
+      ],
+      "lastSyncedUtc": "2026-07-03T17:15:00Z"
+    }
+  ],
+  "changes": [
+    {
+      "changeId": "ch-001",
+      "credentialId": "MP-2026-04817",
+      "writtenUtc": "2026-06-05T10:00:00Z",
+      "effectiveUtc": "2026-06-11T00:00:00Z",
+      "kind": "MatchAccessGranted",
+      "whatChanged": {
+        "en": "Match access granted for your group-stage allocation.",
+        "es": "Acceso a partidos concedido para tu cupo de la fase de grupos.",
+        "pt": "Acesso a jogos concedido para a sua cota da fase de grupos."
+      },
+      "reason": {
+        "en": "Your member association confirmed its opening quota split, and your name was on it.",
+        "es": "Tu asociación miembro confirmó su reparto inicial de cupos y tu nombre figuraba en él.",
+        "pt": "A sua associação membro confirmou a divisão inicial de cotas e o seu nome constava dela."
+      },
+      "nextStep": {
+        "en": "Collect your credential at the accreditation centre before your first match.",
+        "es": "Recoge tu acreditación en el centro de acreditaciones antes de tu primer partido.",
+        "pt": "Retire a sua credencial no centro de acreditação antes do seu primeiro jogo."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": 1,
+      "dependsOnMatchNumber": null,
+      "conditionText": null
+    },
+    {
+      "changeId": "ch-002",
+      "credentialId": "MP-2026-04817",
+      "writtenUtc": "2026-06-28T08:30:00Z",
+      "effectiveUtc": "2026-06-29T12:00:00Z",
+      "kind": "ZoneAccessNarrowed",
+      "whatChanged": {
+        "en": "Pitch-side photo position removed from your zone access.",
+        "es": "Se retira de tus zonas de acceso la posición de fotografía a pie de campo.",
+        "pt": "A posição de fotografia junto ao campo foi retirada das suas zonas de acesso."
+      },
+      "reason": {
+        "en": "The host city reduced the photo pool for knockout fixtures after the venue operator revised the perimeter plan.",
+        "es": "La ciudad sede redujo el pool fotográfico para los partidos de eliminación directa después de que el operador del estadio revisara el plan del perímetro.",
+        "pt": "A cidade-sede reduziu o pool fotográfico para os jogos a eliminar depois de o operador do estádio ter revisto o plano do perímetro."
+      },
+      "nextStep": {
+        "en": "Apply for a pool position through your member association if you need one for a specific match.",
+        "es": "Solicita una posición del pool a través de tu asociación miembro si necesitas una para un partido concreto.",
+        "pt": "Solicite uma posição do pool através da sua associação membro se precisar de uma para um jogo específico."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": null,
+      "dependsOnMatchNumber": null,
+      "conditionText": null
+    },
+    {
+      "changeId": "ch-003",
+      "credentialId": "MP-2026-04817",
+      "writtenUtc": "2026-06-30T16:15:00Z",
+      "effectiveUtc": "2026-06-30T16:15:00Z",
+      "kind": "AdministrativeCorrection",
+      "whatChanged": {
+        "en": "Mixed zone access restored to your credential.",
+        "es": "Se restablece el acceso a la zona mixta en tu acreditación.",
+        "pt": "O acesso à zona mista foi reposto na sua credencial."
+      },
+      "reason": {
+        "en": "Mixed zone was withdrawn together with the photo position two days ago. That was a clerical error in the perimeter revision; only the photo position was meant to move.",
+        "es": "La zona mixta se retiró junto con la posición de fotografía hace dos días. Fue un error administrativo en la revisión del perímetro; solo debía moverse la posición de fotografía.",
+        "pt": "A zona mista foi retirada juntamente com a posição de fotografia há dois dias. Foi um erro administrativo na revisão do perímetro; apenas a posição de fotografia deveria ter mudado."
+      },
+      "nextStep": {
+        "en": "Nothing to do. Your credential already carries mixed zone access again.",
+        "es": "No hay nada que hacer. Tu acreditación ya vuelve a incluir el acceso a la zona mixta.",
+        "pt": "Não há nada a fazer. A sua credencial já volta a incluir o acesso à zona mista."
+      },
+      "nextStepIsActionable": false,
+      "decidedBy": {
+        "en": "Host city accreditation office",
+        "es": "Oficina de acreditaciones de la ciudad sede",
+        "pt": "Gabinete de acreditação da cidade-sede"
+      },
+      "supersedesChangeId": "ch-002",
+      "affectsMatchNumber": null,
+      "dependsOnMatchNumber": null,
+      "conditionText": null
+    },
+    {
+      "changeId": "ch-004",
+      "credentialId": "MP-2026-04817",
+      "writtenUtc": "2026-07-01T09:00:00Z",
+      "effectiveUtc": "2026-07-01T09:00:00Z",
+      "kind": "ZoneAccessWidened",
+      "whatChanged": {
+        "en": "Press conference room added for the remainder of the tournament.",
+        "es": "Se añade la sala de conferencias de prensa para el resto del torneo.",
+        "pt": "A sala de conferências de imprensa foi adicionada para o resto do torneio."
+      },
+      "reason": {
+        "en": "Your member association's knockout allocation includes conference access, which your original credential did not carry.",
+        "es": "El cupo de eliminación directa de tu asociación miembro incluye el acceso a conferencias, que tu acreditación original no llevaba.",
+        "pt": "A cota da fase a eliminar da sua associação membro inclui o acesso a conferências, que a sua credencial original não tinha."
+      },
+      "nextStep": {
+        "en": "Nothing to do. The access is already on your credential.",
+        "es": "No hay nada que hacer. El acceso ya está en tu acreditación.",
+        "pt": "Não há nada a fazer. O acesso já consta da sua credencial."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": null,
+      "dependsOnMatchNumber": null,
+      "conditionText": null
+    },
+    {
+      "changeId": "ch-005",
+      "credentialId": "MP-2026-04817",
+      "writtenUtc": "2026-07-03T11:20:00Z",
+      "effectiveUtc": "2026-07-06T14:00:00Z",
+      "kind": "MatchAccessRevoked",
+      "whatChanged": {
+        "en": "Your quarter-final allocation depends on the Round of 16 fixture in Dallas on 6 July.",
+        "es": "Tu cupo para cuartos de final depende del partido de octavos de final en Dallas del 6 de julio.",
+        "pt": "A sua cota para os quartos de final depende do jogo dos oitavos de final em Dallas, a 6 de julho."
+      },
+      "reason": {
+        "en": "Your member association's quarter-final quota is set by how far its team goes. The quota contracts as soon as that fixture removes it from the tournament.",
+        "es": "El cupo de cuartos de final de tu asociación miembro lo determina hasta dónde llegue su selección. El cupo se reduce en cuanto ese partido la deje fuera del torneo.",
+        "pt": "A cota dos quartos de final da sua associação membro é definida pela distância a que a sua seleção chegar. A cota reduz-se assim que esse jogo a afastar do torneio."
+      },
+      "nextStep": {
+        "en": "Hold your Dallas travel until after that fixture, or book something you can change. You will not need to re-apply either way.",
+        "es": "Espera a después de ese partido para cerrar tu viaje a Dallas, o reserva algo que puedas cambiar. En cualquier caso no tendrás que volver a solicitarlo.",
+        "pt": "Adie a sua viagem a Dallas para depois desse jogo, ou reserve algo que possa alterar. Em qualquer dos casos não terá de voltar a candidatar-se."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": 98,
+      "dependsOnMatchNumber": 93,
+      "conditionText": {
+        "en": "If the association's team is eliminated in that fixture, your quarter-final access is withdrawn and your accreditation continues unchanged for every other match. If it is not, your quarter-final access stands as it is now.",
+        "es": "Si la selección de la asociación queda eliminada en ese partido, se retira tu acceso a cuartos de final y tu acreditación continúa sin cambios para todos los demás partidos. Si no queda eliminada, tu acceso a cuartos de final se mantiene tal como está ahora.",
+        "pt": "Se a seleção da associação for eliminada nesse jogo, o seu acesso aos quartos de final é retirado e a sua acreditação continua inalterada para todos os outros jogos. Se não for eliminada, o seu acesso aos quartos de final mantém-se como está agora."
+      }
+    },
+    {
+      "changeId": "ch-006",
+      "credentialId": "RH-2026-00219",
+      "writtenUtc": "2026-06-08T09:30:00Z",
+      "effectiveUtc": "2026-06-13T00:00:00Z",
+      "kind": "MatchAccessGranted",
+      "whatChanged": {
+        "en": "Broadcast position confirmed for your group-stage fixtures.",
+        "es": "Posición de transmisión confirmada para tus partidos de la fase de grupos.",
+        "pt": "Posição de transmissão confirmada para os seus jogos da fase de grupos."
+      },
+      "reason": {
+        "en": "Your organisation's rights package covers these fixtures, and the venue allocation was finalised once the host cities published their broadcast compound plans.",
+        "es": "El paquete de derechos de tu organización cubre estos partidos, y la asignación en el estadio quedó cerrada cuando las ciudades sede publicaron sus planes del recinto de transmisión.",
+        "pt": "O pacote de direitos da sua organização cobre estes jogos, e a alocação no estádio foi fechada quando as cidades-sede publicaram os planos do complexo de transmissão."
+      },
+      "nextStep": {
+        "en": "Collect your credential at the accreditation centre before your first match.",
+        "es": "Recoge tu acreditación en el centro de acreditaciones antes de tu primer partido.",
+        "pt": "Retire a sua credencial no centro de acreditação antes do seu primeiro jogo."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": 22,
+      "dependsOnMatchNumber": null,
+      "conditionText": null
+    },
+    {
+      "changeId": "ch-007",
+      "credentialId": "RH-2026-00219",
+      "writtenUtc": "2026-07-02T09:00:00Z",
+      "effectiveUtc": "2026-07-04T06:00:00Z",
+      "kind": "ZoneAccessNarrowed",
+      "whatChanged": {
+        "en": "Camera platform access at the Houston venue is withdrawn from 4 July.",
+        "es": "Se retira el acceso a la plataforma de cámaras en el estadio de Houston a partir del 4 de julio.",
+        "pt": "O acesso à plataforma de câmaras no estádio de Houston é retirado a partir de 4 de julho."
+      },
+      "reason": {
+        "en": "The venue operator rebuilt the platform allocation after a structural inspection, and the revised plan carries fewer positions than the one your package was issued against.",
+        "es": "El operador del estadio rehízo la asignación de plataformas tras una inspección estructural, y el plan revisado tiene menos posiciones que aquel con el que se emitió tu paquete.",
+        "pt": "O operador do estádio refez a alocação das plataformas após uma inspeção estrutural, e o plano revisto tem menos posições do que aquele com que o seu pacote foi emitido."
+      },
+      "nextStep": {
+        "en": "Ask your FIFA Media Partnerships contact to place your platform position on the revised allocation before the fixture.",
+        "es": "Pide a tu contacto de FIFA Media Partnerships que incluya tu posición en la asignación revisada antes del partido.",
+        "pt": "Peça ao seu contacto da FIFA Media Partnerships para incluir a sua posição na alocação revista antes do jogo."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": 90,
+      "dependsOnMatchNumber": null,
+      "conditionText": null
+    },
+    {
+      "changeId": "ch-008",
+      "credentialId": "RH-2026-00219",
+      "writtenUtc": "2026-07-03T09:45:00Z",
+      "effectiveUtc": "2026-07-06T14:00:00Z",
+      "kind": "MatchAccessRevoked",
+      "whatChanged": {
+        "en": "Your quarter-final broadcast position depends on the Round of 16 fixture in Dallas on 6 July.",
+        "es": "Tu posición de transmisión en cuartos de final depende del partido de octavos de final en Dallas del 6 de julio.",
+        "pt": "A sua posição de transmissão nos quartos de final depende do jogo dos oitavos de final em Dallas, a 6 de julho."
+      },
+      "reason": {
+        "en": "Your organisation's quarter-final allocation is set by which teams remain inside its rights territory. The allocation contracts as soon as that fixture settles it.",
+        "es": "La asignación de tu organización para cuartos de final la determina qué selecciones siguen dentro de su territorio de derechos. La asignación se reduce en cuanto ese partido lo resuelva.",
+        "pt": "A alocação da sua organização para os quartos de final é definida por quais seleções permanecem dentro do seu território de direitos. A alocação reduz-se assim que esse jogo o resolver."
+      },
+      "nextStep": {
+        "en": "Your FIFA Media Partnerships contact will confirm the position either way once the fixture is played. Nothing needs to be re-applied for.",
+        "es": "Tu contacto de FIFA Media Partnerships confirmará la posición en cualquiera de los dos casos, una vez jugado el partido. No hay que volver a solicitar nada.",
+        "pt": "O seu contacto da FIFA Media Partnerships confirmará a posição em qualquer dos casos, depois de o jogo ser disputado. Não é preciso voltar a candidatar-se a nada."
+      },
+      "nextStepIsActionable": true,
+      "decidedBy": null,
+      "supersedesChangeId": null,
+      "affectsMatchNumber": 98,
+      "dependsOnMatchNumber": 93,
+      "conditionText": {
+        "en": "If the fixture removes the territory's remaining team, your quarter-final position is withdrawn and every other position you hold continues unchanged. If it does not, the position stands as it is now.",
+        "es": "Si ese partido elimina a la selección que queda en el territorio, se retira tu posición de cuartos de final y todas las demás posiciones que tienes continúan sin cambios. Si no la elimina, la posición se mantiene tal como está ahora.",
+        "pt": "Se esse jogo eliminar a seleção que resta no território, a sua posição nos quartos de final é retirada e todas as outras posições que detém continuam inalteradas. Se não a eliminar, a posição mantém-se como está agora."
+      }
+    }
+  ]
+}
