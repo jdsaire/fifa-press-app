@@ -146,8 +146,22 @@
                        apart, which is what it is for; showing a name beside it
                        would only invite the question this run exists to close.
                        Neither value is ever translated or reformatted in any
-                       locale — they are things to type, not language content. *@
-                    <code>@account.Identifier</code> / <code>@account.Password</code>
+                       locale — they are things to type, not language content.
+
+                       LABELLED, NOT LEFT AS AN UNMARKED PAIR. "demo_staff1 /
+                       Demo#2026Staff1" reads as one opaque token to somebody who
+                       has never seen this app's convention before — nothing in
+                       the punctuation says which half goes in which field.
+                       Username and Password each get their own bold label and
+                       their own line. *@
+                    <div class="signin__account-line">
+                        <strong>@L[Locale, "signIn.accountUsernameLabel"]:</strong>
+                        <code>@account.Identifier</code>
+                    </div>
+                    <div class="signin__account-line">
+                        <strong>@L[Locale, "signIn.accountPasswordLabel"]:</strong>
+                        <code>@account.Password</code>
+                    </div>
                 </li>
             }
         </ul>

@@ -148,6 +148,8 @@
     "signIn.identifierLabel": "Email or username",
     "signIn.passwordLabel": "Password",
     "signIn.accountsIntro": "These are published, fake demo credentials — not real accounts, and nothing to keep secret. Sign in with either:",
+    "signIn.accountUsernameLabel": "Username",
+    "signIn.accountPasswordLabel": "Password",
     "signIn.submit": "Sign in",
     "signIn.submitting": "Signing in…",
     "signIn.failure": "That identifier and password do not match a demo account. Both are published above.",

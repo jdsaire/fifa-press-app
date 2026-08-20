@@ -247,6 +247,32 @@ public class SignInScreenTests
     }
 
     [Fact]
+    public void EachPublishedAccountLabelsWhichValueIsTheUsernameAndWhichIsThePassword()
+    {
+        // "demo_staff1 / Demo#2026Staff1" reads as one opaque token to a first-
+        // time reader — nothing in a slash says which half goes in which field.
+        // Each value now sits on its own labelled line.
+        using var context = NewContext();
+
+        var page = context.Render<SignInForm>();
+
+        foreach (var account in new DemoAccountStore().Published)
+        {
+            var row = page.FindAll(".signin__account")
+                .Single(li => li.TextContent.Contains(account.Identifier));
+
+            var lines = row.QuerySelectorAll(".signin__account-line");
+            Assert.Equal(2, lines.Length);
+
+            Assert.Contains("Username", lines[0].QuerySelector("strong")!.TextContent);
+            Assert.Equal(account.Identifier, lines[0].QuerySelector("code")!.TextContent.Trim());
+
+            Assert.Contains("Password", lines[1].QuerySelector("strong")!.TextContent);
+            Assert.Equal(account.Password, lines[1].QuerySelector("code")!.TextContent.Trim());
+        }
+    }
+
+    [Fact]
     public void BothFieldsBindOnChange_TheWayShopEasesOwnLoginFormDoes()
     {
         // The contract that has to keep working: what a person types reaches the

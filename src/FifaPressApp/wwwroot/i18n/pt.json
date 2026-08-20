@@ -148,6 +148,8 @@
     "signIn.identifierLabel": "E-mail ou nome de utilizador",
     "signIn.passwordLabel": "Palavra-passe",
     "signIn.accountsIntro": "Estas são credenciais de demonstração falsas e publicadas: não são contas reais nem há nada a manter em segredo. Inicie sessão com qualquer uma delas:",
+    "signIn.accountUsernameLabel": "Utilizador",
+    "signIn.accountPasswordLabel": "Palavra-passe",
     "signIn.submit": "Entrar",
     "signIn.submitting": "A entrar…",
     "signIn.failure": "Esse identificador e essa palavra-passe não correspondem a nenhuma conta de demonstração. Ambas estão publicadas acima.",
