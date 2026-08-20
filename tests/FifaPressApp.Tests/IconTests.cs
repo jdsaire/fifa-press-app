@@ -16,6 +16,11 @@ public class IconTests
     [InlineData("date")]
     [InlineData("location")]
     [InlineData("phase")]
+    [InlineData("home")]
+    [InlineData("matches")]
+    [InlineData("record")]
+    [InlineData("help")]
+    [InlineData("settings")]
     public void EveryIconIsDecorativeAndInheritsItsColour(string name)
     {
         using var context = new BunitContext();

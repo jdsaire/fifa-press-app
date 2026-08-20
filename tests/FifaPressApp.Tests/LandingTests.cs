@@ -155,26 +155,30 @@ public class LandingTests
     }
 
     [Fact]
-    public void TheNavsFirstRowPointsAtTheRecordWithoutAMatchOverride()
+    public void TheNavsFirstRowIsHomeAndItIsTheOnlyRowThatOverridesMatching()
     {
         using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
-        var first = nav.FindAll("nav.flex-column > .nav-item")[0].QuerySelector("a")!;
+        var rows = nav.FindAll("nav.flex-column > .nav-item");
 
-        Assert.Equal("record", first.GetAttribute("href"));
+        // Home owns the root now, and the record has a row of its own that
+        // appears once there is a record to look at.
+        Assert.Equal("", rows[0].QuerySelector("a")!.GetAttribute("href"));
 
-        // The override existed only to work around an empty href prefix-matching
-        // every address. A real path does not need it, and leaving it would make
-        // the row active only on an exact match. Comments are stripped first —
-        // the file explains the override it no longer uses.
+        // The override is correct here rather than a workaround. It used to sit
+        // on a row that pointed at the root while meaning the record, which is
+        // why it was removed; this row points at the root and means it, and
+        // without the override an empty href prefix-matches every address and
+        // leaves Home active on every screen. Exactly one row carries it.
         var source = Regex.Replace(
             File.ReadAllText(Path.Combine(SourceRoot(), "Layout", "NavMenu.razor")),
             @"@\*.*?\*@",
             "",
             RegexOptions.Singleline);
 
-        Assert.DoesNotContain("NavLinkMatch.All", source);
+        Assert.Single(Regex.Matches(source, "NavLinkMatch.All"));
+        Assert.DoesNotContain("href=\"record\" Match", source);
     }
 
     [Fact]

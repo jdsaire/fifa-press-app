@@ -32,106 +32,46 @@ public class SignOutTests
     }
 
     [Fact]
-    public void SignedOutThereIsNoSignOutRowAndNoIndicator()
+    public void TheNavCarriesNoSessionControlsAtAllAnyMore()
     {
+        // The indicator and the sign-out row both left: the first because a
+        // collapsed sidebar answered "which record am I looking at" nowhere,
+        // the second because it follows the indicator. What is left is four
+        // destinations, and a signed-out visitor sees exactly those.
         using var context = NewContext(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var nav = context.Render<NavMenu>();
 
         Assert.Empty(nav.FindAll(".nav-signout"));
         Assert.Empty(nav.FindAll(".nav-session"));
-        Assert.Equal(5, nav.FindAll("nav.flex-column > .nav-item").Count);
+        Assert.Empty(nav.FindAll(".language-switch"));
+        Assert.Empty(nav.FindAll("button.theme-trigger"));
+
+        Assert.Equal(4, nav.FindAll("nav.flex-column > .nav-item").Count);
     }
 
     [Fact]
-    public async Task SignedInThereIsASixthRowBelowTheThemeRow()
+    public async Task SignedInThereIsAFifthRowAndItIsADestination()
     {
+        // The row a session adds is not a control in a tail — the tail is gone.
+        // It is the requests dashboard, sitting among the destinations because
+        // that is what it is.
         using var context = NewContext(await AsAminaAsync());
 
         var nav = context.Render<NavMenu>();
         var rows = nav.FindAll("nav.flex-column > .nav-item");
 
-        Assert.Equal(6, rows.Count);
+        Assert.Equal(5, rows.Count);
 
-        // Destinations contiguous at the top, the three controls grouped at the
-        // bottom in the order 11 §5.1 and 10 §4.1 set between them: language,
-        // theme, sign-out last.
-        Assert.NotEmpty(rows[3].QuerySelectorAll(".language-switch"));
-        Assert.NotEmpty(rows[4].QuerySelectorAll("button.theme-trigger"));
-        Assert.NotEmpty(rows[5].QuerySelectorAll("button.nav-signout"));
+        Assert.Equal(
+            ["", "matches", "record", "help", "settings"],
+            rows.Select(row => row.QuerySelector("a")!.GetAttribute("href")));
     }
 
-    [Fact]
-    public async Task TheIndicatorNamesTheHolderAndTheirCredential()
-    {
-        using var context = NewContext(await AsAminaAsync());
 
-        var indicator = context.Render<NavMenu>().Find(".nav-session");
 
-        Assert.Contains("Amina Bello", indicator.TextContent);
-        Assert.Contains("MP-2026-04817", indicator.TextContent);
-    }
 
-    [Fact]
-    public async Task TheIndicatorIsReadOnlyAndSitsAboveTheRows()
-    {
-        // It is not a menu and has no affordance beyond being read.
-        using var context = NewContext(await AsAminaAsync());
 
-        var nav = context.Render<NavMenu>();
-        var indicator = nav.Find(".nav-session");
-
-        Assert.Empty(indicator.QuerySelectorAll("a, button, select, input"));
-
-        Assert.True(nav.Markup.IndexOf("nav-session", StringComparison.Ordinal)
-                  < nav.Markup.IndexOf("nav flex-column", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public async Task TheIndicatorFollowsTheSessionWithoutARenderLag()
-    {
-        // The session changes from the sign-in screen, which is not this
-        // component's child and cannot tell it directly. Without the
-        // subscription the sidebar would be a render behind.
-        var session = new SimulatedSessionProvider(new DemoAccountStore());
-        using var context = NewContext(session);
-
-        var nav = context.Render<NavMenu>();
-        Assert.Empty(nav.FindAll(".nav-session"));
-
-        await nav.InvokeAsync(() => session.SignInAsync("RH-2026-00219", "tomas-demo-2026"));
-
-        Assert.Contains("Tomás L.", nav.Find(".nav-session").TextContent);
-    }
-
-    [Fact]
-    public async Task PressingSignOutEndsTheSessionAndReturnsToTheLanding()
-    {
-        var session = await AsAminaAsync();
-        using var context = NewContext(session);
-        var navigation = context.Services.GetRequiredService<NavigationManager>();
-
-        var nav = context.Render<NavMenu>();
-        nav.Find("button.nav-signout").Click();
-
-        Assert.False(session.IsSignedIn);
-        Assert.Equal(navigation.BaseUri, navigation.Uri);
-    }
-
-    [Fact]
-    public async Task SignOutAsksForNoConfirmation()
-    {
-        // There is nothing to lose, and a modal guarding a simulated session
-        // would be theatre.
-        var session = await AsAminaAsync();
-        using var context = NewContext(session);
-
-        var nav = context.Render<NavMenu>();
-        nav.Find("button.nav-signout").Click();
-
-        Assert.Empty(nav.FindAll("dialog, [role='dialog'], [role='alertdialog']"));
-        Assert.False(session.IsSignedIn);
-    }
 
     [Fact]
     public async Task TheLandingStatesThatTheSignOutHappened()
@@ -180,33 +120,6 @@ public class SignOutTests
         Assert.Contains("gates the record now", source);
     }
 
-    [Fact]
-    public async Task TheSignOutRowIsShapedLikeTheRowsAboveIt()
-    {
-        using var context = NewContext(await AsAminaAsync());
-        var nav = context.Render<NavMenu>();
-
-        Assert.NotEmpty(nav.FindAll("button.nav-signout"));
-
-        var navCss = File.ReadAllText(Path.Combine(SourceRoot(), "Layout", "NavMenu.razor.css"));
-
-        static string? Property(string css, string selector, string property)
-        {
-            var block = Regex.Match(css, $@"{Regex.Escape(selector)}\s*\{{(.*?)\}}", RegexOptions.Singleline);
-            return block.Success
-                ? Regex.Match(block.Groups[1].Value, $@"(?<![\w-]){Regex.Escape(property)}:\s*([^;]+);") is { Success: true } m
-                    ? m.Groups[1].Value.Trim()
-                    : null
-                : null;
-        }
-
-        foreach (var property in new[] { "height", "line-height", "border-radius", "padding-left", "color" })
-        {
-            Assert.Equal(
-                Property(navCss, ".nav-item ::deep a", property),
-                Property(navCss, ".nav-signout", property));
-        }
-    }
 
     // ------------------------------------------------------- the session bar
 
@@ -284,6 +197,22 @@ public class SignOutTests
 
         Assert.False(session.IsSignedIn);
         Assert.Equal(navigation.BaseUri, navigation.Uri);
+    }
+
+    [Fact]
+    public async Task SignOutFromTheBarAsksForNoConfirmation()
+    {
+        // There is nothing to lose, and a modal guarding a simulated session
+        // would be theatre. Carried over from the retired nav row, which is
+        // where this guarantee used to be asserted.
+        var session = await AsAminaAsync();
+        using var context = NewContext(session);
+
+        var bar = context.Render<SessionBar>();
+        bar.Find(".session-bar__signout").Click();
+
+        Assert.Empty(bar.FindAll("dialog, [role='dialog'], [role='alertdialog']"));
+        Assert.False(session.IsSignedIn);
     }
 
     [Fact]

@@ -108,9 +108,9 @@ public class LocaleServiceTests
     }
 
     [Theory]
-    [InlineData(AppLocale.En, "My Access")]
-    [InlineData(AppLocale.Es, "Mi acceso")]
-    [InlineData(AppLocale.Pt, "Meu acesso")]
+    [InlineData(AppLocale.En, "My Requests")]
+    [InlineData(AppLocale.Es, "Mis solicitudes")]
+    [InlineData(AppLocale.Pt, "Minhas solicitações")]
     public void AStringResolvesInItsOwnLocale(AppLocale which, string expected)
     {
         Assert.Equal(expected, LocaleTestData.Loaded()[which, "nav.record"]);
@@ -121,7 +121,7 @@ public class LocaleServiceTests
     {
         // 11 §3's rule: a name that identifies the product stays English; a name
         // that identifies what a person is looking at translates. "FIFA Press
-        // App" is the first; "My Access" is the second, and the test above
+        // App" is the first; "My Requests" is the second, and the test above
         // covers it.
         var locale = LocaleTestData.Loaded();
 

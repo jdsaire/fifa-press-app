@@ -66,28 +66,28 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var nav = context.Render<NavMenu>();
-        var options = nav.FindAll(".language-switch__option");
+        var switcher = context.Render<LanguageSwitch>();
+        var options = switcher.FindAll(".language-switch__option");
 
         Assert.Equal(3, options.Count);
-        Assert.Empty(nav.FindAll(".language-switch select"));
+        Assert.Empty(switcher.FindAll(".language-switch select"));
         Assert.Equal(["EN", "ES", "PT"], options.Select(option => option.TextContent.Trim()));
     }
 
     [Fact]
-    public void TheSwitchIsItsOwnRow_NotFoldedIntoTheThemeControl()
+    public void TheSwitchIsItsOwnControl_NotFoldedIntoTheThemeControl()
     {
         // Language and theme are independent choices; one combined control
-        // would make a person cycle six states to reach one of them.
+        // would make a person cycle six states to reach one of them. This used
+        // to be asserted as a nav-row placement; the rows are gone, the
+        // independence is not.
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var nav = context.Render<NavMenu>();
+        var switcher = context.Render<LanguageSwitch>();
 
-        var languageRow = nav.FindAll("nav.flex-column > .nav-item")
-            .Single(row => row.QuerySelectorAll(".language-switch").Length > 0);
-
-        Assert.Empty(languageRow.QuerySelectorAll("button.theme-trigger"));
+        Assert.NotEmpty(switcher.FindAll(".language-switch"));
+        Assert.Empty(switcher.FindAll("button.theme-trigger"));
     }
 
     [Fact]
@@ -96,15 +96,15 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var nav = context.Render<NavMenu>();
-        var pressed = nav.FindAll(".language-switch__option[aria-pressed='true']");
+        var switcher = context.Render<LanguageSwitch>();
+        var pressed = switcher.FindAll(".language-switch__option[aria-pressed='true']");
 
         Assert.Single(pressed);
         Assert.Equal("EN", pressed[0].TextContent.Trim());
 
         // All three stay in the DOM, so nothing moves under the pointer when a
         // person switches.
-        Assert.Equal(3, nav.FindAll(".language-switch__option").Count);
+        Assert.Equal(3, switcher.FindAll(".language-switch__option").Count);
     }
 
     [Fact]
@@ -113,8 +113,8 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var nav = context.Render<NavMenu>();
-        nav.FindAll(".language-switch__option")[1].Click();
+        var switcher = context.Render<LanguageSwitch>();
+        switcher.FindAll(".language-switch__option")[1].Click();
 
         Assert.Equal(AppLocale.Es, harness.Locale.Current);
     }
@@ -125,13 +125,17 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
+        // The switch is no longer inside the nav, so this now asserts what it
+        // always meant to: a switch anywhere re-renders the whole tree, the
+        // sidebar included, because the cascaded value changed.
         var nav = context.Render<NavMenu>();
-        Assert.Contains("My Access", nav.Markup);
+        var switcher = context.Render<LanguageSwitch>();
+        Assert.Contains("Matches", nav.Markup);
 
-        nav.FindAll(".language-switch__option")[1].Click();
+        switcher.FindAll(".language-switch__option")[1].Click();
 
-        Assert.Contains("Mi acceso", nav.Markup);
-        Assert.DoesNotContain("My Access", nav.Markup);
+        Assert.Contains("Partidos", nav.Markup);
+        Assert.DoesNotContain("Matches", nav.Markup);
     }
 
     // ------------------------------------------------- the §5.3 discrepancy
@@ -150,14 +154,17 @@ public class LanguageSwitchTests
 
         await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
 
-        var nav = context.Render<NavMenu>();
-        Assert.Contains("Amina Bello", nav.Markup);
+        // The holder indicator reads from the session bar now rather than the
+        // sidebar; the guarantee is unchanged — a switch leaves the session,
+        // the credential and the named holder exactly where they were.
+        var bar = context.Render<SessionBar>();
+        Assert.Contains("Amina Bello", bar.Markup);
 
-        nav.FindAll(".language-switch__option")[2].Click();
+        context.Render<LanguageSwitch>().FindAll(".language-switch__option")[2].Click();
 
         Assert.True(harness.Session.IsSignedIn);
         Assert.Equal("MP-2026-04817", harness.Session.CredentialId);
-        Assert.Contains("Amina Bello", nav.Markup);
+        Assert.Contains("Amina Bello", bar.Markup);
     }
 
     [Fact]
@@ -173,8 +180,8 @@ public class LanguageSwitchTests
         var navigation = context.Services.GetRequiredService<NavigationManager>();
         var before = navigation.Uri;
 
-        var nav = context.Render<NavMenu>();
-        nav.FindAll(".language-switch__option")[1].Click();
+        var switcher = context.Render<LanguageSwitch>();
+        switcher.FindAll(".language-switch__option")[1].Click();
 
         Assert.Equal(before, navigation.Uri);
     }
@@ -189,7 +196,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var switchMarkup = context.Render<NavMenu>().Find(".language-switch").InnerHtml;
+        var switchMarkup = context.Render<LanguageSwitch>().Find(".language-switch").InnerHtml;
 
         foreach (var word in new[] { "sign you out", "signed out", "session will end" })
         {
@@ -200,9 +207,9 @@ public class LanguageSwitchTests
     // ------------------------------------------------ every surface, three ways
 
     [Theory]
-    [InlineData(AppLocale.En, "My access")]
-    [InlineData(AppLocale.Es, "Mi acceso")]
-    [InlineData(AppLocale.Pt, "Meu acesso")]
+    [InlineData(AppLocale.En, "My Requests")]
+    [InlineData(AppLocale.Es, "Mis solicitudes")]
+    [InlineData(AppLocale.Pt, "Minhas solicitações")]
     public async Task TheRecordRendersInEveryLocale(AppLocale locale, string heading)
     {
         var harness = NewHarness();
