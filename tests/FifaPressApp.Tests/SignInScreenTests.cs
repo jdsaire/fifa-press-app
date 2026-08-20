@@ -1,4 +1,5 @@
 using Bunit;
+using FifaPressApp.Components;
 using FifaPressApp.Models;
 using FifaPressApp.Pages;
 using FifaPressApp.Services;
@@ -9,7 +10,13 @@ using Xunit;
 namespace FifaPressApp.Tests;
 
 /// <summary>
-/// The sign-in screen, rewritten around a session that actually exists.
+/// The sign-in experience, rewritten around a session that actually exists.
+///
+/// <para>
+/// It is a component rather than a page as of this run — the form belongs on
+/// the record's own route rather than on one of its own — so these tests render
+/// the component directly. What they assert is unchanged by that move.
+/// </para>
 ///
 /// <para>
 /// <b>Why the submit path is asserted at the service seam rather than by
@@ -40,7 +47,7 @@ public class SignInScreenTests
     {
         using var context = NewContext();
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
         var notice = page.Find(".signin__notice").TextContent;
 
         Assert.Contains("simulated sign-in", notice, StringComparison.OrdinalIgnoreCase);
@@ -59,7 +66,7 @@ public class SignInScreenTests
         // none at all.
         using var context = NewContext();
 
-        var notice = context.Render<SignIn>().Find(".signin__notice").TextContent;
+        var notice = context.Render<SignInForm>().Find(".signin__notice").TextContent;
 
         Assert.DoesNotContain("sent, stored, or checked", notice);
         Assert.DoesNotContain("fully reachable without signing in", notice);
@@ -70,7 +77,7 @@ public class SignInScreenTests
     {
         using var context = NewContext();
 
-        var markup = context.Render<SignIn>().Markup;
+        var markup = context.Render<SignInForm>().Markup;
 
         Assert.True(markup.IndexOf("signin__notice", StringComparison.Ordinal)
                   < markup.IndexOf("signin__form", StringComparison.Ordinal));
@@ -86,7 +93,7 @@ public class SignInScreenTests
         // somebody who has seen neither.
         using var context = NewContext();
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
         var accounts = page.FindAll(".signin__account");
 
         Assert.Equal(2, accounts.Count);
@@ -151,7 +158,7 @@ public class SignInScreenTests
     {
         using var context = NewContext();
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
 
         var identifier = page.Find("#signin-identifier");
         Assert.Equal("username", identifier.GetAttribute("autocomplete"));
@@ -171,7 +178,7 @@ public class SignInScreenTests
         // validation still runs after the rewrite.
         using var context = NewContext();
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
         page.Find("form").Submit();
 
         var announced = page.FindAll(".signin__field [aria-live='polite']");
@@ -185,7 +192,7 @@ public class SignInScreenTests
         var session = new SimulatedSessionProvider(new DemoAccountStore());
         using var context = NewContext(session);
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
         page.Find("form").Submit();
 
         Assert.False(session.IsSignedIn);
@@ -196,7 +203,7 @@ public class SignInScreenTests
     {
         using var context = NewContext();
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
 
         Assert.False(page.Find("#signin-identifier").HasAttribute("disabled"));
         Assert.False(page.Find("#signin-password").HasAttribute("disabled"));
@@ -211,7 +218,7 @@ public class SignInScreenTests
         // It is implemented now, and the confirmation is being on the record.
         using var context = NewContext();
 
-        var page = context.Render<SignIn>();
+        var page = context.Render<SignInForm>();
 
         Assert.Empty(page.FindAll(".signin__result"));
         Assert.DoesNotContain("not implemented", page.Markup, StringComparison.OrdinalIgnoreCase);
@@ -226,7 +233,7 @@ public class SignInScreenTests
         using var context = NewContext(session);
         var navigation = context.Services.GetRequiredService<NavigationManager>();
 
-        context.Render<SignIn>();
+        context.Render<SignInForm>();
 
         Assert.EndsWith("/record", navigation.Uri);
     }
@@ -238,7 +245,7 @@ public class SignInScreenTests
         // the vocabulary of a real authorization system.
         using var context = NewContext();
 
-        var text = context.Render<SignIn>().Markup;
+        var text = context.Render<SignInForm>().Markup;
 
         foreach (var forbidden in new[] { "403", "Access denied", "Unauthorized", "Forbidden", "secure" })
         {

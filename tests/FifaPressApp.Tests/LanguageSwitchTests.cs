@@ -264,7 +264,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        Assert.Contains(heading, RenderThenSwitch<SignIn>(harness, locale).Find("h1").TextContent);
+        Assert.Contains(heading, RenderThenSwitch<SignInForm>(harness, locale).Find("h1").TextContent);
     }
 
     [Theory]
