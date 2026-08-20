@@ -43,6 +43,11 @@ var app = builder.Build();
 // else — including the middleware registered below it.
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
+// SECOND. Inside the error handler, so a throw from the token check is still
+// caught and still answers with the consistent JSON error; outside everything
+// else, so no endpoint runs for a request that failed the check.
+app.UseMiddleware<TokenAuthenticationMiddleware>();
+
 // The generated document, served at /openapi/v1.json.
 app.MapOpenApi();
 
