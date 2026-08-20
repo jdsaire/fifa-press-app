@@ -69,16 +69,25 @@ public class LandingTests
     }
 
     [Fact]
-    public void TheLandingOffersBothEntryPoints()
+    public void TheLandingOffersExactlyOneWayOn()
     {
+        // It used to offer two weighted entry points, one of them into the
+        // sign-in form. That stopped being the front door's job when sign-in
+        // became a persistent affordance in the session row above every screen,
+        // and a front door with two doors on it is the duplication this run
+        // exists to remove. There is no replacement assertion for the removed
+        // section, because there is no replacement section — the assertion is
+        // that there is one link and it goes to the matches.
         using var context = NewContext();
 
         var page = context.Render<Landing>();
 
-        Assert.Equal(2, page.FindAll(".landing__entry").Count);
-        Assert.NotEmpty(page.FindAll("a[href='signin']"));
-        Assert.NotEmpty(page.FindAll("a[href='matches']"));
-        Assert.NotEmpty(page.FindAll("a[href='help']"));
+        Assert.Empty(page.FindAll(".landing__entry"));
+
+        var links = page.FindAll("a");
+        Assert.Single(links);
+        Assert.Equal("matches", links[0].GetAttribute("href"));
+        Assert.Contains("landing__cta", links[0].GetAttribute("class"));
     }
 
     [Fact]
@@ -98,14 +107,21 @@ public class LandingTests
     }
 
     [Fact]
-    public void TheLandingSaysDemoAccountsExistAndWhereTheyAre()
+    public void TheLandingNoLongerAdvertisesWhereTheDemoAccountsAre()
     {
+        // The retired counterpart of this test asserted that the landing said
+        // demo accounts exist and named where to find them. That pointer moved
+        // rather than disappearing: the session row's "Sign in" link is on every
+        // screen, and the accounts are published beside the form it leads to.
+        // Landing no longer carries a second copy of the directions, and the
+        // rule below it — never publish the credentials here — is unchanged and
+        // asserted separately.
         using var context = NewContext();
 
-        var entry = context.Render<Landing>().Find(".landing__entry");
+        var page = context.Render<Landing>();
 
-        Assert.Contains("demo account", entry.TextContent, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("sign-in", entry.TextContent, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(page.FindAll(".landing__entry"));
+        Assert.DoesNotContain("demo account", page.Markup, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
