@@ -1,5 +1,6 @@
 using FifaPressApp.Api.Models;
 using FifaPressApp.Api.Storage;
+using FifaPressApp.Api.Validation;
 
 namespace FifaPressApp.Api.Endpoints;
 
@@ -94,7 +95,13 @@ public static class AccreditationEndpoints
 
         records.MapPost("/", (AccreditationInput input, AccreditationStore store) =>
         {
-            var record = ToRecord(input, input.CredentialId ?? string.Empty);
+            var validation = InputValidator.Validate(input, input.CredentialId ?? string.Empty);
+            if (!validation.IsValid)
+            {
+                return ValidationFailed(validation);
+            }
+
+            var record = ToRecord(input, input.CredentialId!);
 
             // 409 rather than a silent overwrite: POST creates, and a POST to an
             // id that already exists is a mistake worth telling the caller
@@ -109,6 +116,12 @@ public static class AccreditationEndpoints
 
         records.MapPut("/{credentialId}", (string credentialId, AccreditationInput input, AccreditationStore store) =>
         {
+            var validation = InputValidator.Validate(input, credentialId);
+            if (!validation.IsValid)
+            {
+                return ValidationFailed(validation);
+            }
+
             // The route's id wins over the body's. A PUT names its target in the
             // URL, and letting the body rename the record would turn an update
             // into a move that no caller asked for.
@@ -131,6 +144,12 @@ public static class AccreditationEndpoints
                 return NotFound(credentialId);
             }
 
+            var validation = InputValidator.Validate(input);
+            if (!validation.IsValid)
+            {
+                return ValidationFailed(validation);
+            }
+
             var change = ToChange(input, credentialId);
 
             if (store.HasChange(change.ChangeId))
@@ -145,6 +164,19 @@ public static class AccreditationEndpoints
                 change);
         });
     }
+
+    /// <summary>
+    /// One shape for every rejected request: a headline a human reads and a
+    /// field-keyed map a client can act on. Consistent with the error shape the
+    /// error-handling middleware returns, so a caller writes one parser rather
+    /// than one per failure mode.
+    /// </summary>
+    private static IResult ValidationFailed(ValidationResult validation) =>
+        Results.BadRequest(new
+        {
+            error = "Validation failed.",
+            details = validation.Details,
+        });
 
     /// <summary>
     /// One shape for every "no such record" answer, so a caller can parse the
