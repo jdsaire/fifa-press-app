@@ -2,6 +2,10 @@
 
 Not meant to be read start to finish — dip into it whenever a word in the walkthroughs or the `/src` folder READMEs doesn't ring a bell. Each entry says what the term means here, and where to see it in the project.
 
+## API (web API)
+
+A program that sits at an address, waits for requests, and answers them. A request is a method and a path — `GET /api/accreditations/MP-2026-04817` means "give me that record" — and an answer is a status code plus, usually, some JSON. This project gained one in v15, at `src/backend/`. Covered in [04-backend-and-integration/01, "The First Server This Project Has Ever Had."](04-backend-and-integration/01-The-First-Server-This-Project-Has-Ever-Had.md)
+
 ## Append-only
 
 A way of storing something where records can be added but never edited or deleted. A correction isn't a change to the original — it's a new record that points back at the one it replaces, leaving that one exactly where it was. It makes the past readable by default, since the record *is* its own history, at the cost of having to work out the current state by reading through rather than looking it up. `Change.cs` is built this way: every property is get-all-you-like and set-never, and there is no update or delete method anywhere. Covered in [02-access-record-frontend/03, "Records That Only Ever Grow."](02-access-record-frontend/03-Records-That-Only-Ever-Grow.md)
@@ -29,6 +33,10 @@ A self-contained, reusable chunk of a Blazor app that bundles its own markup (wh
 ## Component parameter
 
 A piece of information a component receives from whatever is using it, marked with `[Parameter]` in the component's C#. It's how `EventCard` can show a different match every time instead of always showing the same hardcoded one. Covered in [01, "Meet the Building Block."](01-architecture-foundation/01-Building-the-Foundation.md#meet-the-building-block-the-eventcard-component)
+
+## CORS (cross-origin resource sharing)
+
+The rule that stops a page loaded from one address reading a response from another, unless that response explicitly permits it. It matters here because the deployed app and the API live at different addresses, so without a policy naming the app's address every request would reach the server, succeed, and be discarded by the browser before the page could read it. Covered in [04-backend-and-integration/02, "What Middleware Is and Why Order Matters."](04-backend-and-integration/02-What-Middleware-Is-And-Why-Order-Matters.md)
 
 ## `.csproj`
 
@@ -60,6 +68,10 @@ Blazor's built-in component for building a form with validation baked in. Paired
 
 A component's way of reporting "this changed" back out to whatever page is using it, typed as `EventCallback<T>`. Paired with a matching parameter (`EventName` and `EventNameChanged`, for example), it's the other half of two-way data binding. Covered in [01, "Two-Way Data Binding, Explained Before Any Syntax."](01-architecture-foundation/01-Building-the-Foundation.md#two-way-data-binding-explained-before-any-syntax)
 
+## HTTP status code
+
+The three-digit number an API returns alongside its answer, saying what kind of answer it is. `200` worked, `201` created something, `204` worked and there is nothing to send back, `400` you asked wrongly, `401` you are not allowed to ask, `404` there is no such thing, `409` that already exists, `500` the server has a bug. Every route in this project's API and the codes it can return are listed in [`backend/02_API-REFERENCE.md`](../backend/02_API-REFERENCE.md).
+
 ## ICU
 
 International Components for Unicode — the data a program needs to correctly format dates, numbers, and text for a given language and region. Blazor WebAssembly downloads one bundle of this data when the app starts, chosen based on whichever language it opened in, and that bundle doesn't necessarily cover every language the app might later switch to. It's why this app writes its own month names and date patterns into its language files instead of relying on .NET's built-in culture formatting. Covered in [03-addendum-implementation/03, "Speaking Three Languages Without a Reload."](03-addendum-implementation/03-Speaking-Three-Languages-Without-A-Reload.md)
@@ -76,6 +88,10 @@ The bridge that lets C# code running as WebAssembly call out to JavaScript, and 
 
 A hint you give Blazor inside a loop that produces a list of items, telling it to match each item up by a stable identity (a match's own ID, for example) instead of by its position in the list. It stops Blazor from redrawing items that haven't actually changed just because something else in the list moved. Covered in [02, "The List Got Slow With More Events."](01-architecture-foundation/02-Fixing-What-Broke.md#problem-3-the-list-got-slow-with-more-events)
 
+## Middleware
+
+A small component that a request passes through on its way to the code that answers it, and that the answer passes back out through. They nest rather than queue: the first one registered is the outermost, and everything after it sits inside — which is why a component can only guard or fix what is registered after it. This API has three: error handling, then authentication, then logging. Covered in [04-backend-and-integration/02, "What Middleware Is and Why Order Matters."](04-backend-and-integration/02-What-Middleware-Is-And-Why-Order-Matters.md)
+
 ## Mock data
 
 Data that's invented for building and testing an app, standing in for whatever a real system would eventually supply. Every match in this app comes from `MockEventData.cs`, not a database or any outside source. Covered in [01, "Where the Event Data Actually Comes From."](01-architecture-foundation/01-Building-the-Foundation.md#where-the-event-data-actually-comes-from-the-mock-data)
@@ -83,6 +99,10 @@ Data that's invented for building and testing an app, standing in for whatever a
 ## NuGet
 
 .NET's package manager — the system that downloads and manages external code libraries a project depends on. This app's `.csproj` lists two NuGet packages, both from Microsoft, that provide the Blazor WebAssembly framework itself.
+
+## Pipeline (request pipeline)
+
+The arrangement of middleware a request travels through, in the order they were registered. The order is a set of trade-offs rather than a convention to get right — in this project, putting logging last means it sees the true status code but never sees a request that was rejected earlier. Covered in [04-backend-and-integration/02, "What Middleware Is and Why Order Matters."](04-backend-and-integration/02-What-Middleware-Is-And-Why-Order-Matters.md)
 
 ## `.razor` file / Razor syntax
 
@@ -108,6 +128,14 @@ Short for Software Development Kit — the set of tools (compiler, runtime, comm
 
 An ordinary C# class that isn't tied to any single page — created once when the app starts, and shared by whichever pages need it. `SessionTracker` and `AttendanceTracker` are both services. Covered in [03, "Two Different Trackers, On Purpose."](01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#two-different-trackers-on-purpose-session-vs-attendance)
 
+## SignalR
+
+The part of ASP.NET Core that manages a connection which stays open, so the server can send a message to a browser without being asked first. It ships inside the framework, so the server side of it added no package. This project uses one hub and one message, to tell an open record screen that a change was written. Covered in [04-backend-and-integration/03, "A Connection That Stays Open."](04-backend-and-integration/03-A-Connection-That-Stays-Open.md)
+
+## Simulated authentication
+
+A check that has the shape of authentication without any of its substance. This API compares an incoming token against a fixed string that is published in the repository, printed in the documentation, and shipped to the browser — there is no user, no credential store, no signature, no expiry. It exists to show where such a check belongs in a pipeline, and it secures nothing. Named this way everywhere in the project on purpose: an interface implying security it does not have is the one dishonesty this repository has refused. See [`backend/03_MIDDLEWARE-PIPELINE.md`](../backend/03_MIDDLEWARE-PIPELINE.md).
+
 ## Singleton
 
 A service registered so that exactly one instance of it exists for the whole browser tab, shared by every page that asks for it, for as long as the tab stays open. `SessionTracker`, `LocaleService`, and `SimulatedSessionProvider` are all registered this way — it's what lets "which language is active" or "who is signed in" survive moving from one page to another, the same way [state](#state) does. Covered in [03, "Two Different Trackers, On Purpose."](01-architecture-foundation/03-Adding-Signups-and-Headcounts.md#two-different-trackers-on-purpose-session-vs-attendance)
@@ -127,6 +155,10 @@ A language that adds optional type-checking on top of JavaScript — you can say
 ## WebAssembly (WASM)
 
 A compact, fast format that browsers can run at near-native speed, alongside JavaScript, inside the same safety sandbox. Blazor compiles C# into this format, which is how this entire app ends up running as real C# inside your browser tab. Covered in [01, "What Even Is Blazor WebAssembly?"](01-architecture-foundation/01-Building-the-Foundation.md#what-even-is-blazor-webassembly)
+
+## WebSocket
+
+A connection that, once opened between a browser and a server, stays open and lets either end send a message whenever it likes — as opposed to an ordinary request, which is a question, an answer, and a hang-up. It is what SignalR prefers to use underneath. Covered in [04-backend-and-integration/03, "A Connection That Stays Open."](04-backend-and-integration/03-A-Connection-That-Stays-Open.md)
 
 ## `wwwroot` / static files
 
