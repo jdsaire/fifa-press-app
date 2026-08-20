@@ -103,8 +103,11 @@ public class LanguageSwitchTests
         var page = context.Render<Settings>();
         var languageField = page.Find("#settings-language").ParentElement!;
 
-        Assert.Empty(languageField.QuerySelectorAll("button.theme-trigger"));
-        Assert.NotEmpty(page.FindAll("button.theme-trigger"));
+        // Two fields, each with its own control. The appearance states are not
+        // reachable from inside the language field, and vice versa.
+        Assert.Empty(languageField.QuerySelectorAll(".appearance-option"));
+        Assert.NotEmpty(page.FindAll(".appearance-option"));
+        Assert.Empty(page.Find(".appearance-option").ParentElement!.QuerySelectorAll("select"));
     }
 
     [Fact]
