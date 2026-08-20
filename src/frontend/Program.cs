@@ -44,18 +44,65 @@ builder.Services.AddSingleton(_ =>
         new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }));
 
 // Registered against the interface, not the class. Every page and component
-// asks for IAccessDataProvider and never names MockAccessDataProvider, so
+// asks for IAccessDataProvider and never names a concrete provider, so
 // swapping in an implementation that talks to a real service is a change to
-// this one line rather than a change to every caller.
+// these lines rather than a change to every caller.
 //
-// It gets its own HttpClient rather than the scoped one above: this provider is
-// a singleton, and a singleton holding a scoped dependency is the kind of
+// THE DEFAULT IS THE MOCK, AND THAT IS DELIBERATE. With no API base URL in
+// wwwroot/appsettings.json the app registers exactly what it always has and
+// makes no network call of any kind. A deployed site with nothing configured —
+// or one whose API is asleep on a free hosting tier — behaves precisely as it
+// did before the backend existed. Configuring a URL is what opts in; nothing
+// else does, and there is no fallback path that could opt in by accident.
+//
+// Each provider gets its own HttpClient rather than the scoped one above: these
+// are singletons, and a singleton holding a scoped dependency is the kind of
 // lifetime mismatch that works until it suddenly doesn't.
-builder.Services.AddSingleton<IAccessDataProvider>(_ =>
-    new MockAccessDataProvider(
-        new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }));
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"];
+
+if (string.IsNullOrWhiteSpace(apiBaseUrl))
+{
+    builder.Services.AddSingleton<IAccessDataProvider>(_ =>
+        new MockAccessDataProvider(
+            new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) }));
+}
+else
+{
+    // The API-backed provider still wraps a mock, and not as a fallback: the
+    // backend serves accreditation records only, so fixture reads and the rule
+    // that withholds team names from an unplayed match stay where they have
+    // always lived. See ApiAccessDataProvider for why that gap is stated rather
+    // than closed by inventing endpoints.
+    builder.Services.AddSingleton<IAccessDataProvider>(_ =>
+        new ApiAccessDataProvider(
+            new HttpClient { BaseAddress = new Uri(apiBaseUrl) },
+            new MockAccessDataProvider(
+                new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) })));
+
+    builder.Services.AddSingleton<ChangeNotificationClient>();
+}
 
 var host = builder.Build();
+
+// The hub connection, opened after the host is built and only when an API was
+// configured above. Failure here is survivable on purpose: without the hub the
+// app is the app it has always been, so a connection that cannot be made costs
+// the live update and nothing else. It must not take the whole page down.
+if (!string.IsNullOrWhiteSpace(apiBaseUrl))
+{
+    var hubPath = builder.Configuration["Api:HubPath"] ?? "hubs/changes";
+    var token = builder.Configuration["Api:Token"] ?? string.Empty;
+
+    try
+    {
+        await host.Services.GetRequiredService<ChangeNotificationClient>()
+            .StartAsync(new Uri(new Uri(apiBaseUrl), hubPath).ToString(), token);
+    }
+    catch (Exception exception)
+    {
+        Console.WriteLine($"Change notifications are unavailable: {exception.Message}");
+    }
+}
 
 // All three locale files, fetched once before the first render. Loading them
 // here rather than lazily on first use is what lets a component render text on

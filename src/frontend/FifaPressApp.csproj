@@ -10,6 +10,22 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.5" PrivateAssets="all" />
+
+    <!-- The SignalR client, and the only runtime dependency this project has
+         gained since it was built.
+         
+         This reverses a standing rule that the app project takes no new
+         packages, and the reversal is recorded as R13 in the v15 completion
+         report and in backend/README.md. The reason it was allowed: a
+         real-time client cannot exist without a real-time client library, and
+         the Access Record concept is literally about a change reaching a
+         holder before they discover it by being refused. Polling would have
+         avoided the package and missed the point.
+         
+         The honest cost, stated rather than buried: the published bundle is no
+         longer byte-identical to the one v14 shipped. This package is the only
+         reason. -->
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.5" />
   </ItemGroup>
 
 </Project>

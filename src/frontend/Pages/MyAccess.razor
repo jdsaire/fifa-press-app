@@ -278,6 +278,18 @@ else
         // had just successfully signed in.
         Session.OnChanged += OnSessionChanged;
 
+        // THE RECORD CAN NOW MOVE WHILE SOMEBODY IS LOOKING AT IT. Until the
+        // API existed, nothing could change this screen's data except the
+        // person using it, so a session change was the only reason to reload.
+        // A change pushed from the server is a second reason, and a screen that
+        // received one and did not repaint would be this project's own failure
+        // case: the record is correct and the holder still cannot see it.
+        //
+        // Nothing raises this in the app's default configuration — with no API
+        // configured there is no hub and no push — so this subscription is
+        // inert unless somebody opts in.
+        Arrivals.OnChanged += OnRecordChanged;
+
         // Signed out, there is nothing to read and nothing below applies. The
         // markup above has already rendered the form, so there is nowhere to
         // send anybody: the screen that explains what signing in here means is
@@ -290,7 +302,32 @@ else
         await LoadRecordAsync();
     }
 
-    public void Dispose() => Session.OnChanged -= OnSessionChanged;
+    public void Dispose()
+    {
+        Session.OnChanged -= OnSessionChanged;
+        Arrivals.OnChanged -= OnRecordChanged;
+    }
+
+    /// <summary>
+    /// A change arrived from the server while this screen was open. Re-reads
+    /// the record rather than trusting what was pushed: the notification says
+    /// *that* something moved, and the record itself remains the only thing
+    /// that says *what* it moved to.
+    /// </summary>
+    private void OnRecordChanged() => InvokeAsync(async () =>
+    {
+        if (Session.CredentialId is null)
+        {
+            return;
+        }
+
+        // Picks up the id the hub client announced, so the new row gets the
+        // same entrance treatment as one the person wrote themselves.
+        arrivedChangeId = Arrivals.Consume();
+
+        await LoadRecordAsync();
+        StateHasChanged();
+    });
 
     /// <summary>
     /// A session began — or ended — while this page was on screen. Loads the
