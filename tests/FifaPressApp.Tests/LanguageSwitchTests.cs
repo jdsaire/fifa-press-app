@@ -11,7 +11,15 @@ using Xunit;
 namespace FifaPressApp.Tests;
 
 /// <summary>
-/// The language switch, and what a switch is and is not allowed to disturb.
+/// The language control, and what a switch is and is not allowed to disturb.
+///
+/// <para>
+/// The control changed shape this run — three buttons in a sidebar row became a
+/// labelled dropdown on the Settings screen — and every test below is pointed at
+/// the new one. What is asserted did not change: three fixed options, no
+/// navigation, no storage write, the session intact, and the whole tree in the
+/// new language. Those are the guarantees; the widget was never the point.
+/// </para>
 /// </summary>
 public class LanguageSwitchTests
 {
@@ -59,19 +67,27 @@ public class LanguageSwitchTests
     }
 
     [Fact]
-    public void TheSwitchOffersThreeFixedOptionsRatherThanAPicker()
+    public void TheControlOffersThreeFixedOptionsAndNothingElse()
     {
-        // Three is not enough to need a dropdown's affordance, and 09 §3's
-        // clarity principle says so.
+        // Three is still the whole set. What changed is where the control
+        // lives: on a settings screen beside other labelled fields, a labelled
+        // dropdown is the register of its neighbours, and three loose buttons
+        // would be the outlier.
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var switcher = context.Render<LanguageSwitch>();
-        var options = switcher.FindAll(".language-switch__option");
+        var page = context.Render<Settings>();
+        var options = page.FindAll("#settings-language option");
 
+        // Exactly one select, exactly three options, and no button group left
+        // behind: the shape moved, the fixed set of three did not.
+        Assert.Single(page.FindAll("select#settings-language"));
         Assert.Equal(3, options.Count);
-        Assert.Empty(switcher.FindAll(".language-switch select"));
-        Assert.Equal(["EN", "ES", "PT"], options.Select(option => option.TextContent.Trim()));
+        Assert.Empty(page.FindAll(".language-switch__option"));
+
+        // Each option named in its own language rather than translated into the
+        // current one.
+        Assert.Equal(["English", "Español", "Português"], options.Select(option => option.TextContent.Trim()));
     }
 
     [Fact]
@@ -84,10 +100,11 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var switcher = context.Render<LanguageSwitch>();
+        var page = context.Render<Settings>();
+        var languageField = page.Find("#settings-language").ParentElement!;
 
-        Assert.NotEmpty(switcher.FindAll(".language-switch"));
-        Assert.Empty(switcher.FindAll("button.theme-trigger"));
+        Assert.Empty(languageField.QuerySelectorAll("button.theme-trigger"));
+        Assert.NotEmpty(page.FindAll("button.theme-trigger"));
     }
 
     [Fact]
@@ -96,15 +113,16 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var switcher = context.Render<LanguageSwitch>();
-        var pressed = switcher.FindAll(".language-switch__option[aria-pressed='true']");
+        var page = context.Render<Settings>();
+        var selected = page.FindAll("#settings-language option[selected]");
 
-        Assert.Single(pressed);
-        Assert.Equal("EN", pressed[0].TextContent.Trim());
+        // aria-pressed described a button group and went with it; a native
+        // select says which option is current in its own vocabulary.
+        Assert.Single(selected);
+        Assert.Equal("English", selected[0].TextContent.Trim());
 
-        // All three stay in the DOM, so nothing moves under the pointer when a
-        // person switches.
-        Assert.Equal(3, switcher.FindAll(".language-switch__option").Count);
+        // All three stay in the list, so nothing is removed to indicate state.
+        Assert.Equal(3, page.FindAll("#settings-language option").Count);
     }
 
     [Fact]
@@ -113,8 +131,8 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var switcher = context.Render<LanguageSwitch>();
-        switcher.FindAll(".language-switch__option")[1].Click();
+        var page = context.Render<Settings>();
+        page.Find("#settings-language").Change("es");
 
         Assert.Equal(AppLocale.Es, harness.Locale.Current);
     }
@@ -129,10 +147,10 @@ public class LanguageSwitchTests
         // always meant to: a switch anywhere re-renders the whole tree, the
         // sidebar included, because the cascaded value changed.
         var nav = context.Render<NavMenu>();
-        var switcher = context.Render<LanguageSwitch>();
+        var page = context.Render<Settings>();
         Assert.Contains("Matches", nav.Markup);
 
-        switcher.FindAll(".language-switch__option")[1].Click();
+        page.Find("#settings-language").Change("es");
 
         Assert.Contains("Partidos", nav.Markup);
         Assert.DoesNotContain("Matches", nav.Markup);
@@ -160,7 +178,7 @@ public class LanguageSwitchTests
         var bar = context.Render<SessionBar>();
         Assert.Contains("Amina Bello", bar.Markup);
 
-        context.Render<LanguageSwitch>().FindAll(".language-switch__option")[2].Click();
+        context.Render<Settings>().Find("#settings-language").Change("pt");
 
         Assert.True(harness.Session.IsSignedIn);
         Assert.Equal("MP-2026-04817", harness.Session.CredentialId);
@@ -180,8 +198,8 @@ public class LanguageSwitchTests
         var navigation = context.Services.GetRequiredService<NavigationManager>();
         var before = navigation.Uri;
 
-        var switcher = context.Render<LanguageSwitch>();
-        switcher.FindAll(".language-switch__option")[1].Click();
+        var page = context.Render<Settings>();
+        page.Find("#settings-language").Change("es");
 
         Assert.Equal(before, navigation.Uri);
     }
@@ -196,7 +214,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        var switchMarkup = context.Render<LanguageSwitch>().Find(".language-switch").InnerHtml;
+        var switchMarkup = context.Render<Settings>().Find("#settings-language").ParentElement!.InnerHtml;
 
         foreach (var word in new[] { "sign you out", "signed out", "session will end" })
         {

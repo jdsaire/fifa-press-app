@@ -44,12 +44,7 @@
         </div>
     </div>
 
-    @* Wrapped for now: LanguageSwitch is a nav-shaped control that carries its
-       own label, so the field frame comes from here until the control that
-       belongs on a settings screen replaces it. *@
-    <div class="settings-field">
-        <LanguageSwitch />
-    </div>
+    <LanguageSelect />
 
     @if (Session.Current is DemoAccount holder)
     {
