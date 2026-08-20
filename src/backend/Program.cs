@@ -14,6 +14,7 @@
 
 using System.Text.Json.Serialization;
 using FifaPressApp.Api.Endpoints;
+using FifaPressApp.Api.Middleware;
 using FifaPressApp.Api.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,10 +37,27 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// FIRST IN THE PIPELINE, and it has to be. Middleware wraps whatever is
+// registered after it, so error handling registered first is the outermost
+// layer and therefore the only one positioned to catch a throw from anything
+// else — including the middleware registered below it.
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
 // The generated document, served at /openapi/v1.json.
 app.MapOpenApi();
 
 app.MapAccreditationEndpoints();
+
+// A route that exists only to prove the error handler works, and only outside
+// Production. Gate 3 of this run has to demonstrate that an unhandled
+// exception returns the consistent JSON error rather than a stack trace, and
+// the only honest way to show that is to cause one. It is registered behind an
+// environment check so it cannot exist on a deployed instance.
+if (!app.Environment.IsProduction())
+{
+    app.MapGet("/api/diagnostics/throw", IResult () =>
+        throw new InvalidOperationException("Deliberate failure, to demonstrate the error handler."));
+}
 
 app.MapGet("/", () => Results.Ok(new
 {
