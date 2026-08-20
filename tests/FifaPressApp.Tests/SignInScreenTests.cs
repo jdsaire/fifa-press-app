@@ -43,7 +43,7 @@ public class SignInScreenTests
     }
 
     [Fact]
-    public void TheNoticeComesFirstAndStatesAllFourThings()
+    public void TheNoticeStatesAllFourThings()
     {
         using var context = NewContext();
 
@@ -73,14 +73,45 @@ public class SignInScreenTests
     }
 
     [Fact]
-    public void TheNoticeIsBeforeTheFormInTheMarkup()
+    public void TheNoticeIsStillOnTheScreen_NowBelowTheFormRatherThanAboveIt()
     {
+        // A REVERSAL, RECORDED. This asserted the opposite until this run: the
+        // notice came first, deliberately, per 10 §2.3, and R6 closed on
+        // condensing it rather than moving it. It sits last now at the
+        // principal's explicit direction.
+        //
+        // What the original test protected was that the notice is *present and
+        // unmissable*, not that it occupies a particular index — so that is
+        // what this asserts now: it is still rendered, still a note, and still
+        // says all four things (covered by the test above, which passes
+        // unchanged because it never depended on position).
+        using var context = NewContext();
+
+        var page = context.Render<SignInForm>();
+        var markup = page.Markup;
+
+        Assert.Equal("note", page.Find(".signin__notice").GetAttribute("role"));
+
+        Assert.True(markup.IndexOf("signin__form", StringComparison.Ordinal)
+                  < markup.IndexOf("signin__notice", StringComparison.Ordinal),
+            "the notice should now follow the form");
+    }
+
+    [Fact]
+    public void TheScreenReadsFieldsThenCredentialsThenTheNotice()
+    {
+        // The order the principal asked for, in one assertion, so a future
+        // reshuffle has to be deliberate rather than incidental.
         using var context = NewContext();
 
         var markup = context.Render<SignInForm>().Markup;
 
-        Assert.True(markup.IndexOf("signin__notice", StringComparison.Ordinal)
-                  < markup.IndexOf("signin__form", StringComparison.Ordinal));
+        var form = markup.IndexOf("signin__form", StringComparison.Ordinal);
+        var accounts = markup.IndexOf("signin__accounts", StringComparison.Ordinal);
+        var notice = markup.IndexOf("signin__notice", StringComparison.Ordinal);
+
+        Assert.True(form < accounts, "the form should come before the published accounts");
+        Assert.True(accounts < notice, "the published accounts should come before the notice");
     }
 
     [Fact]

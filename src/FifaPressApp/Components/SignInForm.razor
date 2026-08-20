@@ -38,130 +38,137 @@
 
 <PageTitle>@L[Locale, "signIn.title"]</PageTitle>
 
-<h1>@L[Locale, "signIn.title"]</h1>
+<section class="signin">
+    <h1>@L[Locale, "signIn.title"]</h1>
 
-@* Visible before any interaction, and first on the page. It still states the
-   four things 10 §2.3 orders — what this is, that the credentials below are
-   real and work, how long the session lasts, and what it is not — in that
-   order, in one paragraph instead of four.
+    <EditForm EditContext="editContext" OnValidSubmit="HandleSubmitAsync" class="signin__form">
+        <DataAnnotationsValidator />
 
-   CONDENSED, NOT CUT. The objection this answers was to length and prominence,
-   never to the disclosure existing: four stacked paragraphs before a two-field
-   form is a wall, and a wall gets skipped, which costs the notice the one thing
-   it is for. Every fact survives. The wording is engineered around the five
-   exact substrings SignInScreenTests asserts, so the test that protects the
-   content passes unmodified rather than being relaxed to fit shorter copy —
-   which is the only way a compression like this can be trusted.
+        <div class="signin__field">
+            <label for="signin-identifier">@L[Locale, "signIn.identifierLabel"]</label>
+            @* Bound on InputText's own change event, with no `:event` override.
+               `@bind-Value:event="oninput"` used to sit here, and it was a defect:
+               on an *element* that syntax names a DOM event, but InputText is a
+               component, where it must name an EventCallback parameter — and there
+               is no `oninput` parameter on InputText. It fell through
+               AdditionalAttributes onto the underlying <input> as a DOM handler
+               bound to a delegate typed `string`, so the browser invoked it with
+               ChangeEventArgs and the renderer tore down on the first keystroke.
+               Every test passed throughout, because nothing ever typed here. *@
+            <InputText id="signin-identifier"
+                       class="form-control"
+                       autocomplete="username"
+                       inputmode="@IdentifierInputMode"
+                       disabled="@submitting"
+                       @bind-Value="model.Identifier" />
+            @* Rendered from the EditContext rather than by <ValidationMessage>, and
+               this is the one place v9's structure could not be carried across
+               verbatim. A DataAnnotations ErrorMessage is a fixed string on the
+               attribute, and <ValidationMessage> renders it as-is — so the
+               attributes below carry resource KEYS and this resolves them against
+               the cascading locale. Same markup, same class, same aria-live, same
+               per-field association: only the resolution step is added. *@
+            @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Identifier)))
+            {
+                <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+            }
+        </div>
 
-   Two keys rather than ten, in the Strong/Body shape Landing's own disclosure
-   already uses. That is the app's established pattern for a notice of exactly
-   this kind, so this is one fewer format rather than a third one. *@
-<p class="signin__notice" role="note">
-    <strong>@L[Locale, "signIn.noticeStrong"]</strong>
-    @L[Locale, "signIn.noticeBody"]
-</p>
+        <div class="signin__field">
+            <label for="signin-password">@L[Locale, "signIn.passwordLabel"]</label>
+            @* type="password" and current-password, and nothing else touches this
+               value: it is never trimmed, pattern-checked, rewritten, logged, or
+               put in a query string. Allow-list rewriting is right for a username
+               and wrong for a password, which has to compare byte for byte — and
+               now that a real comparison happens, that is a tested rule rather
+               than a stated intention. *@
+            <InputText id="signin-password"
+                       type="password"
+                       class="form-control"
+                       autocomplete="current-password"
+                       disabled="@submitting"
+                       @bind-Value="model.Password" />
+            @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Password)))
+            {
+                <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+            }
+        </div>
 
-@* Adjacent to the form, not behind a disclosure. Published in plain text,
-   because they are not secrets and pretending otherwise would be the interface
-   lying about itself.
-
-   ONE LINE PER ACCOUNT. This used to be a definition list per account plus a
-   biography paragraph explaining what made each record worth looking at, plus a
-   closing hint suggesting you sign in as one and then the other. All three are
-   gone. What a person needs here is what to type; what the two records
-   demonstrate is a thing the records themselves show, on the screen where they
-   are actually compared, and explaining it in advance on the sign-in form asked
-   somebody to remember a distinction before they had seen either side of it.
-
-   The holder's name stays. It is not persona prose — it is how you tell which
-   of the two lines you are about to type. *@
-<section class="signin__accounts" aria-label="@L[Locale, "signIn.accountsHeading"]">
-    <h2>@L[Locale, "signIn.accountsHeading"]</h2>
-    <p>@L[Locale, "signIn.accountsIntro"]</p>
-
-    <ul class="signin__account-list">
-        @foreach (var account in Accounts.Published)
+        @if (formError is not null)
         {
-            @* Keyed by the credential, which is the value that identifies the
-               record and is not what this rename touched. *@
-            <li class="signin__account" @key="account.CredentialId">
-                @* No holder name here, deliberately. Each account carries a
-                   persona internally, for the record and its own tests — this
-                   run's own instruction is that nothing on screen may name
-                   either one, since this is a generic test account, not a
-                   personal one. The identifier already tells the two rows
-                   apart, which is what it is for; showing a name beside it
-                   would only invite the question this run exists to close.
-                   Neither value is ever translated or reformatted in any
-                   locale — they are things to type, not language content. *@
-                <code>@account.Identifier</code> / <code>@account.Password</code>
-            </li>
+            <p class="signin__error" role="alert">@L[Locale, formError]</p>
         }
-    </ul>
+
+        <button type="submit" class="btn btn-primary" disabled="@submitting">
+            @L[Locale, submitting ? "signIn.submitting" : "signIn.submit"]
+        </button>
+    </EditForm>
+
+    @* Directly beneath the form, matching ShopEase's own login screen: the
+       fields first, then the credentials to type into them. Published in plain
+       text, because they are not secrets and pretending otherwise would be the
+       interface lying about itself.
+
+       ONE LINE PER ACCOUNT. This used to be a definition list per account plus a
+       biography paragraph explaining what made each record worth looking at, plus a
+       closing hint suggesting you sign in as one and then the other. All three are
+       gone. What a person needs here is what to type; what the two records
+       demonstrate is a thing the records themselves show, on the screen where they
+       are actually compared, and explaining it in advance on the sign-in form asked
+       somebody to remember a distinction before they had seen either side of it.
+
+       The holder's name stays. It is not persona prose — it is how you tell which
+       of the two lines you are about to type. *@
+    <section class="signin__accounts" aria-label="@L[Locale, "signIn.accountsHeading"]">
+        <h2>@L[Locale, "signIn.accountsHeading"]</h2>
+        <p>@L[Locale, "signIn.accountsIntro"]</p>
+
+        <ul class="signin__account-list">
+            @foreach (var account in Accounts.Published)
+            {
+                @* Keyed by the credential, which is the value that identifies the
+                   record and is not what this rename touched. *@
+                <li class="signin__account" @key="account.CredentialId">
+                    @* No holder name here, deliberately. Each account carries a
+                       persona internally, for the record and its own tests — this
+                       run's own instruction is that nothing on screen may name
+                       either one, since this is a generic test account, not a
+                       personal one. The identifier already tells the two rows
+                       apart, which is what it is for; showing a name beside it
+                       would only invite the question this run exists to close.
+                       Neither value is ever translated or reformatted in any
+                       locale — they are things to type, not language content. *@
+                    <code>@account.Identifier</code> / <code>@account.Password</code>
+                </li>
+            }
+        </ul>
+    </section>
+
+    @* MOVED BELOW THE FORM, and that is a reversal worth naming. This notice was
+       first on the page, deliberately, sourced from 10 §2.3 — and R6 closed on
+       condensing it rather than moving or removing it. It now sits last, at the
+       principal's explicit direction. Everything it states survives: the same four
+       facts in the same order, the same role="note", and the same five substrings
+       SignInScreenTests asserts. Only its position changed.
+
+       CONDENSED, NOT CUT. The objection this answers was to length and prominence,
+       never to the disclosure existing: four stacked paragraphs before a two-field
+       form is a wall, and a wall gets skipped, which costs the notice the one thing
+       it is for. Every fact survives. The wording is engineered around the five
+       exact substrings SignInScreenTests asserts, so the test that protects the
+       content passes unmodified rather than being relaxed to fit shorter copy —
+       which is the only way a compression like this can be trusted.
+
+       Two keys rather than ten, in the Strong/Body shape Landing's own disclosure
+       already uses. That is the app's established pattern for a notice of exactly
+       this kind, so this is one fewer format rather than a third one. *@
+    <p class="signin__notice" role="note">
+        <strong>@L[Locale, "signIn.noticeStrong"]</strong>
+        @L[Locale, "signIn.noticeBody"]
+    </p>
+
 </section>
 
-<EditForm EditContext="editContext" OnValidSubmit="HandleSubmitAsync" class="signin__form">
-    <DataAnnotationsValidator />
-
-    <div class="signin__field">
-        <label for="signin-identifier">@L[Locale, "signIn.identifierLabel"]</label>
-        @* Bound on InputText's own change event, with no `:event` override.
-           `@bind-Value:event="oninput"` used to sit here, and it was a defect:
-           on an *element* that syntax names a DOM event, but InputText is a
-           component, where it must name an EventCallback parameter — and there
-           is no `oninput` parameter on InputText. It fell through
-           AdditionalAttributes onto the underlying <input> as a DOM handler
-           bound to a delegate typed `string`, so the browser invoked it with
-           ChangeEventArgs and the renderer tore down on the first keystroke.
-           Every test passed throughout, because nothing ever typed here. *@
-        <InputText id="signin-identifier"
-                   class="form-control"
-                   autocomplete="username"
-                   inputmode="@IdentifierInputMode"
-                   disabled="@submitting"
-                   @bind-Value="model.Identifier" />
-        @* Rendered from the EditContext rather than by <ValidationMessage>, and
-           this is the one place v9's structure could not be carried across
-           verbatim. A DataAnnotations ErrorMessage is a fixed string on the
-           attribute, and <ValidationMessage> renders it as-is — so the
-           attributes below carry resource KEYS and this resolves them against
-           the cascading locale. Same markup, same class, same aria-live, same
-           per-field association: only the resolution step is added. *@
-        @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Identifier)))
-        {
-            <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
-        }
-    </div>
-
-    <div class="signin__field">
-        <label for="signin-password">@L[Locale, "signIn.passwordLabel"]</label>
-        @* type="password" and current-password, and nothing else touches this
-           value: it is never trimmed, pattern-checked, rewritten, logged, or
-           put in a query string. Allow-list rewriting is right for a username
-           and wrong for a password, which has to compare byte for byte — and
-           now that a real comparison happens, that is a tested rule rather
-           than a stated intention. *@
-        <InputText id="signin-password"
-                   type="password"
-                   class="form-control"
-                   autocomplete="current-password"
-                   disabled="@submitting"
-                   @bind-Value="model.Password" />
-        @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Password)))
-        {
-            <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
-        }
-    </div>
-
-    @if (formError is not null)
-    {
-        <p class="signin__error" role="alert">@L[Locale, formError]</p>
-    }
-
-    <button type="submit" class="btn btn-primary" disabled="@submitting">
-        @L[Locale, submitting ? "signIn.submitting" : "signIn.submit"]
-    </button>
-</EditForm>
 
 @code {
     [CascadingParameter]
