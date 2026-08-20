@@ -12,6 +12,8 @@
 // later; it is the honest scope of a foundational demonstration, and claiming
 // otherwise would be the one dishonesty this project has refused throughout.
 
+using System.Text.Json.Serialization;
+using FifaPressApp.Api.Endpoints;
 using FifaPressApp.Api.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,12 @@ var builder = WebApplication.CreateBuilder(args);
 // decision rather than an omission.
 builder.Services.AddSingleton<AccreditationStore>();
 
+// Enums travel as their names, not their numbers. "MemberAssociationQuota" is
+// readable in a response body and survives someone reordering the enum; a bare
+// 0 is neither. The frontend parses these names directly.
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
 // The OpenAPI document, registered bare. It is how a reader discovers the
 // routes without reading the code, and it is the whole of this API's tooling.
 builder.Services.AddOpenApi();
@@ -30,6 +38,8 @@ var app = builder.Build();
 
 // The generated document, served at /openapi/v1.json.
 app.MapOpenApi();
+
+app.MapAccreditationEndpoints();
 
 app.MapGet("/", () => Results.Ok(new
 {
