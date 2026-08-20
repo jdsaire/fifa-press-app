@@ -260,6 +260,46 @@ main > .top-row {
 }
 
 /* ==========================================================================
+   Settings fields
+   ========================================================================== */
+
+.settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 32rem;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.settings-field__label {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.settings-field__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* A value, not a control. It carries no border and no box, because a read-only
+   field dressed as an input is an invitation to type into something that will
+   not keep what you typed. */
+.settings-field__value {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.settings__signout {
+    align-self: flex-start;
+}
+
+/* ==========================================================================
    Forms
    ========================================================================== */
 
