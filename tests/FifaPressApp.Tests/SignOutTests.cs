@@ -208,6 +208,95 @@ public class SignOutTests
         }
     }
 
+    // ------------------------------------------------------- the session bar
+
+    [Fact]
+    public async Task TheSessionBarNamesTheHolderAndTheirCredential()
+    {
+        // Both, not just the name: the credential is the record key and the
+        // thing that differs between the two demo records, so dropping it would
+        // hide the value the two-record demonstration exists to expose.
+        using var context = NewContext(await AsAminaAsync());
+
+        var bar = context.Render<SessionBar>().Find(".session-bar");
+
+        Assert.Contains("Amina Bello", bar.TextContent);
+        Assert.Contains("MP-2026-04817", bar.TextContent);
+    }
+
+    [Fact]
+    public async Task TheSessionBarsIndicatorIsReadOnly()
+    {
+        // It is a statement of fact, not a door. The door is the nav row below
+        // it, and the sign-out button beside the indicator is an action rather
+        // than part of what the indicator says.
+        using var context = NewContext(await AsAminaAsync());
+
+        var indicator = context.Render<SessionBar>().Find(".session-bar__holder");
+
+        Assert.Empty(indicator.QuerySelectorAll("a, button, select, input"));
+    }
+
+    [Fact]
+    public void SignedOutTheSessionBarSaysNothingAboutAnyHolderAndOffersAWayIn()
+    {
+        using var context = NewContext(new SimulatedSessionProvider(new DemoAccountStore()));
+
+        var bar = context.Render<SessionBar>();
+
+        Assert.Empty(bar.FindAll(".session-bar__holder"));
+        Assert.Empty(bar.FindAll(".session-bar__signout"));
+
+        // One way in, pointing at the conditional record surface rather than at
+        // a sign-in route of its own.
+        var signIn = bar.Find(".session-bar__signin");
+        Assert.Equal("record", signIn.GetAttribute("href"));
+    }
+
+    [Fact]
+    public async Task TheSessionBarFollowsTheSessionWithoutARenderLag()
+    {
+        // The session changes from a form this component does not own. Without
+        // the subscription the bar would be a render behind on every screen at
+        // once, which is worse than the sidebar ever was.
+        var session = new SimulatedSessionProvider(new DemoAccountStore());
+        using var context = NewContext(session);
+
+        var bar = context.Render<SessionBar>();
+        Assert.Empty(bar.FindAll(".session-bar__holder"));
+
+        await bar.InvokeAsync(() => session.SignInAsync("RH-2026-00219", "tomas-demo-2026"));
+
+        Assert.Contains("Tomás L.", bar.Find(".session-bar__holder").TextContent);
+    }
+
+    [Fact]
+    public async Task PressingSignOutInTheBarEndsTheSessionAndReturnsToTheLanding()
+    {
+        // The second of the two sign-out locations. Both call the same method
+        // and navigate identically, which is what makes two of them a
+        // convenience rather than a disagreement.
+        var session = await AsAminaAsync();
+        using var context = NewContext(session);
+        var navigation = context.Services.GetRequiredService<NavigationManager>();
+
+        context.Render<SessionBar>().Find(".session-bar__signout").Click();
+
+        Assert.False(session.IsSignedIn);
+        Assert.Equal(navigation.BaseUri, navigation.Uri);
+    }
+
+    [Fact]
+    public void TheBarSitsAboveTheContentColumnRatherThanInsideIt()
+    {
+        // The whole reason the indicator moved: a row above the content column
+        // is present at every breakpoint, and the sidebar is not.
+        var layout = File.ReadAllText(Path.Combine(SourceRoot(), "Layout", "MainLayout.razor"));
+
+        Assert.True(layout.IndexOf("<SessionBar />", StringComparison.Ordinal)
+                  < layout.IndexOf("<article class=\"content", StringComparison.Ordinal));
+    }
+
     private static string SourceRoot([CallerFilePath] string thisFile = "")
         => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisFile)!, "..", "..", "src", "FifaPressApp"));
 }

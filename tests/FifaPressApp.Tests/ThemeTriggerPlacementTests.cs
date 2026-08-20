@@ -157,16 +157,23 @@ public class ThemeTriggerPlacementTests
     }
 
     [Fact]
-    public void MainHoldsOnlyTheContentColumnAgain()
+    public void MainHoldsTheSessionRowAndTheContentColumnAndNothingElse()
     {
+        // This test used to assert that main held the content column alone,
+        // after the theme strip was deleted from it. The strip is still gone —
+        // the assertion above and its stylesheet check both still hold — and
+        // what sits there now is a different element for a different reason:
+        // the session row reports state rather than changing it, and it exists
+        // precisely because it survives the breakpoint the sidebar does not.
         var layout = Read("Layout", "MainLayout.razor");
         var main = Regex.Match(layout, @"<main>(.*?)</main>", RegexOptions.Singleline);
         Assert.True(main.Success, "<main> was not found in MainLayout.razor");
 
-        // Comments aside, the only element left inside main is the article.
-        var elements = Regex.Matches(Regex.Replace(main.Groups[1].Value, @"@\*.*?\*@", "", RegexOptions.Singleline), @"<(\w+)");
-        Assert.Single(elements);
-        Assert.Equal("article", elements[0].Groups[1].Value);
+        var body = Regex.Replace(main.Groups[1].Value, @"@\*.*?\*@", "", RegexOptions.Singleline);
+        var elements = Regex.Matches(body, @"<(\w+)").Select(match => match.Groups[1].Value).ToList();
+
+        Assert.Equal(["div", "SessionBar", "article"], elements);
+        Assert.Contains("class=\"top-row", body);
     }
 
     [Fact]
