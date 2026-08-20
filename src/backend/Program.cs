@@ -31,11 +31,65 @@ builder.Services.AddSingleton<AccreditationStore>();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+// The browsers allowed to call this API.
+//
+// A browser refuses to hand a response from one origin to a page served from
+// another unless the response says it may. The deployed frontend is on
+// jdsaire.github.io and this API is not, so without this policy every request
+// the live site makes would be blocked before it was read — the request would
+// reach the server and succeed, and the browser would throw the answer away.
+//
+// Origins are listed rather than opened with AllowAnyOrigin, and they have to
+// be: SignalR needs AllowCredentials, and the CORS specification forbids
+// combining credentials with a wildcard origin. The localhost entries are the
+// ports the two halves use when run side by side during development.
+builder.Services.AddCors(options => options.AddPolicy(FrontendCorsPolicy, policy => policy
+    .WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()));
+
 // The OpenAPI document, registered bare. It is how a reader discovers the
 // routes without reading the code, and it is the whole of this API's tooling.
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// ---------------------------------------------------------------- pipeline
+//
+// THE ORDER BELOW IS ERROR HANDLING, THEN AUTHENTICATION, THEN LOGGING, and it
+// is not to be "improved".
+//
+// Middleware nests rather than queues. The first thing registered is the
+// outermost wrapper: every later component, and the endpoint itself, runs
+// inside it, and the response travels back out through all of them in reverse.
+// So "first" means "sees everything", and "last" means "closest to the work".
+//
+// WHY EACH ONE SITS WHERE IT DOES.
+//   Error handling is outermost because it can only catch what is inside it.
+//   Registered anywhere else, a throw from the layer above would escape it and
+//   the caller would get a stack trace or a bare 500.
+//
+//   Authentication comes next so that nothing further in — no endpoint, no
+//   route handler, no store read — executes for a request that has not passed
+//   the check. Work done before rejecting is work done for nobody.
+//
+//   Logging is innermost so it observes the status code the endpoint actually
+//   produced, rather than one an outer layer might still change.
+//
+// THE COST OF THAT ORDER, STATED PLAINLY. Because logging is innermost, the two
+// cases resolved above it never reach it: a 401 from the token check, and an
+// exception caught by the error handler. Both are logged by the component that
+// handles them, in the same shape, so nothing goes unrecorded — but the
+// single-choke-point property a logger usually has is not true here. That is a
+// genuine trade-off of the specified order, not a defect in the code, and it is
+// written up in backend/03_MIDDLEWARE-PIPELINE.md rather than papered over.
+
+// CORS runs ahead of all three. A browser's preflight OPTIONS request carries
+// no token by design, so it has to be answered before the token check would
+// reject it; and a rejected request still needs CORS headers on it, or the
+// browser shows the page a network error instead of the 401 the server sent.
+app.UseCors(FrontendCorsPolicy);
 
 // FIRST IN THE PIPELINE, and it has to be. Middleware wraps whatever is
 // registered after it, so error handling registered first is the outermost
@@ -82,4 +136,8 @@ app.Run();
 /// built from top-level statements has an implicit <c>Program</c> class that is
 /// internal by default, and a test host needs to name it.
 /// </summary>
-public partial class Program;
+public partial class Program
+{
+    /// <summary>The one CORS policy this API defines.</summary>
+    private const string FrontendCorsPolicy = "frontend";
+}
