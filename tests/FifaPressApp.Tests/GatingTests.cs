@@ -48,6 +48,62 @@ public class GatingTests
     private static Task<SimulatedSessionProvider> AsTomasAsync() =>
         SignedInAsync("demo_staff2", "Demo#2026Staff2");
 
+    // ------------------------------------------- signing in, through the form
+
+    [Theory]
+    [InlineData("demo_staff1", "Demo#2026Staff1", "MP-2026-04817")]
+    [InlineData("demo_staff2", "Demo#2026Staff2", "RH-2026-00219")]
+    public async Task SigningInOnTheRecordItselfLoadsTheRecord(
+        string identifier, string password, string credentialId)
+    {
+        // THE TEST THIS SUITE NEVER HAD. Every other "signed in" test calls
+        // Session.SignInAsync directly and renders a page that was already
+        // signed in — so the path a person actually takes (arrive signed out,
+        // type, submit, see the record) was covered nowhere, and two defects
+        // shipped through the gap: an event-binding crash on the first
+        // keystroke, and a record that never loaded because signing in on this
+        // route reuses the component without re-initializing it.
+        using var context = NewContext(SignedOut());
+
+        var page = context.Render<MyAccess>();
+
+        // Arrives signed out: the form, not the record, and not the empty
+        // state that would mean "we have no record of you".
+        Assert.NotEmpty(page.FindAll("form.signin__form"));
+        Assert.Empty(page.FindAll(".my-access__empty"));
+
+        page.Find("#signin-identifier").Change(identifier);
+        page.Find("#signin-password").Change(password);
+        await page.Find("form.signin__form").SubmitAsync();
+
+        // The form is gone and the record is here — the credential number is
+        // what proves the right one loaded.
+        Assert.Empty(page.FindAll("form.signin__form"));
+        Assert.Contains(credentialId, page.Markup);
+
+        // Specifically NOT the empty state, which is what rendered before the
+        // page learned to reload when a session begins under it.
+        Assert.Empty(page.FindAll(".my-access__empty"));
+        Assert.DoesNotContain("No accreditation record yet", page.Markup);
+    }
+
+    [Fact]
+    public async Task WrongCredentialsSaySoAndStartNoSession()
+    {
+        using var context = NewContext(SignedOut());
+
+        var page = context.Render<MyAccess>();
+
+        page.Find("#signin-identifier").Change("demo_staff1");
+        page.Find("#signin-password").Change("not-the-password");
+        await page.Find("form.signin__form").SubmitAsync();
+
+        // One generic failure, the form still there, and no record behind it.
+        Assert.NotEmpty(page.FindAll("form.signin__form"));
+        Assert.Contains("do not match a demo account", page.Markup);
+        Assert.DoesNotContain("MP-2026-04817", page.Markup);
+    }
+
     // --------------------------------------------- no personal name, anywhere
 
     [Theory]

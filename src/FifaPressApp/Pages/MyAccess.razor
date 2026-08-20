@@ -26,6 +26,7 @@
    So StaleIndicator renders always, never only when something is old. *@
 
 @page "/record"
+@implements IDisposable
 @inject IAccessDataProvider Access
 @inject SimulatedSessionProvider Session
 @inject ChangeArrivalTracker Arrivals
@@ -266,10 +267,59 @@ else
     {
         arrivedChangeId = Arrivals.Consume();
 
+        // THE SESSION CAN BEGIN WHILE THIS PAGE IS ALREADY ON SCREEN, and that
+        // is new. This page used to redirect a signed-out visitor away, so it
+        // only ever initialized with a session already in hand. It renders the
+        // sign-in form in place now, which means a person signs in *here* —
+        // and a sign-in on the same route reuses this component instance
+        // without re-running OnInitializedAsync. Without this subscription the
+        // record would never load: the form would vanish and leave the empty
+        // state behind it, saying "no accreditation record yet" to somebody who
+        // had just successfully signed in.
+        Session.OnChanged += OnSessionChanged;
+
         // Signed out, there is nothing to read and nothing below applies. The
         // markup above has already rendered the form, so there is nowhere to
         // send anybody: the screen that explains what signing in here means is
         // this one.
+        if (Session.CredentialId is null)
+        {
+            return;
+        }
+
+        await LoadRecordAsync();
+    }
+
+    public void Dispose() => Session.OnChanged -= OnSessionChanged;
+
+    /// <summary>
+    /// A session began — or ended — while this page was on screen. Loads the
+    /// record the new session opens, or clears what the old one showed so no
+    /// part of a signed-out screen is left holding the previous holder's state.
+    /// </summary>
+    private void OnSessionChanged() => InvokeAsync(async () =>
+    {
+        if (Session.CredentialId is null)
+        {
+            record = null;
+            allChanges = [];
+            visibleChanges = [];
+            matchAccess = [];
+            loadFailed = false;
+            StateHasChanged();
+            return;
+        }
+
+        await LoadRecordAsync();
+        StateHasChanged();
+    });
+
+    /// <summary>
+    /// Everything this screen reads, for whichever credential the session
+    /// currently holds.
+    /// </summary>
+    private async Task LoadRecordAsync()
+    {
         if (Session.CredentialId is not string credentialId)
         {
             return;
