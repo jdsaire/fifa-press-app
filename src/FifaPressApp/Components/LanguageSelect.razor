@@ -1,0 +1,56 @@
+@inject LocaleService L
+
+@* The language control.
+   ------------------------------------------------------------------------
+   Three fixed options, and until this run they were three buttons rather than
+   a picker — a picker's affordance exists to manage a list too long to show,
+   and three is not that. That reasoning was sound and it has not been
+   overturned; the context it reasoned about has moved. The control no longer
+   sits as a persistent row in a sidebar. It sits on a settings screen a person
+   visits deliberately, beside other labelled fields, where three loose buttons
+   would be the outlier and a labelled dropdown is the register of its
+   neighbours. (The same three-fixed-options reasoning still applies on its own
+   terms to Appearance, which kept its buttons for exactly that reason.)
+
+   THE SESSION SURVIVES THIS, and nothing else changes either. Switching is
+   L.Set(locale) and nothing more: no navigation, no reload, no storage write.
+   The whole tree re-renders because the cascaded value changed, not because
+   anything was preserved carefully. A native <select> calling the same method
+   keeps that guarantee exactly — the mechanism does not care what widget calls
+   it.
+
+   role="group" and aria-pressed are gone with the button group they described.
+   A native <select> carries its own correct semantics and does not need them. *@
+
+<div class="settings-field">
+    <label for="settings-language">@L[Locale, "nav.language"]</label>
+    <select id="settings-language"
+            class="form-select"
+            value="@LocaleService.CodeOf(Locale)"
+            @onchange="OnChanged">
+        @foreach (var option in LocaleService.All)
+        {
+            @* Each option is named in its own language, never translated into
+               the current one: a reader looking for Português is looking for
+               the word "Português". *@
+            <option value="@LocaleService.CodeOf(option)"
+                    lang="@LocaleService.CodeOf(option)"
+                    selected="@(option == Locale)">
+                @L.NameOf(option)
+            </option>
+        }
+    </select>
+</div>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    /// <summary>
+    /// Changes the active locale, and does nothing else. Not a navigation, not
+    /// a reload, not a write — every other piece of app state is untouched by
+    /// construction rather than by being carefully preserved.
+    /// </summary>
+    private void OnChanged(ChangeEventArgs e) =>
+        L.Set(LocaleService.FromCode(e.Value?.ToString()));
+}

@@ -127,6 +127,11 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        // EventList reads the session to decide whether a request control is
+        // offered at all, so the provider has to be registered even where the
+        // test is about a filter rather than about who is signed in.
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 
@@ -149,6 +154,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider([upcoming, played]));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
         Assert.Contains("Estadio Azteca", page.Markup);
@@ -161,7 +168,7 @@ public class FixtureQueryStatusTests
     }
 
     [Fact]
-    public void ChangingAControlReturnsToTheFirstPage()
+    public void ChangingAControlResetsHowMuchOfTheListIsShown()
     {
         // Page 4 of a list that now has one page is a blank screen that reads as
         // a bug. Search already reset the page; every control does now.
@@ -174,19 +181,22 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 
-        // Twenty-five fixtures at ten a page is three pages. Go to the last one.
-        const string Pager = "nav[aria-label='Match list pages'] button";
-        page.FindAll(Pager).Last().Click();
-        Assert.Equal("3", page.Find($"{Pager}[aria-current]").TextContent.Trim());
+        // Twenty-five fixtures at twelve a press: expand twice, to twenty-four
+        // on screen and one still held back.
+        page.Find(".matches__show-more").Click();
+        Assert.Equal(24, page.FindAll(".matches__item").Count);
 
         page.Find("select#matches-group").Change("B");
 
-        // Five fixtures left, so the pager is gone entirely — and they are all
-        // on screen, which they would not be if the page had stayed at three.
-        Assert.Empty(page.FindAll(Pager));
+        // Five fixtures left, so the control is gone entirely — and they are
+        // all on screen, which is only true because the count went back to
+        // twelve rather than inheriting the expansion.
+        Assert.Empty(page.FindAll(".matches__show-more"));
         Assert.Equal(5, page.FindAll(".matches__item").Count);
     }
 
@@ -198,6 +208,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
         page.Find("input[type=search]").Input("Azteca");
@@ -218,6 +230,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider([]));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 

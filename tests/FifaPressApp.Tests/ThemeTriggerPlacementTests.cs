@@ -1,7 +1,8 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Bunit;
-using FifaPressApp.Layout;
+using FifaPressApp.Components;
+using FifaPressApp.Pages;
 using FifaPressApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
@@ -10,12 +11,24 @@ using Xunit;
 namespace FifaPressApp.Tests;
 
 /// <summary>
-/// Where the theme control lives, and what went away when it moved.
+/// The appearance control: where it lives, what it does, and what went away
+/// when it moved.
 ///
-/// The move is only half the change: the strip it used to sit in had to be
-/// deleted rather than left behind empty, in both the markup and the stylesheet.
-/// A test that only checked the new placement would pass with a dead element
-/// still shipping.
+/// <para>
+/// This file used to be about placement — the theme trigger's move out of a
+/// strip above the content column and into the sidebar's nav list. Both of
+/// those homes are now gone, and asserting a placement among nav rows against a
+/// control that is no longer in a list would be force-fitting an old test onto
+/// a new shape. What survives is everything that was ever about behaviour: the
+/// control renders disabled rather than absent while its module loads, becomes
+/// usable once it arrives, carries no active state because it is not a
+/// destination, and pairs an icon-free label with what pressing it does.
+/// </para>
+///
+/// <para>
+/// One assertion is genuinely new, because one code path is: "System" is the
+/// first caller `clearStoredTheme()` has ever had.
+/// </para>
 /// </summary>
 public class ThemeTriggerPlacementTests
 {
@@ -25,11 +38,6 @@ public class ThemeTriggerPlacementTests
     private static string Read(params string[] parts)
         => File.ReadAllText(Path.Combine(SourceRoot(), Path.Combine(parts)));
 
-    /// <summary>
-    /// NavMenu reads the session now — it renders the signed-in indicator and
-    /// the sign-out row. These tests are about the theme row, so they use a
-    /// signed-out session: four rows, the theme trigger last.
-    /// </summary>
     private static BunitContext NewContext()
     {
         var context = new BunitContext();
@@ -40,98 +48,141 @@ public class ThemeTriggerPlacementTests
     }
 
     [Fact]
-    public void TheTriggerRendersAsARowInsideTheNavList()
+    public void TheControlOffersThreeStatesRatherThanATwoWayToggle()
     {
+        // The mechanism this gate actually adds. Its predecessor was a strict
+        // binary toggle, and "system" was a state the app could be in but never
+        // one a person could choose.
         using var context = NewContext();
 
-        var nav = context.Render<NavMenu>();
+        var options = context.Render<AppearanceControl>().FindAll(".appearance-option");
 
-        // Inside the list, not merely somewhere in the component. Five rows
-        // signed out: three destinations, then language, then theme.
-        var rows = nav.FindAll("nav.flex-column > .nav-item");
-        Assert.Equal(5, rows.Count);
-        Assert.NotEmpty(rows[4].QuerySelectorAll("button.theme-trigger"));
+        Assert.Equal(3, options.Count);
+        Assert.Equal(["System", "Light", "Dark"], options.Select(option => option.TextContent.Trim()));
     }
 
     [Fact]
-    public void TheTriggerSitsBelowTheDestinations_LastOfThemWhenSignedOut()
+    public void TheControlIsNotANavLinkAndCarriesNoActiveState()
     {
         using var context = NewContext();
 
-        var nav = context.Render<NavMenu>();
-        var rows = nav.FindAll("nav.flex-column > .nav-item");
+        var options = context.Render<AppearanceControl>().FindAll(".appearance-option");
 
-        // Help is third and last of the destinations; everything below it is a
-        // control. 09 §5.2 put the trigger visually last; 11 §5.1 then put the
-        // language switch above it and 10 §4.1 put sign-out below it, so
-        // "last" no longer describes the theme row at all. What survives — and
-        // what these three files actually agree on — is the arrangement: three
-        // destinations contiguous at the top, controls beneath them, none of
-        // the controls a NavLink.
-        Assert.Contains("Help", rows[2].TextContent);
-        Assert.Empty(rows[3].QuerySelectorAll("a"));
-        Assert.Empty(rows[4].QuerySelectorAll("a"));
+        foreach (var option in options)
+        {
+            Assert.False(option.HasAttribute("href"));
+            Assert.DoesNotContain("active", option.GetAttribute("class") ?? string.Empty);
+        }
+
+        // And no rule anywhere grants one.
+        Assert.DoesNotContain(".appearance-option.active", Read("wwwroot", "css", "app.css"));
     }
 
     [Fact]
-    public void TheTriggerIsNotANavLinkAndCarriesNoActiveState()
+    public void TheCurrentStateIsMarkedRatherThanRemoved()
     {
+        // The same reasoning the language control's aria-pressed carried: the
+        // field keeps its shape, and a screen reader is told which state is
+        // active instead of inferring it from what is missing.
         using var context = NewContext();
 
-        var nav = context.Render<NavMenu>();
-        var trigger = nav.Find("button.theme-trigger");
+        var control = context.Render<AppearanceControl>();
 
-        Assert.False(trigger.HasAttribute("href"));
-        Assert.DoesNotContain("active", trigger.GetAttribute("class"));
-
-        // And no rule anywhere grants it one.
-        Assert.DoesNotContain(".theme-trigger.active", Read("Components", "ThemeTrigger.razor.css"));
-        Assert.DoesNotContain(".theme-trigger.active", Read("Layout", "NavMenu.razor.css"));
+        Assert.Single(control.FindAll(".appearance-option[aria-pressed='true']"));
+        Assert.Equal(3, control.FindAll(".appearance-option").Count);
     }
 
     [Fact]
-    public void TheTriggerStillRendersAnIconAndItsLabelTogether()
+    public void TheFieldIsStillRendered_DisabledWhenItsModuleNeverArrives()
     {
-        // The move is a placement decision. What the control renders — an icon
-        // paired with a label that says what pressing it does — is unchanged,
-        // and the label is what a screen reader gets; the icon is hidden.
-        using var context = NewContext();
-
-        var nav = context.Render<NavMenu>();
-        var trigger = nav.Find("button.theme-trigger");
-
-        Assert.Equal("true", trigger.QuerySelector(".theme-trigger__icon")!.GetAttribute("aria-hidden"));
-        Assert.Contains("theme", trigger.QuerySelector(".theme-trigger__label")!.TextContent);
-    }
-
-    [Fact]
-    public void TheRowIsStillRendered_DisabledWhenItsModuleNeverArrives()
-    {
-        // Rendering a disabled row rather than no row is what stops the list
-        // changing height the moment the app finishes starting — and if the
-        // module never loads at all, the app still renders in the system theme
-        // and only the ability to override it is lost. That degrades quietly;
-        // it does not remove a row from the navigation.
+        // Rendering disabled buttons rather than no buttons is what stops the
+        // screen changing height the moment the app finishes starting — and if
+        // the module never loads at all, the app still renders in the system
+        // theme and only the ability to override it is lost. That degrades
+        // quietly; it does not remove a field from the settings screen.
         using var context = NewContext();
         context.JSInterop
             .SetupModule("./js/theme.js")
             .Setup<string?>("getStoredTheme")
             .SetException(new JSException("module unavailable"));
 
-        var nav = context.Render<NavMenu>();
+        var control = context.Render<AppearanceControl>();
 
-        Assert.Equal(5, nav.FindAll("nav.flex-column > .nav-item").Count);
-        Assert.True(nav.Find("button.theme-trigger").HasAttribute("disabled"));
+        Assert.Equal(3, control.FindAll(".appearance-option").Count);
+        Assert.All(control.FindAll(".appearance-option"), option => Assert.True(option.HasAttribute("disabled")));
     }
 
     [Fact]
-    public void TheRowBecomesUsableOnceItsModuleHasLoaded()
+    public void TheFieldBecomesUsableOnceItsModuleHasLoaded()
     {
         using var context = NewContext();
 
-        var nav = context.Render<NavMenu>();
+        var control = context.Render<AppearanceControl>();
 
-        Assert.False(nav.Find("button.theme-trigger").HasAttribute("disabled"));
+        Assert.All(control.FindAll(".appearance-option"), option => Assert.False(option.HasAttribute("disabled")));
+    }
+
+    [Fact]
+    public void ChoosingSystemClearsTheStoredChoiceRatherThanStoringAThirdValue()
+    {
+        // The one new code path this gate introduces, and the first caller
+        // clearStoredTheme() has ever had. "System" is not a third stored
+        // value: a null stored value is what *means* "defer to the system", so
+        // choosing it clears rather than writes.
+        using var context = NewContext();
+        var module = context.JSInterop.SetupModule("./js/theme.js");
+        module.Setup<string?>("getStoredTheme").SetResult("dark");
+        module.SetupVoid("applyTheme", _ => true).SetVoidResult();
+        module.SetupVoid("storeTheme", _ => true).SetVoidResult();
+        var cleared = module.SetupVoid("clearStoredTheme");
+
+        var control = context.Render<AppearanceControl>();
+        control.FindAll(".appearance-option")[0].Click();
+
+        cleared.SetVoidResult();
+        Assert.Single(context.JSInterop.Invocations["clearStoredTheme"]);
+
+        // Nothing was stored in its place.
+        Assert.Empty(context.JSInterop.Invocations["storeTheme"]);
+
+        // And the override comes off the document, so the stylesheet's own
+        // media query decides again without a reload.
+        Assert.Contains(context.JSInterop.Invocations["applyTheme"],
+            invocation => invocation.Arguments.Count == 1 && invocation.Arguments[0] is null);
+    }
+
+    [Fact]
+    public void ChoosingLightOrDarkAppliesAndStoresIt()
+    {
+        using var context = NewContext();
+        var module = context.JSInterop.SetupModule("./js/theme.js");
+        module.Setup<string?>("getStoredTheme").SetResult(null);
+        module.SetupVoid("applyTheme", _ => true).SetVoidResult();
+        module.SetupVoid("storeTheme", _ => true).SetVoidResult();
+
+        var control = context.Render<AppearanceControl>();
+        control.FindAll(".appearance-option")[2].Click();
+
+        // Applied and stored together: storing is what makes the choice outlast
+        // the session, applying is what makes it outlast a system flip during
+        // one.
+        Assert.Contains(context.JSInterop.Invocations["storeTheme"],
+            invocation => (string?)invocation.Arguments[0] == "dark");
+        Assert.Contains(context.JSInterop.Invocations["applyTheme"],
+            invocation => (string?)invocation.Arguments[0] == "dark");
+    }
+
+    [Fact]
+    public void AStoredChoiceIsWhatTheFieldReportsOnArrival()
+    {
+        using var context = NewContext();
+        var module = context.JSInterop.SetupModule("./js/theme.js");
+        module.Setup<string?>("getStoredTheme").SetResult("light");
+        module.SetupVoid("applyTheme", _ => true).SetVoidResult();
+
+        var control = context.Render<AppearanceControl>();
+
+        Assert.Equal("Light", control.Find(".appearance-option[aria-pressed='true']").TextContent.Trim());
     }
 
     [Fact]
@@ -140,7 +191,8 @@ public class ThemeTriggerPlacementTests
         Assert.DoesNotContain("<div class=\"theme-strip\">", Read("Layout", "MainLayout.razor"));
         Assert.DoesNotContain(".theme-strip {", Read("Layout", "MainLayout.razor.css"));
 
-        // Nothing else in the app refers to it either.
+        // Nothing else in the app refers to it either — and nor, now, to the
+        // binary trigger the tri-state control replaced.
         foreach (var file in Directory.EnumerateFiles(SourceRoot(), "*.razor*", SearchOption.AllDirectories))
         {
             if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}")
@@ -153,48 +205,125 @@ public class ThemeTriggerPlacementTests
             Assert.False(
                 Regex.IsMatch(text, @"class=""theme-strip""|^\.theme-strip", RegexOptions.Multiline),
                 $"{Path.GetFileName(file)} still refers to the deleted theme strip");
+            Assert.False(
+                Regex.IsMatch(text, @"<ThemeTrigger\s*/>|theme-trigger"),
+                $"{Path.GetFileName(file)} still refers to the deleted theme trigger");
         }
     }
 
     [Fact]
-    public void MainHoldsOnlyTheContentColumnAgain()
+    public void MainHoldsTheSessionRowAndTheContentColumnAndNothingElse()
     {
+        // This test used to assert that main held the content column alone,
+        // after the theme strip was deleted from it. The strip is still gone —
+        // the assertion above and its stylesheet check both still hold — and
+        // what sits there now is a different element for a different reason:
+        // the session row reports state rather than changing it, and it exists
+        // precisely because it survives the breakpoint the sidebar does not.
         var layout = Read("Layout", "MainLayout.razor");
         var main = Regex.Match(layout, @"<main>(.*?)</main>", RegexOptions.Singleline);
         Assert.True(main.Success, "<main> was not found in MainLayout.razor");
 
-        // Comments aside, the only element left inside main is the article.
-        var elements = Regex.Matches(Regex.Replace(main.Groups[1].Value, @"@\*.*?\*@", "", RegexOptions.Singleline), @"<(\w+)");
-        Assert.Single(elements);
-        Assert.Equal("article", elements[0].Groups[1].Value);
+        var body = Regex.Replace(main.Groups[1].Value, @"@\*.*?\*@", "", RegexOptions.Singleline);
+        var elements = Regex.Matches(body, @"<(\w+)").Select(match => match.Groups[1].Value).ToList();
+
+        // div (the session row) → the sidebar toggle and its two spans inside
+        // it → SessionBar → article. The toggle lives in the row rather than in
+        // the sidebar because a control inside the thing it hides cannot bring
+        // it back.
+        Assert.Equal(["div", "button", "span", "span", "SessionBar", "article"], elements);
+        Assert.Contains("class=\"top-row", body);
     }
 
     [Fact]
-    public void TheTriggerRowMatchesTheHeightAndRadiusOfTheDestinationRows()
+    public void TheSidebarCanBeHiddenAndBroughtBack()
     {
-        // The fourth row has to be the same shape as the three above it, and the
-        // two stylesheets that decide that are separate files. This is what
-        // catches one of them drifting.
-        var navCss = Read("Layout", "NavMenu.razor.css");
-        var triggerCss = Read("Components", "ThemeTrigger.razor.css");
+        // The sidebar was fixed at every width above the phone breakpoint. The
+        // toggle is what gives the content column those 200px back, and it has
+        // to survive its own press — a control inside the thing it hides could
+        // not bring it back.
+        using var context = NewContext();
 
-        static string? Property(string css, string selector, string property)
+        var layout = context.Render<FifaPressApp.Layout.MainLayout>();
+        var toggle = layout.Find(".top-row__sidebar-toggle");
+
+        Assert.Equal("true", toggle.GetAttribute("aria-expanded"));
+        Assert.Equal("nav-menu", toggle.GetAttribute("aria-controls"));
+        Assert.Empty(layout.FindAll(".page--sidebar-hidden"));
+
+        toggle.Click();
+
+        Assert.NotEmpty(layout.FindAll(".page--sidebar-hidden"));
+        Assert.Equal("false", layout.Find(".top-row__sidebar-toggle").GetAttribute("aria-expanded"));
+
+        layout.Find(".top-row__sidebar-toggle").Click();
+
+        Assert.Empty(layout.FindAll(".page--sidebar-hidden"));
+    }
+
+    [Fact]
+    public void TheSidebarToggleAlwaysCarriesAWordAndNotOnlyAGlyph()
+    {
+        // The chevron is decorative; the label is what a screen reader gets,
+        // and it says which way the press goes rather than naming the widget.
+        using var context = NewContext();
+
+        var layout = context.Render<FifaPressApp.Layout.MainLayout>();
+
+        Assert.Equal("true", layout.Find(".top-row__sidebar-toggle-icon").GetAttribute("aria-hidden"));
+        Assert.Equal("Hide menu", layout.Find(".top-row__sidebar-toggle .visually-hidden").TextContent.Trim());
+
+        layout.Find(".top-row__sidebar-toggle").Click();
+
+        Assert.Equal("Show menu", layout.Find(".top-row__sidebar-toggle .visually-hidden").TextContent.Trim());
+    }
+
+    [Fact]
+    public void EachAppearanceOptionCarriesAGlyphAndKeepsItsWord()
+    {
+        // The icon is added beside the label, never in place of it — the same
+        // rule Icon.razor holds every other glyph to. A screen reader still
+        // hears "System", "Light", "Dark".
+        using var context = NewContext();
+
+        var options = context.Render<AppearanceControl>().FindAll(".appearance-option");
+
+        Assert.Equal(["System", "Light", "Dark"], options.Select(option => option.TextContent.Trim()));
+        Assert.All(options, option => Assert.NotEmpty(option.QuerySelectorAll("svg.icon")));
+        Assert.All(options, option => Assert.All(
+            option.QuerySelectorAll("svg.icon"),
+            icon => Assert.Equal("true", icon.GetAttribute("aria-hidden"))));
+    }
+
+    [Fact]
+    public void SystemCarriesBothADesktopAndAPhoneGlyphForTheBreakpointToChoose()
+    {
+        // "Follow the system" means a different machine depending on where the
+        // app is being read, so both are rendered and the stylesheet picks —
+        // rather than a JavaScript breakpoint read that could disagree with the
+        // media query already deciding everything else.
+        using var context = NewContext();
+
+        var control = context.Render<AppearanceControl>();
+        var system = control.FindAll(".appearance-option")[0];
+
+        Assert.Single(system.QuerySelectorAll(".appearance-option__icon--wide"));
+        Assert.Single(system.QuerySelectorAll(".appearance-option__icon--narrow"));
+
+        // Light and Dark carry exactly one each.
+        foreach (var option in control.FindAll(".appearance-option").Skip(1))
         {
-            var block = Regex.Match(css, $@"{Regex.Escape(selector)}\s*\{{(.*?)\}}", RegexOptions.Singleline);
-            if (!block.Success)
-            {
-                return null;
-            }
-
-            var match = Regex.Match(block.Groups[1].Value, $@"(?<![\w-]){Regex.Escape(property)}:\s*([^;]+);");
-            return match.Success ? match.Groups[1].Value.Trim() : null;
+            Assert.Single(option.QuerySelectorAll("svg.icon"));
         }
+    }
 
-        foreach (var property in new[] { "height", "line-height", "border-radius", "padding-left", "color" })
-        {
-            Assert.Equal(
-                Property(navCss, ".nav-item ::deep a", property),
-                Property(triggerCss, ".theme-trigger", property));
-        }
+    [Fact]
+    public void TheControlLivesOnTheSettingsScreen()
+    {
+        // Where it went, asserted where it can actually be observed: rendered
+        // by the screen, rather than as a position in a list it is no longer in.
+        using var context = NewContext();
+
+        Assert.NotEmpty(context.Render<Settings>().FindAll(".appearance-option"));
     }
 }

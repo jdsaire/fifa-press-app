@@ -6,11 +6,18 @@
    the front door.
 
    Note what is deliberately absent: no access status, no request count. Access
-   belongs to the person and lives on My Access; scattering it across as many
+   belongs to the person and lives on the record; scattering it across as many
    screens as there are fixtures is precisely how the old app made "what changed
    about my access" unanswerable. A count of other people's requests tells the
    reader nothing about their own entitlement and implies a competition they
    cannot act on.
+
+   THE ONE THING THIS PAGE NOW READS FROM THE SESSION is whether there is one,
+   and it reads it here rather than in the card. A signed-out visitor cannot
+   request access to anything, so offering the control and failing on the far
+   side of it would be a dead end dressed as an affordance; a played fixture
+   cannot be requested by anyone, because it is over. Both of those are the
+   page's decisions to make, and each reaches the card as a plain bool.
 
    Fixtures whose kickoff has not passed arrive here with no team names on
    them — the data layer withholds them — so this page renders whatever label it
@@ -18,6 +25,7 @@
 
 @page "/matches"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
 @inject LocaleService L
 
 <PageTitle>@L[Locale, "matches.title"]</PageTitle>
@@ -71,6 +79,14 @@ else
                 <option value="@MatchStatusFilter.NotYetPlayed">@L[Locale, "matches.notYetPlayed"]</option>
             </select>
         </div>
+
+        <div class="matches__filter">
+            <label for="matches-availability">@L[Locale, "matches.availabilityLabel"]</label>
+            <select id="matches-availability" class="form-select" value="@availabilityFilter" @onchange="OnAvailabilityChanged">
+                <option value="@SlotAvailabilityFilter.All">@L[Locale, "matches.allAvailability"]</option>
+                <option value="@SlotAvailabilityFilter.WithSlotsAvailable">@L[Locale, "matches.withSlots"]</option>
+            </select>
+        </div>
     </div>
 
     @if (!loaded)
@@ -88,42 +104,48 @@ else
            multi-column layout costs nothing here — unlike the access record,
            which is sequential and stays a single column. *@
         <div class="row">
-            @foreach (var fixture in PagedFixtures)
+            @foreach (var fixture in VisibleFixtures)
             {
                 <div class="col-12 col-md-6" @key="fixture.MatchNumber">
                     <div class="matches__item">
-                        <EventCard EventName="@FixtureLabels.Display(L, Locale, fixture)"
-                                   EventDate="fixture.KickoffLocal"
-                                   Location="@($"{fixture.Venue}, {fixture.City}")"
-                                   ReadOnly="true"
-                                   AllowEdit="false" />
-                        <p class="matches__meta">
-                            <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture) ·
-                            <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("HH:mm")</time>
-                            @fixture.TimeZoneLabel
-                        </p>
-                        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{fixture.MatchNumber}")">@L[Locale, "matches.viewDetails"]</NavLink>
-                        <NavLink class="btn btn-primary btn-sm" href="@($"request/{fixture.MatchNumber}")">@L[Locale, "matches.requestAccess"]</NavLink>
+                        @* The gate is computed here and handed down as a plain
+                           bool. MatchCard is deliberately unable to work it out
+                           for itself — see its own note. *@
+                        <MatchCard MatchNumber="fixture.MatchNumber"
+                                   Name="@FixtureLabels.Display(L, Locale, fixture)"
+                                   Kickoff="fixture.KickoffLocal"
+                                   TimeZoneLabel="@fixture.TimeZoneLabel"
+                                   Venue="@fixture.Venue"
+                                   City="@fixture.City"
+                                   Phase="@FixtureLabels.Phase(L, Locale, fixture)"
+                                   IsPlayed="fixture.IsResolved"
+                                   SlotsRemaining="fixture.SlotsRemaining"
+                                   CanRequest="Session.IsSignedIn"
+                                   RequestPending="pendingMatches.Contains(fixture.MatchNumber)" />
                     </div>
                 </div>
             }
         </div>
     }
 
-    @if (TotalPages > 1)
+    @if (loaded && FilteredFixtures.Count > 0)
     {
-        <nav aria-label="@L[Locale, "matches.pagesLabel"]" class="mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageNumber = i;
-                <button type="button"
-                        class="btn btn-sm me-1 mb-1 @(pageNumber == currentPage ? "btn-primary" : "btn-outline-primary")"
-                        aria-current="@(pageNumber == currentPage ? "page" : null)"
-                        @onclick="() => currentPage = pageNumber">
-                    @pageNumber
-                </button>
-            }
-        </nav>
+        @* The count is announced rather than only shown. Pressing "Show more"
+           moves nothing that was already on screen and adds twelve rows below
+           the fold, so a screen-reader user gets no notification at all unless
+           the count says what just happened — which is the whole reason this
+           line is polite rather than decorative. *@
+        <p class="matches__count" aria-live="polite">
+            @L.Format(Locale, "matches.showingCount",
+                ("shown", VisibleFixtures.Count), ("total", FilteredFixtures.Count))
+        </p>
+
+        @if (VisibleFixtures.Count < FilteredFixtures.Count)
+        {
+            <button type="button" class="btn btn-outline-primary matches__show-more" @onclick="ShowMore">
+                @L[Locale, "matches.showMore"]
+            </button>
+        }
     }
 }
 
@@ -131,13 +153,47 @@ else
     [CascadingParameter]
     public AppLocale Locale { get; set; }
 
-    private const int PageSize = 10;
+    /// <summary>
+    /// How many more fixtures each press reveals — and, since nothing is ever
+    /// hidden again, how many are on screen to begin with.
+    ///
+    /// <para>
+    /// Twelve rather than ShopEase's six, because that list holds twelve
+    /// products and this one holds a hundred and four fixtures, and twelve is
+    /// one row-pair at the existing col-md-6 breakpoint. Nine presses reach the
+    /// end, which is deliberate friction: the intent is to make filtering more
+    /// attractive than paging, and a show-all button would remove the reason to
+    /// filter at all.
+    /// </para>
+    /// </summary>
+    private const int PageSize = 12;
 
     private IReadOnlyList<Fixture> allFixtures = [];
     private string searchTerm = string.Empty;
     private string groupSelection = FixtureQuery.AllGroups;
     private MatchStatusFilter statusFilter = MatchStatusFilter.All;
-    private int currentPage = 1;
+    private SlotAvailabilityFilter availabilityFilter = SlotAvailabilityFilter.All;
+
+    /// <summary>
+    /// Which fixtures the signed-in holder already has a request pending for.
+    ///
+    /// <para>
+    /// Computed once, here, and handed down as a plain bool per card — the card
+    /// itself gains no session awareness for this, exactly as it gained none
+    /// for the request gate. And the answer comes from the provider's own fold
+    /// rather than from a second one written on this page: a match list that
+    /// disagreed with the record about what somebody had asked for would be the
+    /// precise failure the record exists to prevent.
+    /// </para>
+    ///
+    /// <para>
+    /// It is a line of status, not a control. Withdrawing stays a single
+    /// affordance on the record, which is the screen that lists what is pending
+    /// and the only one where the action makes sense.
+    /// </para>
+    /// </summary>
+    private HashSet<int> pendingMatches = [];
+    private int visibleCount = PageSize;
     private DateTime lastSyncedUtc;
     private bool loaded;
     private bool loadFailed;
@@ -157,6 +213,12 @@ else
             // is a load that did not work, and saying so is more useful than
             // rendering a blank list.
             loadFailed = allFixtures.Count == 0;
+
+            pendingMatches = Session.CredentialId is string credentialId
+                ? [.. allFixtures
+                    .Select(fixture => fixture.MatchNumber)
+                    .Where(number => Access.GetMatchAccessStatus(credentialId, number) == MatchAccessStatus.Requested)]
+                : [];
         }
         catch (Exception)
         {
@@ -181,26 +243,26 @@ else
     // about how it matches was reconsidered. The filters narrow what it
     // returns; they never alter what it matches.
     private List<Fixture> FilteredFixtures =>
-        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale);
+        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale, availabilityFilter);
 
-    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
+    private List<Fixture> VisibleFixtures => FilteredFixtures.Take(visibleCount).ToList();
 
-    private List<Fixture> PagedFixtures =>
-        FilteredFixtures.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+    private void ShowMore() => visibleCount += PageSize;
 
     private void OnSearchInput(ChangeEventArgs e)
     {
         searchTerm = e.Value?.ToString() ?? string.Empty;
-        currentPage = 1;
+        visibleCount = PageSize;
     }
 
-    // Every control resets to the first page, for the same reason search always
-    // did: page 4 of a list that now has one page is a blank screen that looks
-    // like a bug.
+    // Every control resets the visible count, for the same reason each used to
+    // reset the page: a narrowed list that inherited an expanded count would
+    // show everything it has and hide the control that says so, leaving no
+    // sign that the list is complete.
     private void OnGroupChanged(ChangeEventArgs e)
     {
         groupSelection = e.Value?.ToString() ?? FixtureQuery.AllGroups;
-        currentPage = 1;
+        visibleCount = PageSize;
     }
 
     private void OnStatusChanged(ChangeEventArgs e)
@@ -208,7 +270,15 @@ else
         statusFilter = Enum.TryParse<MatchStatusFilter>(e.Value?.ToString(), out var parsed)
             ? parsed
             : MatchStatusFilter.All;
-        currentPage = 1;
+        visibleCount = PageSize;
+    }
+
+    private void OnAvailabilityChanged(ChangeEventArgs e)
+    {
+        availabilityFilter = Enum.TryParse<SlotAvailabilityFilter>(e.Value?.ToString(), out var parsed)
+            ? parsed
+            : SlotAvailabilityFilter.All;
+        visibleCount = PageSize;
     }
 
     /// <summary>
@@ -242,6 +312,14 @@ else
             else if (statusFilter == MatchStatusFilter.NotYetPlayed)
             {
                 active.Add(L[Locale, "matches.controlNotPlayed"]);
+            }
+
+            // The empty state enumerates what is narrowing the list, so a
+            // control missing from here would leave a reader looking at an
+            // empty screen with one of the reasons for it unnamed.
+            if (availabilityFilter == SlotAvailabilityFilter.WithSlotsAvailable)
+            {
+                active.Add(L[Locale, "matches.controlWithSlots"]);
             }
 
             return active;

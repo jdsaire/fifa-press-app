@@ -13,40 +13,13 @@
     max-width: 42rem;
 }
 
-/* Equally weighted, per 10 §6.2's third item — same width, same treatment,
-   neither one styled as the primary path. The only difference is that one
-   carries a button because it leads to a form and the other carries links
-   because it leads to reading. */
-.landing__entries {
-    display: grid;
-    gap: var(--space-4);
+/* One way on, and it is the only control on the page. The two equally-weighted
+   entry blocks that used to sit here are gone with the section they styled —
+   this is a single primary action, so it is styled as one rather than as a pair
+   that had to be kept from out-ranking each other. */
+.landing__cta {
+    display: inline-block;
     margin-bottom: var(--space-4);
-}
-
-@media (min-width: 641px) {
-    .landing__entries {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-.landing__entry h2 {
-    font-size: var(--font-size-heading-3);
-}
-
-.landing__public-links {
-    margin-bottom: 0;
-}
-
-.landing__what-you-get {
-    max-width: 42rem;
-}
-
-.landing__what-you-get h2 {
-    font-size: var(--font-size-heading-3);
-}
-
-.landing__what-you-get li {
-    margin-bottom: var(--space-3);
 }
 
 /* A statement, not an alert: nothing went wrong. It sits above the heading

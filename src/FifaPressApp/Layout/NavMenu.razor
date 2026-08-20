@@ -1,7 +1,6 @@
 @implements IDisposable
 @inject SimulatedSessionProvider Session
 @inject LocaleService L
-@inject NavigationManager Navigation
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -10,85 +9,67 @@
            a person is looking at translates. *@
         <a class="navbar-brand" href="">@L[Locale, "app.name"]</a>
         <button title="@MenuTitle" class="navbar-toggler" @onclick="ToggleNavMenu"
-                aria-expanded="@(!collapseNavMenu)" aria-controls="nav-menu">
+                aria-expanded="@MenuExpanded" aria-controls="nav-menu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
 </div>
 
 <div id="nav-menu" class="@NavMenuCssClass nav-scrollable">
-    @if (Session.Current is DemoAccount holder)
-    {
-        @* Above the rows, and read-only. With two demo records whose whole
-           point is comparison, "which one am I looking at" is a question the
-           interface has to answer without being asked — and on every screen
-           except the record itself, nothing else on the page says. It is not a
-           menu and has no affordance beyond being read. *@
-        <div class="nav-session">
-            <span class="nav-session__label">@L[Locale, "nav.signedInAs"]</span>
-            <span class="nav-session__holder">@holder.HolderName</span>
-            <span class="nav-session__credential">@holder.CredentialId</span>
-        </div>
-    }
+    @* DESTINATIONS, AND NOTHING ELSE. This list used to end in a tail of
+       controls — language, theme, sign out — because those three had nowhere
+       better to be: the list is the same element at both breakpoints, so a row
+       added to it collapsed on a phone for free. That was a housing decision,
+       not a claim that a control belongs among sections, and the file said as
+       much at the time. They have a home of their own now (Settings, and the
+       session row above the content column), so the exception closes and the
+       list is what it always said it should be.
 
-    @* Three destinations, then the controls. Sign in is not among the
-       destinations — it is a door, not a section. It used to be true that it
-       gated nothing; it gates the record now, and the row order says so by
-       keeping the destinations contiguous at the top and grouping the two
-       state-not-destination controls at the bottom. *@
+       Sign in is still not among the destinations — it is a door, not a
+       section. That row gated nothing when the line was written; it
+       gates the record now, and the conditional row below says so by
+       appearing only once there is a record to look at. *@
     <nav class="nav flex-column">
-        @* href="record", and no Match override. The empty href this row used to
-           carry needed Match="NavLinkMatch.All" only because an empty prefix
-           matches every address in the app; a real path gets a correct active
-           state from ordinary prefix matching. *@
+        @* The root, and the only row that needs a match override: an empty
+           href prefix-matches every address in the app, so ordinary prefix
+           matching would leave this row active everywhere. The row that used
+           to carry the override did so as a workaround for pointing at the
+           root while meaning the record; this one points at the root and means
+           it. *@
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="record">
-                @L[Locale, "nav.record"]
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <Icon Name="home" />@L[Locale, "nav.home"]
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="matches">
-                @L[Locale, "nav.matches"]
+                <Icon Name="matches" />@L[Locale, "nav.matches"]
             </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="help">
-                @L[Locale, "nav.help"]
-            </NavLink>
-        </div>
-        @* The two appearance-and-language controls, in the non-destination tail
-           below the three destinations. Language sits above theme; both are
-           controls rather than destinations, so neither is a NavLink and no
-           active state can ever apply to either. They are in the list rather
-           than above the content column because this list is already the same
-           element at both breakpoints — a row added to it collapses on a phone
-           for free.
-
-           SWITCHING LANGUAGE DOES NOT END THE SESSION. 11 §5.3 says it does,
-           deriving that from a locale-triggered reload — but §5.2 decided
-           Option B, an in-session re-render with no reload, so the premise does
-           not hold. There is nothing here that could end a session, and the
-           language switch's own UI therefore has nothing to warn anyone about.
-           Reported as a discrepancy rather than resolved by editing a Final
-           file. *@
-        <div class="nav-item px-3">
-            <LanguageSwitch />
-        </div>
-        <div class="nav-item px-3">
-            <ThemeTrigger />
         </div>
         @if (Session.IsSignedIn)
         {
-            @* Fifth and last, below the theme row. No confirmation dialog:
-               there is nothing to lose, and a modal guarding a simulated
-               session would be theatre. *@
+            @* Conditional, and third rather than appended at the end: it is a
+               destination like the ones around it, and a signed-in person's
+               requests belong beside the matches those requests are for. A
+               signed-out visitor sees exactly four rows, which is the set the
+               dossier describes; the fifth appears only when there is
+               something behind it. *@
             <div class="nav-item px-3">
-                <button type="button" class="nav-signout" @onclick="SignOut">
-                    <span class="nav-signout__icon" aria-hidden="true">⇥</span>
-                    <span class="nav-signout__label">@L[Locale, "nav.signOut"]</span>
-                </button>
+                <NavLink class="nav-link" href="record">
+                    <Icon Name="record" />@L[Locale, "nav.record"]
+                </NavLink>
             </div>
         }
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="help">
+                <Icon Name="help" />@L[Locale, "nav.help"]
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="settings">
+                <Icon Name="settings" />@L[Locale, "nav.settings"]
+            </NavLink>
+        </div>
     </nav>
 </div>
 
@@ -105,29 +86,26 @@
     // compiler should not have to be trusted with.
     private string MenuTitle => L[Locale, "nav.menu"];
 
+    /// <summary>
+    /// The literal word rather than a bool, for the same reason MenuTitle is a
+    /// property: Blazor renders a bool attribute present-and-empty, so
+    /// aria-expanded carried no value a screen reader could read.
+    /// </summary>
+    private string MenuExpanded => collapseNavMenu ? "false" : "true";
+
     protected override void OnInitialized() => Session.OnChanged += Refresh;
 
     public void Dispose() => Session.OnChanged -= Refresh;
 
     /// <summary>
-    /// The session changes from the sign-in screen, which is not this
-    /// component's child and cannot tell it directly. Subscribing is what keeps
-    /// the indicator and the sign-out row from being a render behind.
+    /// The session changes from a form this component does not own and cannot
+    /// be told about directly. Subscribing is what keeps the conditional row
+    /// from being a render behind the session it depends on.
     /// </summary>
     private void Refresh() => InvokeAsync(StateHasChanged);
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
-    }
-
-    private void SignOut()
-    {
-        Session.SignOut();
-
-        // Back to the public landing, which is where a person with no session
-        // belongs — and it announces that the sign-out happened rather than
-        // leaving them to infer it from a changed sidebar.
-        Navigation.NavigateTo("");
     }
 }

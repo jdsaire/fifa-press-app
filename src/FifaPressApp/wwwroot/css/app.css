@@ -202,6 +202,250 @@ a, .btn-link {
 }
 
 /* ==========================================================================
+   The session row
+   ========================================================================== */
+
+/* Scoped to main deliberately. `.top-row` is also the sidebar's own mobile
+   header, styled in NavMenu.razor.css — a bare `.top-row` rule here would reach
+   into that component and restyle it from a file it does not read. The child
+   combinator keeps this rule on the one element it was written for. */
+main > .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    min-height: 3.5rem;
+    border-bottom: 1px solid var(--color-stale-text);
+}
+
+/* DISABLED, ON PURPOSE, AFTER VISUAL REVIEW — not deleted. The sidebar stays
+   fixed at desktop and tablet widths per the principal's own inspection; the
+   toggle is kept out of view rather than torn out so the feature can return
+   later without rebuilding it. The button, its click handler, the
+   sidebarHidden state, aria-expanded wiring, and both tests in
+   ThemeTriggerPlacementTests all still exist and still work — only visibility
+   changed. To bring it back: restore the `display: inline-flex` rule inside
+   the min-width: 641px media query directly below this comment, matching what
+   this block looked like before this note was added. */
+.top-row__sidebar-toggle {
+    display: none;
+    margin-right: auto;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    background: none;
+    color: var(--color-text);
+    line-height: 1;
+    cursor: pointer;
+}
+
+.top-row__sidebar-toggle:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
+}
+
+.top-row__sidebar-toggle:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+}
+
+.top-row__sidebar-toggle-icon {
+    font-size: var(--font-size-body);
+}
+
+@media (min-width: 641px) {
+    /* .top-row__sidebar-toggle { display: inline-flex; } — commented out
+       rather than removed; see the note above the base rule. */
+}
+
+.session-bar {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-size: var(--font-size-small);
+}
+
+.session-bar__holder {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+}
+
+/* Quieter than the name it introduces, so the eye lands on "who" rather than
+   on "signed in as". */
+.session-bar__label {
+    color: var(--color-stale-text);
+}
+
+.session-bar__name {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.session-bar__credential {
+    color: var(--color-stale-text);
+}
+
+/* A button that reads as a link, because ending a simulated session is not a
+   primary action and a filled button here would out-rank the page's own. */
+.session-bar__signout {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+/* Sized and coloured by the same .btn-outline-primary .btn-sm pair the match
+   list uses for "View details", so the two read as one control vocabulary.
+   Nothing is redeclared here — only the spacing that keeps it off the edge. */
+.session-bar__signin {
+    margin-left: var(--space-2);
+}
+
+/* ==========================================================================
+   The match card
+   ========================================================================== */
+
+.match-card__name {
+    font-size: var(--font-size-heading-3);
+}
+
+.match-card__meta,
+.match-card__where,
+.match-card__when {
+    font-size: var(--font-size-small);
+}
+
+/* Capacity reads as a fact about the fixture, not as an alarm. Sold out is the
+   one state worth a colour, and it is the app's danger token rather than a new
+   one, because "you cannot get in" is the same category of news the record
+   already uses that colour for. */
+.match-card__slots {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+}
+
+/* A statement about the reader's own record, so it reads as a link back to it
+   rather than as another control on the card. */
+.match-card__pending {
+    font-size: var(--font-size-small);
+}
+
+.match-card__slots--none {
+    color: var(--color-danger-surface);
+    font-weight: 600;
+}
+
+/* The count line and the control that changes it. The count is a statement
+   about the list, so it reads quietly; the button is the only thing below the
+   grid, so it does not compete with the cards above it. */
+.matches__count {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-bottom: var(--space-2);
+}
+
+.matches__show-more {
+    margin-bottom: var(--space-4);
+}
+
+/* ==========================================================================
+   Settings fields
+   ========================================================================== */
+
+.settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 32rem;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.settings-field__label {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.settings-field__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* A value, not a control. It carries no border and no box, because a read-only
+   field dressed as an input is an invitation to type into something that will
+   not keep what you typed. */
+.settings-field__value {
+    margin: 0;
+    color: var(--color-text);
+}
+
+.settings__signout {
+    align-self: flex-start;
+}
+
+/* The three appearance states, shaped as one control rather than three loose
+   buttons: the current one is marked rather than removed, so the field always
+   has the same shape and a screen reader is told which is active instead of
+   inferring it from what is missing. */
+.appearance-option {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-stale-text);
+    border-radius: var(--radius-default);
+    background: none;
+    color: var(--color-text);
+    font-size: var(--font-size-small);
+    cursor: pointer;
+}
+
+/* The glyph beside each option's label. "System" ships both a laptop and a
+   phone and the breakpoint decides which is true for the device in hand — the
+   same 641px the rest of the app turns on, so there is one answer to "is this a
+   phone" rather than a CSS one and a JavaScript one that can disagree. */
+.appearance-option__icon {
+    display: inline-flex;
+}
+
+.appearance-option__icon--wide {
+    display: none;
+}
+
+@media (min-width: 641px) {
+    .appearance-option__icon--wide {
+        display: inline-flex;
+    }
+
+    .appearance-option__icon--narrow {
+        display: none;
+    }
+}
+
+.appearance-option--current {
+    background-color: var(--color-action-primary);
+    border-color: var(--color-action-primary-border);
+    color: var(--color-action-primary-text);
+}
+
+.appearance-option:disabled {
+    cursor: default;
+    opacity: 0.6;
+}
+
+.appearance-option:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
    Forms
    ========================================================================== */
 

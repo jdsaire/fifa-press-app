@@ -1,0 +1,170 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject LocaleService L
+
+@* The appearance control.
+   ------------------------------------------------------------------------
+   Three states, where its predecessor had two. ThemeTrigger was a strict binary
+   toggle — dark becomes light, light becomes dark — and "system" existed only
+   as an unstored fallback when no explicit choice had ever been made: a state
+   the app could be in, but never one a person could choose and return to. This
+   control makes it selectable, which is the one genuinely new mechanism on this
+   screen.
+
+   NO JAVASCRIPT WAS ADDED FOR IT. `theme.js` already exported
+   `clearStoredTheme()`, and had done since the interop layer was written, with
+   no caller anywhere in the app. "System" is not a third stored value —
+   `isTheme()` narrows to 'light' | 'dark' and nothing else, and a null stored
+   value is precisely what *means* "no explicit choice, defer to
+   prefers-color-scheme". So the tri-state maps onto the existing module
+   exactly: two states store, the third clears.
+
+   Clearing is paired with applyTheme(null), which removes the data-theme
+   attribute the previous choice left on the document. Without it, choosing
+   System would clear the stored preference while the overridden theme stayed on
+   screen until a reload — a control that reports one thing and shows another.
+
+   THREE BUTTONS RATHER THAN A DROPDOWN, and that is the same argument the
+   language control just lost, applied correctly to the control it actually
+   fits: a picker's affordance exists to manage a list too long to show, and
+   three is not that. Language moved to a dropdown because it moved beside
+   labelled fields on a settings screen; Appearance keeps its buttons because
+   the three states are mutually exclusive, permanent, and worth showing at
+   once.
+
+   Until the module has loaded the buttons render disabled rather than absent,
+   so the field does not change height underneath the screen the moment the app
+   finishes starting. *@
+
+<div class="settings-field" role="radiogroup" aria-label="@L[Locale, "settings.appearance"]">
+    <span class="settings-field__label">@L[Locale, "settings.appearance"]</span>
+    <div class="settings-field__options">
+        @foreach (var (value, key) in Options)
+        {
+            <button type="button"
+                    class="appearance-option @(value == current ? "appearance-option--current" : null)"
+                    aria-pressed="@(value == current ? "true" : "false")"
+                    disabled="@(!isReady)"
+                    @onclick="() => SetAsync(value)">
+                @* Decorative, like every glyph in this app: the label beside it
+                   already says which state this is. "System" carries two — a
+                   laptop and a phone — and shows whichever matches the device
+                   being read on, because "follow the system" means a different
+                   machine depending on where you are. Both are in the markup and
+                   the stylesheet picks; a JS breakpoint read would be a second
+                   source of truth about the same media query. *@
+                @if (value == "system")
+                {
+                    <span class="appearance-option__icon appearance-option__icon--wide"><Icon Name="system" /></span>
+                    <span class="appearance-option__icon appearance-option__icon--narrow"><Icon Name="phone" /></span>
+                }
+                else
+                {
+                    <span class="appearance-option__icon"><Icon Name="@(value == "light" ? "sun" : "moon")" /></span>
+                }
+                @L[Locale, key]
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    /// <summary>
+    /// The three states, in the order a person reasons about them: the default
+    /// first, then the two ways to override it.
+    /// </summary>
+    private static readonly (string Value, string Key)[] Options =
+    [
+        ("system", "settings.appearanceSystem"),
+        ("light", "settings.appearanceLight"),
+        ("dark", "settings.appearanceDark"),
+    ];
+
+    private IJSObjectReference? module;
+    private string current = "system";
+    private bool isReady;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "./js/theme.js");
+
+            // A stored value is an explicit choice and wins. Its absence is not
+            // a missing value to fill in — it is the third state, and reading
+            // it as "system" is what makes that state selectable rather than
+            // merely reachable.
+            var stored = await module.InvokeAsync<string?>("getStoredTheme");
+            current = stored ?? "system";
+
+            if (stored is not null)
+            {
+                await module.InvokeVoidAsync("applyTheme", stored);
+            }
+
+            isReady = true;
+            StateHasChanged();
+        }
+        catch (JSException)
+        {
+            // Without the module the app still renders in the system theme;
+            // only the ability to override it is lost. That degrades quietly
+            // rather than surfacing as an error.
+            isReady = false;
+        }
+    }
+
+    private async Task SetAsync(string value)
+    {
+        if (module is null)
+        {
+            return;
+        }
+
+        current = value;
+
+        if (value == "system")
+        {
+            // Clear the choice, then take the override off the document so the
+            // stylesheet's own media query is what decides again.
+            await module.InvokeVoidAsync("clearStoredTheme");
+
+            // The argument array is explicit because a bare null binds to the
+            // params array itself rather than to a single null argument, which
+            // would call applyTheme() with no arguments at all. It happens to
+            // reach the same branch, and relying on that would be relying on an
+            // accident.
+            await module.InvokeVoidAsync("applyTheme", [(object?)null]);
+            return;
+        }
+
+        // Applied and stored together. Storing it is what makes the choice
+        // outlast the session; applying it is what makes it outlast a system
+        // preference change during one.
+        await module.InvokeVoidAsync("applyTheme", value);
+        await module.InvokeVoidAsync("storeTheme", value);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (module is not null)
+        {
+            try
+            {
+                await module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // The page is going away; nothing to release.
+            }
+        }
+    }
+}

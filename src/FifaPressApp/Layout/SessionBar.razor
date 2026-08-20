@@ -1,0 +1,84 @@
+@implements IDisposable
+@inject SimulatedSessionProvider Session
+@inject LocaleService L
+@inject NavigationManager Navigation
+
+@* The session bar — who is signed in, on every screen, at every breakpoint.
+   ------------------------------------------------------------------------
+   This is where the sidebar's `nav-session` block went, and the move is the
+   point. The reasoning that put the indicator in the sidebar was right — with
+   two demo records whose whole point is comparison, "which one am I looking at"
+   is a question the interface has to answer without being asked — but the
+   sidebar collapses on a phone, so the one place the question is hardest to
+   answer was the one place nothing answered it. A row above the content column
+   does not collapse.
+
+   THE INDICATOR IS NOT A LINK, and that is carried over deliberately: it is a
+   statement of fact, not a door. The door is the nav row below it. Everything
+   inside the signed-in branch is text, which is what keeps the read-only
+   property the retired block had and the tests still assert.
+
+   THE NAME IS GENERIC, DELIBERATELY. Both demo records carry a persona name
+   internally — the record and its own tests need one, and changing it there
+   would touch data outside this run's scope — but nothing on screen shows
+   either. The credential ID differentiates the two holders without naming
+   which is which, which is all the bar ever needed to demonstrate: which
+   record you are looking at, not who it belongs to.
+
+   Signed out it holds exactly one thing: a way in. It points at `/record`
+   rather than at a sign-in route of its own, because `/record` is the
+   conditional surface that renders the sign-in experience to a visitor with no
+   session and the record to one with a session.
+
+   Sign-out appears here and in Settings, and that is not a duplication defect:
+   a duplicated status indicator can disagree with itself, a duplicated action
+   cannot. Both call the same method and navigate to the same place. *@
+
+<div class="session-bar">
+    @if (Session.Current is DemoAccount holder)
+    {
+        <div class="session-bar__holder">
+            <span class="session-bar__label">@L[Locale, "nav.signedInAs"]</span>
+            <span class="session-bar__name">@L[Locale, "record.genericHolderName"]</span>
+            <span class="session-bar__credential">@holder.CredentialId</span>
+        </div>
+        <button type="button" class="session-bar__signout" @onclick="SignOut">
+            @L[Locale, "nav.signOut"]
+        </button>
+    }
+    else
+    {
+        @* A button, in the same outline register as the match list's "View
+           details" — it is a way somewhere, not a sentence, and an underlined
+           link in a bar of chrome read as body text that happened to be blue. *@
+        <NavLink class="btn btn-outline-primary btn-sm session-bar__signin" href="record">
+            @L[Locale, "nav.signIn"]
+        </NavLink>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    protected override void OnInitialized() => Session.OnChanged += Refresh;
+
+    public void Dispose() => Session.OnChanged -= Refresh;
+
+    /// <summary>
+    /// The session changes from a form this component does not own and cannot
+    /// be told about directly. Subscribing is what keeps the bar from being a
+    /// render behind the thing it reports.
+    /// </summary>
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    private void SignOut()
+    {
+        Session.SignOut();
+
+        // Back to the public landing, which announces that the sign-out
+        // happened rather than leaving a person to infer it from a bar that
+        // quietly changed shape. Identical to Settings' own sign-out.
+        Navigation.NavigateTo("");
+    }
+}

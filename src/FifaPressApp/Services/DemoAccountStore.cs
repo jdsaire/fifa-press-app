@@ -4,10 +4,25 @@ namespace FifaPressApp.Services;
 /// One published demo account.
 /// </summary>
 /// <param name="Identifier">
-/// What the person types into the identifier field. The credential number, which
-/// is also what the record is keyed by — one fewer invented value to keep in
-/// sync, and it makes the connection between the sign-in and the record visible
-/// rather than magic.
+/// What the person types into the identifier field.
+///
+/// <para>
+/// It used to be the credential number itself, on the reasoning that this was
+/// one fewer invented value to keep in sync and made the connection between the
+/// sign-in and the record visible rather than magic. Both halves of that were
+/// true and neither survives contact with a person reading the screen:
+/// <c>MP-2026-04817</c> is not something anyone types from memory, and the
+/// connection it made visible was visible to a reader of this file rather than
+/// to a reader of the sign-in form.
+/// </para>
+///
+/// <para>
+/// <b>Nothing is keyed by this value.</b> The record is keyed by
+/// <see cref="CredentialId"/>, which is unchanged and still carries the
+/// credential number — so this rename is confined to what a person types, and
+/// there is no second mapping to keep in sync, because there is no mapping: the
+/// account carries both values and hands the right one to whoever asks.
+/// </para>
 /// </param>
 /// <param name="Password">
 /// Published on the sign-in screen in plain text, because it is not a secret and
@@ -15,22 +30,11 @@ namespace FifaPressApp.Services;
 /// </param>
 /// <param name="CredentialId">The record this account opens.</param>
 /// <param name="HolderName">Whose record it is, for the published list.</param>
-/// <param name="DescriptionKey">
-/// The resource key for one line saying what makes this record worth looking at
-/// next to the other. This is the part that makes two accounts a demonstration
-/// rather than two accounts: a person should be told what the difference is
-/// before they go looking for it.
-///
-/// A key rather than the sentence itself, because the sentence is interface
-/// copy on the sign-in screen and has to render in whichever of the three
-/// languages the reader is in.
-/// </param>
 public sealed record DemoAccount(
     string Identifier,
     string Password,
     string CredentialId,
-    string HolderName,
-    string DescriptionKey);
+    string HolderName);
 
 /// <summary>
 /// The two demo accounts, and the only credential check this app performs.
@@ -63,11 +67,10 @@ public sealed class DemoAccountStore
     /// change interrupts her.
     /// </summary>
     public static readonly DemoAccount Amina = new(
-        Identifier: "MP-2026-04817",
-        Password: "amina-demo-2026",
+        Identifier: "demo_staff1",
+        Password: "Demo#2026Staff1",
         CredentialId: "MP-2026-04817",
-        HolderName: "Amina Bello",
-        DescriptionKey: "signIn.accountAmina");
+        HolderName: "Amina Bello");
 
     /// <summary>
     /// Tomás's record: the rights-holder with a named contact, so his ceiling is
@@ -75,11 +78,10 @@ public sealed class DemoAccountStore
     /// without interrupting him.
     /// </summary>
     public static readonly DemoAccount Tomas = new(
-        Identifier: "RH-2026-00219",
-        Password: "tomas-demo-2026",
+        Identifier: "demo_staff2",
+        Password: "Demo#2026Staff2",
         CredentialId: "RH-2026-00219",
-        HolderName: "Tomás L.",
-        DescriptionKey: "signIn.accountTomas");
+        HolderName: "Tomás L.");
 
     /// <summary>
     /// Both accounts, in the order the sign-in screen publishes them. Amina

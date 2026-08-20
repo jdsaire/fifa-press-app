@@ -18,8 +18,14 @@
    this app does not have, so they are gone rather than restyled. The nav items
    carry their labels alone. */
 
+/* Body size, not small. These are the app's primary destinations and they sat
+   two steps below the text of the screens they lead to — 0.875rem against a
+   1rem working area — which read as a caption rather than as navigation. A
+   destination label has no reason to be quieter than the content behind it, and
+   at this size it also clears the 1rem floor comfortably for anyone enlarging
+   text. */
 .nav-item {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-body);
     padding-bottom: var(--space-2);
 }
 
@@ -71,63 +77,15 @@
     }
 }
 
-/* The session indicator. Above the rows, quieter than any of them, and not
-   interactive — the label is smaller and dimmer than the name it introduces,
-   so the eye lands on "who" rather than on "signed in as". Both colours come
-   from the sidebar's own tokens, which are checked against the gradient rather
-   than against the page surface. */
-.nav-session {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-3) var(--space-3) 0;
-    font-size: var(--font-size-small);
-}
-
-.nav-session__label {
-    color: var(--color-nav-item);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.nav-session__holder {
-    color: var(--color-sidebar-text);
-    font-weight: 700;
-}
-
-.nav-session__credential {
-    color: var(--color-nav-item);
-    font-variant-numeric: tabular-nums;
-}
-
-/* The sign-out row, shaped like the theme row above it and like the three
-   destinations above that. Same reasoning as ThemeTrigger.razor.css: this is a
-   control, never a destination, so it carries no active state — but unlike the
-   theme trigger it lives here, because it has no component of its own. */
-.nav-signout {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    width: 100%;
-    height: 3rem;
-    line-height: 3rem;
-    padding-left: var(--space-2);
-    background: none;
-    border: none;
-    border-radius: var(--radius-default);
-    color: var(--color-nav-item);
-    font-size: var(--font-size-small);
-    text-align: left;
-    cursor: pointer;
-}
-
-.nav-signout:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--color-sidebar-text);
-}
-
-.nav-signout:focus-visible {
-    outline: 2px solid var(--color-focus-ring);
-    outline-offset: -2px;
+/* The glyph beside each destination's label. Decorative, so it is spaced like
+   punctuation rather than aligned like a column: the label is what the row is,
+   and the icon sits next to it without claiming a gutter of its own. */
+/* Scaled with the label it sits beside. The glyph carries its own width and
+   height attributes at 16px — CSS outranks them, so the icon grows here without
+   Icon.razor's contract changing for the match surfaces that still want 16. */
+.nav-item ::deep svg.icon {
+    width: 20px;
+    height: 20px;
+    margin-right: var(--space-2);
+    flex: none;
 }

@@ -1,6 +1,8 @@
+using System.Text.RegularExpressions;
 using Bunit;
 using FifaPressApp.Components;
 using FifaPressApp.Models;
+using FifaPressApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -16,6 +18,15 @@ public class IconTests
     [InlineData("date")]
     [InlineData("location")]
     [InlineData("phase")]
+    [InlineData("home")]
+    [InlineData("matches")]
+    [InlineData("record")]
+    [InlineData("help")]
+    [InlineData("settings")]
+    [InlineData("system")]
+    [InlineData("phone")]
+    [InlineData("sun")]
+    [InlineData("moon")]
     public void EveryIconIsDecorativeAndInheritsItsColour(string name)
     {
         using var context = new BunitContext();
@@ -33,6 +44,26 @@ public class IconTests
         Assert.Equal("currentColor", svg.GetAttribute("stroke"));
         Assert.DoesNotContain("#", icon.Markup);
         Assert.DoesNotContain("rgb", icon.Markup);
+    }
+
+    [Fact]
+    public void TheNavigationLabelsAreNotQuieterThanTheContentTheyLeadTo()
+    {
+        // They were 0.875rem against a 1rem working area, which read as a
+        // caption rather than as the app's primary destinations. Asserted
+        // against the stylesheet because that is where the decision lives.
+        var navCss = File.ReadAllText(Path.Combine(TestPaths.SourceRoot(), "Layout", "NavMenu.razor.css"));
+
+        var navItem = Regex.Match(navCss, @"\.nav-item \{(.*?)\}", RegexOptions.Singleline);
+        Assert.True(navItem.Success, ".nav-item was not found in NavMenu.razor.css");
+        Assert.Contains("--font-size-body", navItem.Groups[1].Value);
+        Assert.DoesNotContain("--font-size-small", navItem.Groups[1].Value);
+
+        // And the glyph grows with the label it sits beside.
+        var icon = Regex.Match(navCss, @"\.nav-item ::deep svg\.icon \{(.*?)\}", RegexOptions.Singleline);
+        Assert.True(icon.Success, "the nav icon rule was not found");
+        Assert.Contains("width: 20px", icon.Groups[1].Value);
+        Assert.Contains("height: 20px", icon.Groups[1].Value);
     }
 
     [Fact]
@@ -97,6 +128,11 @@ public class IconTests
 
         using var context = new BunitContext();
         context.WithLocale();
+        // EventList reads the session to decide whether a request control is
+        // offered at all, so the provider has to be registered even where the
+        // test is about an icon.
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
         context.Services.AddSingleton<FifaPressApp.Services.IAccessDataProvider>(
             new StubAccessDataProvider([fixture]));
 

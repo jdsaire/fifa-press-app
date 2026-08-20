@@ -78,6 +78,17 @@ public class LocaleServiceTests
             // identifies a thing rather than describing it to English, and this
             // is one — translating it would invent a department nobody can find.
             "help.contact.fifaStrong",
+
+            // Three countries whose names are spelled identically in English,
+            // Spanish and Portuguese. Same reasoning as phase.final directly
+            // above: a fact about the languages, not a translation somebody
+            // forgot. They are listed one by one rather than exempting the
+            // whole team.* namespace, so the other forty-five stay under the
+            // check — if "team.Germany" ever shipped as "Germany" in all three
+            // files, this test would still be the thing that caught it.
+            "team.Argentina",
+            "team.Portugal",
+            "team.Senegal",
         };
 
         foreach (var key in locale.Keys(AppLocale.En))
@@ -108,9 +119,9 @@ public class LocaleServiceTests
     }
 
     [Theory]
-    [InlineData(AppLocale.En, "My Access")]
-    [InlineData(AppLocale.Es, "Mi acceso")]
-    [InlineData(AppLocale.Pt, "Meu acesso")]
+    [InlineData(AppLocale.En, "My Requests")]
+    [InlineData(AppLocale.Es, "Mis solicitudes")]
+    [InlineData(AppLocale.Pt, "Minhas solicitações")]
     public void AStringResolvesInItsOwnLocale(AppLocale which, string expected)
     {
         Assert.Equal(expected, LocaleTestData.Loaded()[which, "nav.record"]);
@@ -121,7 +132,7 @@ public class LocaleServiceTests
     {
         // 11 §3's rule: a name that identifies the product stays English; a name
         // that identifies what a person is looking at translates. "FIFA Press
-        // App" is the first; "My Access" is the second, and the test above
+        // App" is the first; "My Requests" is the second, and the test above
         // covers it.
         var locale = LocaleTestData.Loaded();
 

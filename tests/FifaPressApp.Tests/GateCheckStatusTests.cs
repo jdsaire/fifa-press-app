@@ -28,7 +28,7 @@ public class GateCheckStatusTests
     private static async Task<SimulatedSessionProvider> AsAminaAsync()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         return session;
     }
 

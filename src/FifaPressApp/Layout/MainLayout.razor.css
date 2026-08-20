@@ -17,11 +17,12 @@ main {
         var(--color-sidebar-grad-end) 70%);
 }
 
-/* The theme strip that used to sit here is gone, not repurposed. It existed
-   because "top right at every breakpoint" and a left-hand sidebar are
-   incompatible instructions, so the control needed a home outside the sidebar.
-   That is no longer the instruction: the trigger is now a row in the nav list
-   itself, so main goes back to holding only the content column. */
+/* The theme strip that used to sit here is gone, not repurposed — appearance
+   is a Settings field now, and nothing about it lives in the layout. What sits
+   above the content column instead is the session row, which is a different
+   thing for a different reason: it reports state rather than changing it, and
+   it has to survive the breakpoint the sidebar does not. Its own rules live in
+   app.css beside the component they style. */
 
 @media (min-width: 641px) {
     .page {
@@ -33,6 +34,14 @@ main {
         height: 100vh;
         position: sticky;
         top: 0;
+    }
+
+    /* Hidden completely rather than narrowed to a rail: a rail would need its
+       own icon-only affordances and tooltips to stay readable, which is a
+       second navigation to keep correct. The content column simply takes the
+       width back. */
+    .page--sidebar-hidden .sidebar {
+        display: none;
     }
 
     article {

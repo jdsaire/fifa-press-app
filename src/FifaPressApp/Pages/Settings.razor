@@ -1,0 +1,93 @@
+@* Settings — the home the app's two controls never had.
+   ------------------------------------------------------------------------
+   Language and theme used to live in the tail of the navigation list, below
+   the destinations. That was a housing decision made because the list is the
+   same element at both breakpoints and a row added to it collapses on a phone
+   for free — not a claim that a control belongs among sections. This screen is
+   the home they were missing, so the nav becomes destinations-only and the
+   exception in its comment closes.
+
+   PUBLIC, AND THAT IS THE POINT. Appearance and language are choices about how
+   the app is read, not about what it will show you — a signed-out visitor has
+   exactly as much reason to change them as a signed-in one, and gating them
+   would gate the app's own legibility behind a simulated session.
+
+   Signed in, two more fields appear. There is no "sign in to see more" prompt
+   in their place: the two visible fields are complete and useful on their own,
+   and announcing the absence of the other two would manufacture a gap that does
+   not need calling out.
+
+   NO ROLE FIELD, DELIBERATELY. A holder's track is a derived precondition, not
+   a preference — Track.cs documents that there is no way to assign one and that
+   this is intentional. A Settings row that let a person pick their own track
+   would invent an entitlement system this app does not have and must not
+   imply. *@
+
+@implements IDisposable
+@page "/settings"
+@inject SimulatedSessionProvider Session
+@inject NavigationManager Navigation
+@inject LocaleService L
+
+<PageTitle>@L[Locale, "settings.title"]</PageTitle>
+
+<h1>@L[Locale, "settings.title"]</h1>
+
+<div class="settings">
+    @* Four fields do not need internal grouping, so there are no section
+       headings under the h1 — inventing structure the content does not ask for
+       is how a settings screen becomes a settings menu. *@
+    <AppearanceControl />
+
+    <LanguageSelect />
+
+    @if (Session.IsSignedIn)
+    {
+        @* Read-only, and not an oversight. There is no account system behind
+           this session to write a new name to, so an editable field would be
+           the interface lying about what it is.
+
+           GENERIC RATHER THAN THE ACCOUNT'S OWN NAME. Both demo accounts carry
+           a persona internally, but nothing on screen names either one — a
+           reader signed in to either sees the same label here, which is
+           correct: this is a generic test account, not somebody's identity. *@
+        <div class="settings-field">
+            <span class="settings-field__label">@L[Locale, "settings.name"]</span>
+            <p class="settings-field__value">@L[Locale, "record.genericHolderName"]</p>
+        </div>
+
+        <div class="settings-field">
+            @* The second of the two sign-out locations, the first being the
+               session row above the content column. A duplicated status
+               indicator can disagree with itself; a duplicated action cannot.
+               Both call the same method and land in the same place. *@
+            <button type="button" class="btn btn-outline-secondary settings__signout" @onclick="SignOut">
+                @L[Locale, "settings.signOut"]
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    protected override void OnInitialized() => Session.OnChanged += Refresh;
+
+    public void Dispose() => Session.OnChanged -= Refresh;
+
+    /// <summary>
+    /// Sign-out can also happen from the session row above the content column,
+    /// which is not this component's parent and cannot tell it directly.
+    /// </summary>
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    private void SignOut()
+    {
+        Session.SignOut();
+
+        // Home, which announces that the sign-out happened rather than leaving
+        // a person to infer it from a screen that quietly lost two fields.
+        Navigation.NavigateTo("");
+    }
+}

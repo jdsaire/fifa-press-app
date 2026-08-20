@@ -10,6 +10,15 @@
    precisely because it has no real content to defer to — so it states what the
    app does, that it is simulated, and how to proceed, and then stops.
 
+   HEADING, LEDE, ONE WAY ON. This screen used to carry two weighted entry
+   points and a three-point list of what a signed-in record shows. Both are
+   gone. The two-entry section was the front door doing the navigation's job,
+   and it stopped being true the moment sign-in became a persistent affordance
+   in the session row above every screen; the three-point list described the
+   record to people who had not asked to see it yet, on the one screen with no
+   room to be wrong about what a visitor came for. What is left is what the
+   register asks for: what this is, that it is a demonstration, and one way on.
+
    The demo credentials are deliberately NOT here. They belong beside the form
    they are typed into, one click away. A reviewer who lands on a credential
    dump learns what to type before learning what they are looking at, and
@@ -24,9 +33,9 @@
 
 @if (justSignedOut)
 {
-    @* Signing out says so. Leaving a person to infer it from a sidebar that
-       quietly lost two rows is the same class of silence this app exists to
-       replace, at a smaller scale. *@
+    @* Signing out says so. Leaving a person to infer it from a session row
+       that quietly stopped naming them is the same class of silence this app
+       exists to replace, at a smaller scale. *@
     <p class="landing__signed-out" role="status">
         <strong>@L[Locale, "landing.signedOutStrong"]</strong>
         @L[Locale, "landing.signedOutBody"]
@@ -42,40 +51,12 @@
     @L[Locale, "landing.disclosureBody"]
 </p>
 
-<div class="landing__entries">
-    <section class="landing__entry">
-        <h2>@L[Locale, "landing.signInHeading"]</h2>
-        <p>@L[Locale, "landing.signInBody"]</p>
-        <a class="btn btn-primary" href="signin">@L[Locale, "landing.signInCta"]</a>
-    </section>
-
-    <section class="landing__entry">
-        <h2>@L[Locale, "landing.browseHeading"]</h2>
-        <p>@L[Locale, "landing.browseBody"]</p>
-        <p class="landing__public-links">
-            <a href="matches">@L[Locale, "landing.browseMatches"]</a> ·
-            <a href="help">@L[Locale, "landing.browseHelp"]</a>
-        </p>
-    </section>
-</div>
-
-<section class="landing__what-you-get">
-    <h2>@L[Locale, "landing.whatYouGetHeading"]</h2>
-    <ul>
-        <li>
-            <strong>@L[Locale, "landing.point1Strong"]</strong>
-            @L[Locale, "landing.point1Body"]
-        </li>
-        <li>
-            <strong>@L[Locale, "landing.point2Strong"]</strong>
-            @L[Locale, "landing.point2Body"]
-        </li>
-        <li>
-            <strong>@L[Locale, "landing.point3Strong"]</strong>
-            @L[Locale, "landing.point3Body"]
-        </li>
-    </ul>
-</section>
+@* One way on, and it points at the matches rather than at the form. Sign-in
+   has a persistent door of its own now — the session row carries it on every
+   screen — so the front door does not need to be a second one, and a browse-
+   first CTA is the honest one for a visitor who has not yet been told what
+   there is to sign in for. *@
+<a class="btn btn-primary landing__cta" href="matches">@L[Locale, "landing.cta"]</a>
 
 @code {
     [CascadingParameter]

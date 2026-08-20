@@ -51,5 +51,14 @@ Records of each build run against this repo: the plan approved before the work s
   task-based re-audit) into `ux-ui/04-evaluation/`, then executes its four-item remediation scope: a
   status-logic fix, an accessibility fix, and a two-part Withdrawal affordance — open since v9, the
   first time it closes. Frontend, locale files, and documentation only. Tests: 409 → 421.
+- [`v14/`](v14/) — injects the completed `05-iteration` dossier (six gate deliverables) into
+  `ux-ui/05-iteration/`, then executes its sixteen-item commit sequence across four gated
+  workstreams: a persistent top bar, a Settings screen, a reduced Landing and condensed sign-in
+  notice with renamed demo identifiers, and a rebuilt match list with capacity, localization,
+  Show-more pagination, and a conditional `/record`. The Gate 4 stop's own live test then surfaced a
+  sign-in rejection, which three further approved addenda investigate and resolve: generic,
+  non-personal demo credentials; a real sign-in crash root-caused to one line and fixed, plus a
+  regression it had been masking; a ShopEase-parity layout pass; and a final round of surgical
+  fixes. Frontend, locale files, and documentation only. Tests: 421 → 512.
 
 Each version folder has its own README with more detail on what that run covered.

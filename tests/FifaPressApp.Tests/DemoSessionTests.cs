@@ -19,8 +19,12 @@ public class DemoSessionTests
     private static SimulatedSessionProvider NewSession() => new(new DemoAccountStore());
 
     [Fact]
-    public void BothPublishedAccountsAreListed_AndEachSaysWhatMakesItDifferent()
+    public void BothPublishedAccountsAreListed_AndEachSaysWhoseRecordItOpens()
     {
+        // The per-account description this used to require is retired with the
+        // keys that backed it. The holder's name replaces it as the thing that
+        // must not be blank: it is how a person tells which of the two lines
+        // they are about to type.
         var store = new DemoAccountStore();
 
         Assert.Equal(2, store.Published.Count);
@@ -28,7 +32,7 @@ public class DemoSessionTests
         {
             Assert.False(string.IsNullOrWhiteSpace(account.Identifier));
             Assert.False(string.IsNullOrWhiteSpace(account.Password));
-            Assert.False(string.IsNullOrWhiteSpace(account.DescriptionKey));
+            Assert.False(string.IsNullOrWhiteSpace(account.HolderName));
         });
 
         // Two accounts that opened the same record would demonstrate nothing.
@@ -36,8 +40,8 @@ public class DemoSessionTests
     }
 
     [Theory]
-    [InlineData("MP-2026-04817", "amina-demo-2026", "MP-2026-04817")]
-    [InlineData("RH-2026-00219", "tomas-demo-2026", "RH-2026-00219")]
+    [InlineData("demo_staff1", "Demo#2026Staff1", "MP-2026-04817")]
+    [InlineData("demo_staff2", "Demo#2026Staff2", "RH-2026-00219")]
     public void APublishedCredentialOpensItsOwnRecord(string identifier, string password, string credentialId)
     {
         var account = new DemoAccountStore().Match(identifier, password);
@@ -47,32 +51,33 @@ public class DemoSessionTests
     }
 
     [Theory]
-    [InlineData("mp-2026-04817", "amina-demo-2026")]   // case
-    [InlineData("  MP-2026-04817  ", "amina-demo-2026")] // pasted with whitespace
+    [InlineData("DEMO_STAFF1", "Demo#2026Staff1")]     // case
+    [InlineData("  demo_staff1  ", "Demo#2026Staff1")] // pasted with whitespace
     public void TheIdentifierIsForgivingAboutCaseAndSurroundingSpace(string identifier, string password)
     {
-        // A credential number copied off a screen arrives with a trailing space
-        // more often than not. Turning that person away teaches them nothing.
+        // A value copied off a screen arrives with a trailing space more often
+        // than not, and nobody reproduces case reliably from memory. Turning
+        // either person away teaches them nothing.
         Assert.NotNull(new DemoAccountStore().Match(identifier, password));
     }
 
     [Theory]
-    [InlineData("Amina-Demo-2026")]      // case-folded
-    [InlineData(" amina-demo-2026")]     // leading space
-    [InlineData("amina-demo-2026 ")]     // trailing space
-    [InlineData("amina-demo-202")]       // truncated
+    [InlineData("DEMO#2026STAFF1")]      // case-folded
+    [InlineData(" Demo#2026Staff1")]     // leading space
+    [InlineData("Demo#2026Staff1 ")]     // trailing space
+    [InlineData("Demo#2026Staff")]       // truncated
     public void ThePasswordIsComparedByteForByte(string password)
     {
         // Never trimmed, never case-folded, never rewritten. The identifier gets
         // an allow-list; a password has to compare exactly or the comparison is
         // not a comparison.
-        Assert.Null(new DemoAccountStore().Match("MP-2026-04817", password));
+        Assert.Null(new DemoAccountStore().Match("demo_staff1", password));
     }
 
     [Fact]
     public void OneAccountsPasswordDoesNotOpenTheOthersRecord()
     {
-        Assert.Null(new DemoAccountStore().Match("RH-2026-00219", "amina-demo-2026"));
+        Assert.Null(new DemoAccountStore().Match("demo_staff2", "Demo#2026Staff1"));
     }
 
     [Theory]
@@ -101,7 +106,7 @@ public class DemoSessionTests
     {
         var session = NewSession();
 
-        Assert.True(await session.SignInAsync("RH-2026-00219", "tomas-demo-2026"));
+        Assert.True(await session.SignInAsync("demo_staff2", "Demo#2026Staff2"));
         Assert.True(session.IsSignedIn);
         Assert.Equal("RH-2026-00219", session.CredentialId);
         Assert.Equal("Tomás L.", session.Current!.HolderName);
@@ -111,9 +116,9 @@ public class DemoSessionTests
     public async Task AFailedSignInLeavesTheSessionExactlyAsItWas()
     {
         var session = NewSession();
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
-        Assert.False(await session.SignInAsync("MP-2026-04817", "wrong"));
+        Assert.False(await session.SignInAsync("demo_staff1", "wrong"));
 
         // Still signed in as Amina: a failed attempt is not a sign-out.
         Assert.Equal("MP-2026-04817", session.CredentialId);
@@ -123,7 +128,7 @@ public class DemoSessionTests
     public async Task SigningOutEndsTheSession()
     {
         var session = NewSession();
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         session.SignOut();
 
@@ -138,7 +143,7 @@ public class DemoSessionTests
         var announcements = 0;
         session.OnChanged += () => announcements++;
 
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         session.SignOut();
 
         Assert.Equal(2, announcements);
@@ -156,7 +161,7 @@ public class DemoSessionTests
         var announcements = 0;
         session.OnChanged += () => announcements++;
 
-        await session.SignInAsync("MP-2026-04817", "wrong");
+        await session.SignInAsync("demo_staff1", "wrong");
 
         Assert.Equal(0, announcements);
     }
@@ -170,7 +175,7 @@ public class DemoSessionTests
         // "Signing in…" label would never reach the screen.
         var session = NewSession();
 
-        var pending = session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        var pending = session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         Assert.False(pending.IsCompleted);
     }
@@ -181,7 +186,7 @@ public class DemoSessionTests
         var session = NewSession();
         var clock = Stopwatch.StartNew();
 
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         clock.Stop();
 
         // Deliberately loose: this asserts the delay is real, not that it is

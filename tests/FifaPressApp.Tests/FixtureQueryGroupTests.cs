@@ -153,6 +153,11 @@ public class FixtureQueryGroupTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        // EventList reads the session to decide whether a request control is
+        // offered at all, so the provider has to be registered even where the
+        // test is about a filter rather than about who is signed in.
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 
@@ -179,6 +184,8 @@ public class FixtureQueryGroupTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
         Assert.Contains("BC Place", page.Markup);
@@ -197,6 +204,8 @@ public class FixtureQueryGroupTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
         page.Find("select#matches-group").Change(FixtureQuery.KnockoutRounds);

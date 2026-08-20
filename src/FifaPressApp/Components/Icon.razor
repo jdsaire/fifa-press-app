@@ -36,7 +36,11 @@
 
 @code {
     /// <summary>
-    /// Which glyph to draw: <c>date</c>, <c>location</c> or <c>phase</c>.
+    /// Which glyph to draw: <c>date</c>, <c>location</c> or <c>phase</c> on the
+    /// match surfaces, and <c>home</c>, <c>matches</c>, <c>record</c>,
+    /// <c>help</c> or <c>settings</c> beside a navigation label, and
+    /// <c>system</c>, <c>phone</c>, <c>sun</c> or <c>moon</c> beside an
+    /// appearance option.
     /// </summary>
     [Parameter]
     public string Name { get; set; } = string.Empty;
@@ -66,6 +70,80 @@
             <path d="M5.75 8h4" />
             <path d="M9.75 5.25v5.5" />
             <path d="M9.75 8h4" />
+        </g>,
+
+        // The five navigation glyphs. Each sits beside a nav label that already
+        // says the word, so the decorative rule above applies to them exactly
+        // as it does to the three match glyphs: same viewBox, same stroke, same
+        // currentColor, nothing announced to assistive technology.
+
+        // A house: a roof over a body.
+        "home" => @<g>
+            <path d="M2.25 7.25 8 2.5l5.75 4.75" />
+            <path d="M3.75 6.5v7h8.5v-7" />
+        </g>,
+
+        // A football: a ball with a centre panel and its seams.
+        "matches" => @<g>
+            <circle cx="8" cy="8" r="5.75" />
+            <path d="M8 4.6 5.4 6.5l1 3.05h3.2l1-3.05Z" />
+            <path d="M8 2.25v2.35M3.15 6.2l2.25 .3M4.55 11.6l1.85-2.05M11.45 11.6 9.6 9.55M12.85 6.2l-2.25 .3" />
+        </g>,
+
+        // A clipboard: a board with a clip and two written lines.
+        "record" => @<g>
+            <path d="M5.75 3.25h-1.5a1 1 0 0 0-1 1v8.5a1 1 0 0 0 1 1h7.5a1 1 0 0 0 1-1v-8.5a1 1 0 0 0-1-1h-1.5" />
+            <rect x="5.75" y="2" width="4.5" height="2.5" rx="0.75" />
+            <path d="M6 8h4M6 10.5h2.5" />
+        </g>,
+
+        // A question mark inside a circle.
+        "help" => @<g>
+            <circle cx="8" cy="8" r="5.75" />
+            <path d="M6.4 6.4a1.65 1.65 0 1 1 2.2 1.6c-.4.15-.6.5-.6.9v.3" />
+            <path d="M8 11.55h.01" />
+        </g>,
+
+        // A gear: a hub inside a six-toothed cog.
+        //
+        // The dossier proposed the teeth as six radial strokes around the hub.
+        // Rendered at 16px that reads as a sun rather than a gear — the round
+        // caps this file mandates turn a short radial stroke into a ray — and a
+        // settings glyph that looks like a brightness control is worse than no
+        // glyph in an app whose appearance control is one screen away. The
+        // teeth are a closed outline instead: same hub, same attributes, same
+        // stroke, one shape that can only be a cog.
+        "settings" => @<g>
+            <circle cx="8" cy="8" r="2.15" />
+            <path d="M7.01 1.73 L8.99 1.73 L9.23 3.41 L11.36 4.64 L12.93 4.00 L13.93 5.72 L12.59 6.77 L12.59 9.23 L13.93 10.28 L12.93 12.00 L11.36 11.36 L9.23 12.59 L8.99 14.27 L7.01 14.27 L6.77 12.59 L4.64 11.36 L3.07 12.00 L2.07 10.28 L3.41 9.23 L3.41 6.77 L2.07 5.72 L3.07 4.00 L4.64 4.64 L6.77 3.41 Z" />
+        </g>,
+
+        // The three appearance states. A screen for "follow the system", and
+        // the sun and moon that name the two explicit overrides — the same
+        // vocabulary every operating system's own appearance setting uses, so
+        // nobody has to learn this one.
+
+        // A laptop: a lid on a base.
+        "system" => @<g>
+            <rect x="3" y="3.25" width="10" height="7" rx="1" />
+            <path d="M1.75 12.75h12.5" />
+        </g>,
+
+        // A phone: the same idea at the width a phone is.
+        "phone" => @<g>
+            <rect x="4.75" y="1.75" width="6.5" height="12.5" rx="1.25" />
+            <path d="M7 3.75h2" />
+        </g>,
+
+        // A sun: a disc and eight rays.
+        "sun" => @<g>
+            <circle cx="8" cy="8" r="3" />
+            <path d="M8 1.5v1.6M8 12.9v1.6M14.5 8h-1.6M3.1 8H1.5M12.6 3.4l-1.15 1.15M4.55 11.45 3.4 12.6M12.6 12.6l-1.15-1.15M4.55 4.55 3.4 3.4" />
+        </g>,
+
+        // A moon: a crescent, drawn as one closed path.
+        "moon" => @<g>
+            <path d="M13 9.6A5.75 5.75 0 0 1 6.4 3a5.75 5.75 0 1 0 6.6 6.6Z" />
         </g>,
 
         _ => null,

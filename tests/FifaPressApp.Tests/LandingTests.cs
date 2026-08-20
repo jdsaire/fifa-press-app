@@ -69,16 +69,25 @@ public class LandingTests
     }
 
     [Fact]
-    public void TheLandingOffersBothEntryPoints()
+    public void TheLandingOffersExactlyOneWayOn()
     {
+        // It used to offer two weighted entry points, one of them into the
+        // sign-in form. That stopped being the front door's job when sign-in
+        // became a persistent affordance in the session row above every screen,
+        // and a front door with two doors on it is the duplication this run
+        // exists to remove. There is no replacement assertion for the removed
+        // section, because there is no replacement section — the assertion is
+        // that there is one link and it goes to the matches.
         using var context = NewContext();
 
         var page = context.Render<Landing>();
 
-        Assert.Equal(2, page.FindAll(".landing__entry").Count);
-        Assert.NotEmpty(page.FindAll("a[href='signin']"));
-        Assert.NotEmpty(page.FindAll("a[href='matches']"));
-        Assert.NotEmpty(page.FindAll("a[href='help']"));
+        Assert.Empty(page.FindAll(".landing__entry"));
+
+        var links = page.FindAll("a");
+        Assert.Single(links);
+        Assert.Equal("matches", links[0].GetAttribute("href"));
+        Assert.Contains("landing__cta", links[0].GetAttribute("class"));
     }
 
     [Fact]
@@ -98,14 +107,21 @@ public class LandingTests
     }
 
     [Fact]
-    public void TheLandingSaysDemoAccountsExistAndWhereTheyAre()
+    public void TheLandingNoLongerAdvertisesWhereTheDemoAccountsAre()
     {
+        // The retired counterpart of this test asserted that the landing said
+        // demo accounts exist and named where to find them. That pointer moved
+        // rather than disappearing: the session row's "Sign in" link is on every
+        // screen, and the accounts are published beside the form it leads to.
+        // Landing no longer carries a second copy of the directions, and the
+        // rule below it — never publish the credentials here — is unchanged and
+        // asserted separately.
         using var context = NewContext();
 
-        var entry = context.Render<Landing>().Find(".landing__entry");
+        var page = context.Render<Landing>();
 
-        Assert.Contains("demo account", entry.TextContent, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("sign-in", entry.TextContent, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(page.FindAll(".landing__entry"));
+        Assert.DoesNotContain("demo account", page.Markup, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -132,7 +148,7 @@ public class LandingTests
     public async Task ASignedInVisitorIsSentToTheirRecordRatherThanTheFrontDoor()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         using var context = NewContext(session);
         var navigation = context.Services.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
@@ -155,26 +171,30 @@ public class LandingTests
     }
 
     [Fact]
-    public void TheNavsFirstRowPointsAtTheRecordWithoutAMatchOverride()
+    public void TheNavsFirstRowIsHomeAndItIsTheOnlyRowThatOverridesMatching()
     {
         using var context = NewContext();
 
         var nav = context.Render<NavMenu>();
-        var first = nav.FindAll("nav.flex-column > .nav-item")[0].QuerySelector("a")!;
+        var rows = nav.FindAll("nav.flex-column > .nav-item");
 
-        Assert.Equal("record", first.GetAttribute("href"));
+        // Home owns the root now, and the record has a row of its own that
+        // appears once there is a record to look at.
+        Assert.Equal("", rows[0].QuerySelector("a")!.GetAttribute("href"));
 
-        // The override existed only to work around an empty href prefix-matching
-        // every address. A real path does not need it, and leaving it would make
-        // the row active only on an exact match. Comments are stripped first —
-        // the file explains the override it no longer uses.
+        // The override is correct here rather than a workaround. It used to sit
+        // on a row that pointed at the root while meaning the record, which is
+        // why it was removed; this row points at the root and means it, and
+        // without the override an empty href prefix-matches every address and
+        // leaves Home active on every screen. Exactly one row carries it.
         var source = Regex.Replace(
             File.ReadAllText(Path.Combine(SourceRoot(), "Layout", "NavMenu.razor")),
             @"@\*.*?\*@",
             "",
             RegexOptions.Singleline);
 
-        Assert.DoesNotContain("NavLinkMatch.All", source);
+        Assert.Single(Regex.Matches(source, "NavLinkMatch.All"));
+        Assert.DoesNotContain("href=\"record\" Match", source);
     }
 
     [Fact]
