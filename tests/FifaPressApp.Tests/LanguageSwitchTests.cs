@@ -176,16 +176,19 @@ public class LanguageSwitchTests
         await harness.Session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         // The holder indicator reads from the session bar now rather than the
-        // sidebar; the guarantee is unchanged — a switch leaves the session,
-        // the credential and the named holder exactly where they were.
+        // sidebar; the guarantee is unchanged — a switch leaves the session and
+        // the credential exactly where they were. The name itself is generic
+        // and locale-independent, so the credential ID is the check that
+        // actually distinguishes "still signed in as this holder" from
+        // "signed in as someone, who knows who".
         var bar = context.Render<SessionBar>();
-        Assert.Contains("Amina Bello", bar.Markup);
+        Assert.Contains("MP-2026-04817", bar.Markup);
 
         context.Render<Settings>().Find("#settings-language").Change("pt");
 
         Assert.True(harness.Session.IsSignedIn);
         Assert.Equal("MP-2026-04817", harness.Session.CredentialId);
-        Assert.Contains("Amina Bello", bar.Markup);
+        Assert.Contains("MP-2026-04817", bar.Markup);
     }
 
     [Fact]

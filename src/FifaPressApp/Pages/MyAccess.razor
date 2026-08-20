@@ -184,12 +184,18 @@ else
     }
 
     @* 5. Identity and track — stable, secondary, and never competing with the
-       headline. *@
+       headline.
+
+       THE NAME IS GENERIC. record.HolderName carries a persona internally —
+       the record and TwoRecordsTests both depend on that data staying what it
+       is — but nothing on screen names either holder. What differentiates the
+       two records here is the credential number two rows down, which is the
+       thing that actually keys the data. *@
     <section class="my-access__identity">
         <h2>@L[Locale, "record.credentialHeading"]</h2>
         <dl>
             <dt>@L[Locale, "record.name"]</dt>
-            <dd>@record.HolderName</dd>
+            <dd>@L[Locale, "record.genericHolderName"]</dd>
             <dt>@L[Locale, "record.outlet"]</dt>
             <dd>@record.Outlet</dd>
             @* Never translated or reformatted in any locale: an identifier is

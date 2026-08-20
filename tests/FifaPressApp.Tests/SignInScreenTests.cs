@@ -84,13 +84,13 @@ public class SignInScreenTests
     }
 
     [Fact]
-    public void BothAccountsArePublishedWithHolderIdentifierAndPassword()
+    public void BothAccountsArePublishedWithIdentifierAndPasswordAndNoPersonalName()
     {
         // What a person needs in order to sign in, and nothing else. The
         // per-account description this used to assert is retired with the keys
-        // that backed it: what the two records demonstrate is shown on the
-        // screen where they are actually compared, not explained in advance to
-        // somebody who has seen neither.
+        // that backed it, and the holder's own name is now retired from this
+        // screen too — this is a generic test account, and neither published
+        // row may say whose record it happens to key.
         using var context = NewContext();
 
         var page = context.Render<SignInForm>();
@@ -100,11 +100,12 @@ public class SignInScreenTests
 
         foreach (var account in new[] { DemoAccountStore.Amina, DemoAccountStore.Tomas })
         {
-            var markup = page.Markup;
-            Assert.Contains(account.Identifier, markup);
-            Assert.Contains(account.Password, markup);
-            Assert.Contains(account.HolderName, markup);
+            Assert.Contains(account.Identifier, page.Markup);
+            Assert.Contains(account.Password, page.Markup);
         }
+
+        Assert.DoesNotContain("Amina Bello", page.Markup);
+        Assert.DoesNotContain("Tomás L.", page.Markup);
     }
 
     [Fact]

@@ -124,17 +124,18 @@ public class SignOutTests
     // ------------------------------------------------------- the session bar
 
     [Fact]
-    public async Task TheSessionBarNamesTheHolderAndTheirCredential()
+    public async Task TheSessionBarNamesNoOneButShowsTheCredential()
     {
-        // Both, not just the name: the credential is the record key and the
-        // thing that differs between the two demo records, so dropping it would
-        // hide the value the two-record demonstration exists to expose.
+        // The name is generic and the same for either account; the credential
+        // is the record key and the thing that actually differs between the
+        // two demo records, so it is what the bar must show to tell them apart.
         using var context = NewContext(await AsAminaAsync());
 
         var bar = context.Render<SessionBar>().Find(".session-bar");
 
-        Assert.Contains("Amina Bello", bar.TextContent);
+        Assert.Contains("Demo Staff", bar.TextContent);
         Assert.Contains("MP-2026-04817", bar.TextContent);
+        Assert.DoesNotContain("Amina Bello", bar.TextContent);
     }
 
     [Fact]
@@ -180,7 +181,10 @@ public class SignOutTests
 
         await bar.InvokeAsync(() => session.SignInAsync("demo_staff2", "Demo#2026Staff2"));
 
-        Assert.Contains("Tomás L.", bar.Find(".session-bar__holder").TextContent);
+        // The label itself doesn't change between holders — the credential
+        // appearing is what proves the bar actually followed the new session
+        // rather than staying on a stale render.
+        Assert.Contains("RH-2026-00219", bar.Find(".session-bar__holder").TextContent);
     }
 
     [Fact]

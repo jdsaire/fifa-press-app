@@ -18,6 +18,13 @@
    inside the signed-in branch is text, which is what keeps the read-only
    property the retired block had and the tests still assert.
 
+   THE NAME IS GENERIC, DELIBERATELY. Both demo records carry a persona name
+   internally — the record and its own tests need one, and changing it there
+   would touch data outside this run's scope — but nothing on screen shows
+   either. The credential ID differentiates the two holders without naming
+   which is which, which is all the bar ever needed to demonstrate: which
+   record you are looking at, not who it belongs to.
+
    Signed out it holds exactly one thing: a way in. It points at `/record`
    rather than at a sign-in route of its own, because `/record` is the
    conditional surface that renders the sign-in experience to a visitor with no
@@ -32,7 +39,7 @@
     {
         <div class="session-bar__holder">
             <span class="session-bar__label">@L[Locale, "nav.signedInAs"]</span>
-            <span class="session-bar__name">@holder.HolderName</span>
+            <span class="session-bar__name">@L[Locale, "record.genericHolderName"]</span>
             <span class="session-bar__credential">@holder.CredentialId</span>
         </div>
         <button type="button" class="session-bar__signout" @onclick="SignOut">

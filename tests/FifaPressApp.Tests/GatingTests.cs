@@ -1,4 +1,6 @@
 using Bunit;
+using FifaPressApp.Components;
+using FifaPressApp.Layout;
 using FifaPressApp.Models;
 using FifaPressApp.Pages;
 using FifaPressApp.Services;
@@ -46,7 +48,41 @@ public class GatingTests
     private static Task<SimulatedSessionProvider> AsTomasAsync() =>
         SignedInAsync("demo_staff2", "Demo#2026Staff2");
 
+    // --------------------------------------------- no personal name, anywhere
+
+    [Theory]
+    [InlineData("demo_staff1", "Demo#2026Staff1")]
+    [InlineData("demo_staff2", "Demo#2026Staff2")]
+    public async Task NeitherDemoHoldersNameAppearsOnAnySurfaceThatNamesTheSignedInAccount(
+        string identifier, string password)
+    {
+        // One test owning the guarantee that the other tests around it protect
+        // as a side effect: whichever of the two generic accounts is signed in,
+        // the session bar, Settings, and the record itself all show a generic
+        // label rather than either persona. Both accounts still carry a
+        // HolderName internally — the record and TwoRecordsTests both depend on
+        // that data being what it is — so this is a display guarantee, not a
+        // data one.
+        var session = new SimulatedSessionProvider(new DemoAccountStore());
+        await session.SignInAsync(identifier, password);
+        using var context = NewContext(session);
+
+        var surfaces = new[]
+        {
+            context.Render<SessionBar>().Markup,
+            context.Render<Settings>().Markup,
+            context.Render<MyAccess>().Markup,
+        };
+
+        Assert.All(surfaces, markup =>
+        {
+            Assert.DoesNotContain("Amina Bello", markup);
+            Assert.DoesNotContain("Tomás L.", markup);
+        });
+    }
+
     // ------------------------------------------------------------ the record
+
 
     [Fact]
     public void TheRecordIsNotReachableSignedOut_AndOffersSignInInPlace()
@@ -114,8 +150,11 @@ public class GatingTests
 
         var page = context.Render<MyAccess>();
 
-        Assert.Contains("Amina Bello", page.Markup);
+        // The name is generic now, so the credential ID is what tells the
+        // two records apart on screen — the name never distinguishes them and
+        // must never appear.
         Assert.Contains("MP-2026-04817", page.Markup);
+        Assert.DoesNotContain("Amina Bello", page.Markup);
         Assert.DoesNotContain("Tomás L.", page.Markup);
     }
 
@@ -128,9 +167,9 @@ public class GatingTests
 
         var page = context.Render<MyAccess>();
 
-        Assert.Contains("Tomás L.", page.Markup);
         Assert.Contains("RH-2026-00219", page.Markup);
         Assert.DoesNotContain("Amina Bello", page.Markup);
+        Assert.DoesNotContain("Tomás L.", page.Markup);
     }
 
     [Fact]

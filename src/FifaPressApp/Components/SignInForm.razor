@@ -85,9 +85,15 @@
             @* Keyed by the credential, which is the value that identifies the
                record and is not what this rename touched. *@
             <li class="signin__account" @key="account.CredentialId">
-                @* Neither value is ever translated or reformatted in any
+                @* No holder name here, deliberately. Each account carries a
+                   persona internally, for the record and its own tests — this
+                   run's own instruction is that nothing on screen may name
+                   either one, since this is a generic test account, not a
+                   personal one. The identifier already tells the two rows
+                   apart, which is what it is for; showing a name beside it
+                   would only invite the question this run exists to close.
+                   Neither value is ever translated or reformatted in any
                    locale — they are things to type, not language content. *@
-                <strong>@account.HolderName</strong> —
                 <code>@account.Identifier</code> / <code>@account.Password</code>
             </li>
         }

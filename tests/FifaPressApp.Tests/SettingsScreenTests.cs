@@ -67,14 +67,17 @@ public class SettingsScreenTests
     }
 
     [Fact]
-    public async Task SignedInTheScreenAddsTheHoldersNameAndAWayOut()
+    public async Task SignedInTheScreenAddsAGenericNameFieldAndAWayOut()
     {
+        // Generic rather than the account's own name — a reader signed in to
+        // either demo account sees the same label here, which is correct: this
+        // is a test account, not somebody's identity.
         using var context = NewContext(await AsAminaAsync());
 
         var page = context.Render<Settings>();
 
         Assert.Equal(4, page.FindAll(".settings-field").Count);
-        Assert.Equal("Amina Bello", page.Find(".settings-field__value").TextContent.Trim());
+        Assert.Equal("Demo Staff", page.Find(".settings-field__value").TextContent.Trim());
         Assert.NotEmpty(page.FindAll(".settings__signout"));
     }
 
@@ -93,15 +96,17 @@ public class SettingsScreenTests
     }
 
     [Fact]
-    public async Task TheOtherHoldersNameAppearsWhenTheOtherHolderIsSignedIn()
+    public async Task TheSameGenericNameAppearsForTheOtherHolderToo()
     {
-        // The field reads the session rather than a constant, which is the
-        // whole reason two demo records exist.
+        // The field no longer reads the account's own name — it reads the same
+        // generic label regardless of which of the two demo accounts is signed
+        // in. Both records still exist and still differ (see TwoRecordsTests);
+        // nothing about either is shown here.
         var session = new SimulatedSessionProvider(new DemoAccountStore());
         await session.SignInAsync("demo_staff2", "Demo#2026Staff2");
         using var context = NewContext(session);
 
-        Assert.Equal("Tomás L.", context.Render<Settings>().Find(".settings-field__value").TextContent.Trim());
+        Assert.Equal("Demo Staff", context.Render<Settings>().Find(".settings-field__value").TextContent.Trim());
     }
 
     [Fact]

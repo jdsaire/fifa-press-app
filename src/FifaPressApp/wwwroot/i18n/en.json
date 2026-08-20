@@ -171,6 +171,7 @@
     "record.noChangesAfter": "Silence here means nothing has moved, not that nothing has been checked.",
     "record.credentialHeading": "Your credential",
     "record.name": "Name",
+    "record.genericHolderName": "Demo Staff",
     "record.outlet": "Outlet",
     "record.credentialNumber": "Credential number",
     "record.track": "Track",
