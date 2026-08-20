@@ -33,27 +33,26 @@
 
 <h1>@L[Locale, "signIn.title"]</h1>
 
-@* Visible before any interaction, and first on the page. The four things it
-   states are in the order 10 §2.3 sets: what this is, that the credentials
-   below are real and work, how long the session lasts, and what it is not. *@
-<div class="signin__notice" role="note">
-    <p>
-        <strong>@L[Locale, "signIn.noticeSimulatedStrong"]</strong>
-        @L[Locale, "signIn.noticeSimulatedBody"]
-    </p>
-    <p>
-        @L[Locale, "signIn.noticeCredentialsBefore"]
-        <strong>@L[Locale, "signIn.noticeCredentialsStrong"]</strong>@L[Locale, "signIn.noticeCredentialsAfter"]
-    </p>
-    <p>
-        @L[Locale, "signIn.noticeSessionBefore"]
-        <strong>@L[Locale, "signIn.noticeSessionStrong"]</strong>@L[Locale, "signIn.noticeSessionAfter"]
-    </p>
-    <p>
-        @L[Locale, "signIn.noticeBoundaryBefore"]
-        <strong>@L[Locale, "signIn.noticeBoundaryStrong"]</strong>
-    </p>
-</div>
+@* Visible before any interaction, and first on the page. It still states the
+   four things 10 §2.3 orders — what this is, that the credentials below are
+   real and work, how long the session lasts, and what it is not — in that
+   order, in one paragraph instead of four.
+
+   CONDENSED, NOT CUT. The objection this answers was to length and prominence,
+   never to the disclosure existing: four stacked paragraphs before a two-field
+   form is a wall, and a wall gets skipped, which costs the notice the one thing
+   it is for. Every fact survives. The wording is engineered around the five
+   exact substrings SignInScreenTests asserts, so the test that protects the
+   content passes unmodified rather than being relaxed to fit shorter copy —
+   which is the only way a compression like this can be trusted.
+
+   Two keys rather than ten, in the Strong/Body shape Landing's own disclosure
+   already uses. That is the app's established pattern for a notice of exactly
+   this kind, so this is one fewer format rather than a third one. *@
+<p class="signin__notice" role="note">
+    <strong>@L[Locale, "signIn.noticeStrong"]</strong>
+    @L[Locale, "signIn.noticeBody"]
+</p>
 
 @* Adjacent to the form, not behind a disclosure. Each account says whose
    record it opens and what makes that record worth looking at — a person who

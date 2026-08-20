@@ -6,10 +6,11 @@
     border-radius: var(--radius-default);
     padding: var(--space-3);
     margin-bottom: var(--space-4);
-}
 
-.signin__notice p:last-child {
-    margin-bottom: 0;
+    /* One paragraph now rather than four, so it carries its own bottom margin
+       rather than resetting a last child's, and it is bounded to a readable
+       measure like the app's other prose blocks. */
+    max-width: 42rem;
 }
 
 .signin__form {
