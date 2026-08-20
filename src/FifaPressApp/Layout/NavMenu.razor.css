@@ -18,8 +18,14 @@
    this app does not have, so they are gone rather than restyled. The nav items
    carry their labels alone. */
 
+/* Body size, not small. These are the app's primary destinations and they sat
+   two steps below the text of the screens they lead to — 0.875rem against a
+   1rem working area — which read as a caption rather than as navigation. A
+   destination label has no reason to be quieter than the content behind it, and
+   at this size it also clears the 1rem floor comfortably for anyone enlarging
+   text. */
 .nav-item {
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-body);
     padding-bottom: var(--space-2);
 }
 
@@ -74,7 +80,12 @@
 /* The glyph beside each destination's label. Decorative, so it is spaced like
    punctuation rather than aligned like a column: the label is what the row is,
    and the icon sits next to it without claiming a gutter of its own. */
+/* Scaled with the label it sits beside. The glyph carries its own width and
+   height attributes at 16px — CSS outranks them, so the icon grows here without
+   Icon.razor's contract changing for the match surfaces that still want 16. */
 .nav-item ::deep svg.icon {
+    width: 20px;
+    height: 20px;
     margin-right: var(--space-2);
     flex: none;
 }

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Bunit;
 using FifaPressApp.Components;
 using FifaPressApp.Models;
@@ -39,6 +40,26 @@ public class IconTests
         Assert.Equal("currentColor", svg.GetAttribute("stroke"));
         Assert.DoesNotContain("#", icon.Markup);
         Assert.DoesNotContain("rgb", icon.Markup);
+    }
+
+    [Fact]
+    public void TheNavigationLabelsAreNotQuieterThanTheContentTheyLeadTo()
+    {
+        // They were 0.875rem against a 1rem working area, which read as a
+        // caption rather than as the app's primary destinations. Asserted
+        // against the stylesheet because that is where the decision lives.
+        var navCss = File.ReadAllText(Path.Combine(TestPaths.SourceRoot(), "Layout", "NavMenu.razor.css"));
+
+        var navItem = Regex.Match(navCss, @"\.nav-item \{(.*?)\}", RegexOptions.Singleline);
+        Assert.True(navItem.Success, ".nav-item was not found in NavMenu.razor.css");
+        Assert.Contains("--font-size-body", navItem.Groups[1].Value);
+        Assert.DoesNotContain("--font-size-small", navItem.Groups[1].Value);
+
+        // And the glyph grows with the label it sits beside.
+        var icon = Regex.Match(navCss, @"\.nav-item ::deep svg\.icon \{(.*?)\}", RegexOptions.Singleline);
+        Assert.True(icon.Success, "the nav icon rule was not found");
+        Assert.Contains("width: 20px", icon.Groups[1].Value);
+        Assert.Contains("height: 20px", icon.Groups[1].Value);
     }
 
     [Fact]
