@@ -255,8 +255,11 @@ main > .top-row {
     text-decoration: underline;
 }
 
+/* Sized and coloured by the same .btn-outline-primary .btn-sm pair the match
+   list uses for "View details", so the two read as one control vocabulary.
+   Nothing is redeclared here — only the spacing that keeps it off the edge. */
 .session-bar__signin {
-    color: var(--color-link);
+    margin-left: var(--space-2);
 }
 
 /* ==========================================================================

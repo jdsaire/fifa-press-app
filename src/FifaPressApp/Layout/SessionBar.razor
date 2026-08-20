@@ -48,7 +48,12 @@
     }
     else
     {
-        <a class="session-bar__signin" href="record">@L[Locale, "nav.signIn"]</a>
+        @* A button, in the same outline register as the match list's "View
+           details" — it is a way somewhere, not a sentence, and an underlined
+           link in a bar of chrome read as body text that happened to be blue. *@
+        <NavLink class="btn btn-outline-primary btn-sm session-bar__signin" href="record">
+            @L[Locale, "nav.signIn"]
+        </NavLink>
     }
 </div>
 
