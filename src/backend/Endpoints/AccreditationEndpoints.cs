@@ -1,4 +1,5 @@
 using FifaPressApp.Api.Models;
+using FifaPressApp.Api.Realtime;
 using FifaPressApp.Api.Storage;
 using FifaPressApp.Api.Validation;
 
@@ -137,7 +138,11 @@ public static class AccreditationEndpoints
                 ? Results.NoContent()
                 : NotFound(credentialId));
 
-        records.MapPost("/{credentialId}/changes", (string credentialId, ChangeInput input, AccreditationStore store) =>
+        records.MapPost("/{credentialId}/changes", async (
+            string credentialId,
+            ChangeInput input,
+            AccreditationStore store,
+            ChangeNotifier notifier) =>
         {
             if (store.Find(credentialId) is null)
             {
@@ -158,6 +163,12 @@ public static class AccreditationEndpoints
             }
 
             store.AppendChange(change);
+
+            // Written first, announced second. If the broadcast were to fail,
+            // the change is still in the record and the next read will find it
+            // — whereas announcing before writing could tell a client to go and
+            // look at something that is not there yet.
+            await notifier.NotifyChangeRecordedAsync(credentialId, change.ChangeId);
 
             return Results.Created(
                 $"/api/accreditations/{credentialId}/changes",

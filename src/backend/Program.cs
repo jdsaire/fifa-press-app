@@ -15,6 +15,7 @@
 using System.Text.Json.Serialization;
 using FifaPressApp.Api.Endpoints;
 using FifaPressApp.Api.Middleware;
+using FifaPressApp.Api.Realtime;
 using FifaPressApp.Api.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,12 @@ builder.Services.AddSingleton<AccreditationStore>();
 // 0 is neither. The frontend parses these names directly.
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+// The persistent-connection layer. SignalR ships inside the ASP.NET Core shared
+// framework, so this adds no package: it is the same runtime the rest of the
+// API already runs on.
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<ChangeNotifier>();
 
 // The browsers allowed to call this API.
 //
@@ -110,6 +117,10 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.MapOpenApi();
 
 app.MapAccreditationEndpoints();
+
+// The hub's own address. Clients connect here and then listen; see
+// ChangeNotificationHub for why it has no client-callable methods.
+app.MapHub<ChangeNotificationHub>("/hubs/changes");
 
 // A route that exists only to prove the error handler works, and only outside
 // Production. Gate 3 of this run has to demonstrate that an unhandled
