@@ -179,6 +179,8 @@
     "matches.allMatches": "Todos los partidos",
     "matches.played": "Jugados",
     "matches.notYetPlayed": "Aún no jugados",
+    "matches.slotsRemaining": "{count} plazas disponibles",
+    "matches.soldOut": "Sin plazas disponibles",
     "matches.loading": "Cargando el calendario…",
     "matches.staleSubject": "este calendario",
     "detail.breadcrumb": "Partidos",

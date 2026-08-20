@@ -85,6 +85,29 @@ public sealed record Fixture
     public required bool IsResolved { get; init; }
 
     /// <summary>
+    /// How many accreditation slots are left for this fixture, or <c>null</c>
+    /// where the concept does not apply.
+    ///
+    /// <para>
+    /// <b>SIMULATED, and set by the provider — never by the importer.</b> The
+    /// schedule this app reads carries no capacity column and none is implied;
+    /// the value is derived from a rule the provider owns, exactly as
+    /// <see cref="IsResolved"/> is derived from the instant the provider owns.
+    /// It is an init-only property here for the same reason that one is: a
+    /// caller is only ever handed a fixture the provider has already been
+    /// through, so there is no path on which a stale or invented value can
+    /// arrive.
+    /// </para>
+    ///
+    /// <para>
+    /// <c>null</c> on every fixture that has already kicked off. A played match
+    /// has no slots to have left, and rendering "0 slots available" against one
+    /// would state scarcity about something that is simply over.
+    /// </para>
+    /// </summary>
+    public int? SlotsRemaining { get; init; }
+
+    /// <summary>
     /// How to name this fixture on screen without leaking an unresolved result.
     /// A resolved fixture reads "Spain v Austria"; an unresolved one reads
     /// "Round of 16" and says plainly that the teams are not decided yet.

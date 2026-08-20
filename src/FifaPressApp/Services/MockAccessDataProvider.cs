@@ -371,7 +371,7 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
     {
         if (!IsResolved(fixture))
         {
-            return fixture;
+            return fixture with { SlotsRemaining = SlotsFor(fixture) };
         }
 
         if (!loaded.Matchups.TryGetValue(fixture.MatchNumber, out var matchup))
@@ -386,6 +386,37 @@ public sealed class MockAccessDataProvider : IAccessDataProvider
             AwayLabel = matchup.Away,
         };
     }
+
+    /// <summary>
+    /// How many accreditation slots a fixture has left.
+    ///
+    /// <para>
+    /// <b>[SIMULATED].</b> No real accreditation capacity exists for these
+    /// fixtures and none is implied — the same standing as
+    /// <see cref="SimulatedNow"/> above and as <c>Fixture.TimeZoneLabel</c>'s
+    /// own MOCKED note. It is a rule rather than a table so that a reader can
+    /// verify any single value with arithmetic instead of trusting a hundred
+    /// invented numbers, and so that nobody mistakes it for data that arrived
+    /// from somewhere.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Unplayed fixtures only, and that is what makes it safe as well as
+    /// sensible.</b> The sixteen fixtures this applies to are exactly the ones
+    /// whose team names are withheld — they have not kicked off, so they carry
+    /// no names by construction. There is therefore no code path on which a
+    /// capacity number and a team name can appear beside each other, and the
+    /// two axes cannot correlate even in principle.
+    /// </para>
+    ///
+    /// <para>
+    /// A played fixture returns null rather than zero: it has no slots to have
+    /// run out of, and "no slots available" on a finished match would state
+    /// scarcity about something that is simply over.
+    /// </para>
+    /// </summary>
+    private static int? SlotsFor(Fixture fixture) =>
+        fixture.MatchNumber % 4 == 0 ? 0 : 3 + (fixture.MatchNumber % 9);
 
     private static bool Names(Matchup matchup, string team) =>
         string.Equals(matchup.Home, team, StringComparison.OrdinalIgnoreCase) ||

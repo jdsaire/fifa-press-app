@@ -179,6 +179,8 @@
     "matches.allMatches": "Todos os jogos",
     "matches.played": "Disputados",
     "matches.notYetPlayed": "Ainda por disputar",
+    "matches.slotsRemaining": "{count} lugares disponíveis",
+    "matches.soldOut": "Sem lugares disponíveis",
     "matches.loading": "A carregar o calendário…",
     "matches.staleSubject": "este calendário",
     "detail.breadcrumb": "Jogos",
