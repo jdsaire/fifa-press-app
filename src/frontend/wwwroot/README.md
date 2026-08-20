@@ -9,4 +9,4 @@ Short for "web root." Everything in here is a **static file** — see [Glossary.
 - **`favicon.png`**, **`icon-192.png`** — the small icons used for the browser tab and for installing the app to a home screen.
 - **`lib/`** — **third-party code, not written for this project.** It holds Bootstrap ([Glossary.md](../../../learning-mode/Glossary.md#bootstrap)), a pre-built CSS toolkit this app uses for its buttons, cards, and layout styling. Nothing in `lib/` was authored as part of building FifaPressApp, and it isn't documented or commented on any further than this paragraph.
 
-This folder is separate from everything else in `src/FifaPressApp/` because its contents aren't compiled or interpreted by .NET at all — they're just files, copied into the finished app as-is, the same way they'd be handled on any plain website.
+This folder is separate from everything else in `src/frontend/` because its contents aren't compiled or interpreted by .NET at all — they're just files, copied into the finished app as-is, the same way they'd be handled on any plain website.

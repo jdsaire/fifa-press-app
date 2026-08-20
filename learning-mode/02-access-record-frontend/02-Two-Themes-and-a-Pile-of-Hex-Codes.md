@@ -2,7 +2,7 @@
 
 ## What the Stylesheet Looked Like
 
-[`app.css`](../../src/FifaPressApp/wwwroot/css/app.css) was 130 lines and had eleven colours written directly into it as hex codes — `#1b6ec2` for buttons and the skip link, `#0071c1` for links, `#dc3545` for validation errors, and so on. Each one appeared wherever it was needed, spelled out in full.
+[`app.css`](../../src/frontend/wwwroot/css/app.css) was 130 lines and had eleven colours written directly into it as hex codes — `#1b6ec2` for buttons and the skip link, `#0071c1` for links, `#dc3545` for validation errors, and so on. Each one appeared wherever it was needed, spelled out in full.
 
 That's fine until you want a second theme. Then every one of those eleven values needs a partner, and there's nowhere to put it: a rule that says `background: #1b6ec2` says it always, in every context, with no room for "except in dark mode."
 
@@ -58,11 +58,11 @@ Three blocks, in this order:
 
 The first is light, the starting point. The second says "if the operating system is set to dark, use dark" — that's `prefers-color-scheme`, a setting the browser already knows and passes through, which is why the app appears in the right theme before any of its own code runs.
 
-The third is an explicit choice. [`ThemeTrigger.razor`](../../src/FifaPressApp/Components/ThemeTrigger.razor) sets a `data-theme` attribute on the page and remembers it, and because that block comes last it wins.
+The third is an explicit choice. [`ThemeTrigger.razor`](../../src/frontend/Components/AppearanceControl.razor) sets a `data-theme` attribute on the page and remembers it, and because that block comes last it wins.
 
 The `:not([data-theme="light"])` on the middle block is small and load-bearing. Without it, someone who deliberately chose light would get flipped to dark the moment their laptop switched at sunset — the system preference would quietly overrule a decision they'd actually made. With it, the system preference stands down as soon as there's a real choice to respect.
 
-The stylesheet decides which palette applies. [`theme.js`](../../src/FifaPressApp/wwwroot/js/theme.js) only sets or clears that one attribute and remembers what was picked; there's no colour value anywhere in it.
+The stylesheet decides which palette applies. [`theme.js`](../../src/frontend/wwwroot/js/theme.js) only sets or clears that one attribute and remembers what was picked; there's no colour value anywhere in it.
 
 ## Next
 

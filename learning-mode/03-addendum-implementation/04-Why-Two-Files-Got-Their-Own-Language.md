@@ -4,7 +4,7 @@ This app is written in C#. All of it, except two small files. This chapter is ab
 
 ## First, What Those Two Files Actually Are
 
-`src/FifaPressApp/wwwroot/js/theme.js` and `locale.js`. Between them, under 150 lines. Here's everything `theme.js` does, in full:
+`src/frontend/wwwroot/js/theme.js` and `locale.js`. Between them, under 150 lines. Here's everything `theme.js` does, in full:
 
 - reads one value out of the browser's local storage (`"light"` or `"dark"`, if anything was ever saved)
 - checks whether the operating system is set to a dark appearance

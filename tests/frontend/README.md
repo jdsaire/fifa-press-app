@@ -63,7 +63,7 @@ The app project itself gains nothing. That is a deliberate boundary: adding a pa
 From the repository root:
 
 ```
-dotnet test tests/FifaPressApp.Tests
+dotnet test tests/frontend
 ```
 
 For why this folder sits outside `src/` at all, see [`../README.md`](../README.md).

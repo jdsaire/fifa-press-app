@@ -16,7 +16,7 @@ Microsoft's framework for writing a browser app in C# instead of JavaScript, by 
 
 ## Bootstrap
 
-A pre-written CSS toolkit — ready-made styling for buttons, cards, layout grids, and so on — that this project uses but didn't write. It lives at `src/FifaPressApp/wwwroot/lib/bootstrap/` and is third-party code, not something built for this app specifically.
+A pre-written CSS toolkit — ready-made styling for buttons, cards, layout grids, and so on — that this project uses but didn't write. It lives at `src/frontend/wwwroot/lib/bootstrap/` and is third-party code, not something built for this app specifically.
 
 ## Cache
 
@@ -40,7 +40,7 @@ The rule that stops a page loaded from one address reading a response from anoth
 
 ## `.csproj`
 
-The project file that tells the .NET tools what kind of app this is, which framework version it targets, and which external packages it depends on. This app's is `src/FifaPressApp/FifaPressApp.csproj`. Unlike a single standalone C# script, a real Blazor app can't build or run without one.
+The project file that tells the .NET tools what kind of app this is, which framework version it targets, and which external packages it depends on. This app's is `src/frontend/FifaPressApp.csproj`. Unlike a single standalone C# script, a real Blazor app can't build or run without one.
 
 ## CSS isolation
 

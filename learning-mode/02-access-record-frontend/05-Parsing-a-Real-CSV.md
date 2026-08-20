@@ -2,7 +2,7 @@
 
 ## The File
 
-[`2026_World_Cup_Schedule.csv`](../../src/FifaPressApp/wwwroot/data/2026_World_Cup_Schedule.csv) is the published 2026 World Cup schedule: a header row and 104 fixtures, eight columns each.
+[`2026_World_Cup_Schedule.csv`](../../src/frontend/wwwroot/data/2026_World_Cup_Schedule.csv) is the published 2026 World Cup schedule: a header row and 104 fixtures, eight columns each.
 
 ```
 Match,Date,Time (ET),Time (Local),Matchup,Group / Phase,Venue,City
@@ -11,7 +11,7 @@ Match,Date,Time (ET),Time (Local),Matchup,Group / Phase,Venue,City
 
 It's a small, clean, entirely ordinary spreadsheet. It still contains three things that break a naive parser, and all three are the kind you only find by looking.
 
-[`FixtureImporter.cs`](../../src/FifaPressApp/Services/FixtureImporter.cs) does the reading. It's kept separate from the data provider on purpose: it understands a file format and knows nothing about access, entitlements, or which fixtures the app is allowed to look at.
+[`FixtureImporter.cs`](../../src/frontend/Services/FixtureImporter.cs) does the reading. It's kept separate from the data provider on purpose: it understands a file format and knows nothing about access, entitlements, or which fixtures the app is allowed to look at.
 
 ## Breakage 1: A Date That Means Different Things on Different Machines
 

@@ -1,6 +1,6 @@
-# src/FifaPressApp/
+# src/frontend/
 
-This is the project root — the folder that makes this a real, buildable Blazor app rather than a loose pile of code files. Everything else under `src/FifaPressApp/` (`Components/`, `Layout/`, `Models/`, `Pages/`, `Properties/`, `Services/`, `wwwroot/`) sits inside this one.
+This is the project root — the folder that makes this a real, buildable Blazor app rather than a loose pile of code files. Everything else under `src/frontend/` (`Components/`, `Layout/`, `Models/`, `Pages/`, `Properties/`, `Services/`, `wwwroot/`) sits inside this one.
 
 Four loose files live directly here, not tucked into a subfolder, because each one applies to the app as a whole rather than to one particular piece of it:
 

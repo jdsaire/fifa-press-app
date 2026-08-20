@@ -10,7 +10,7 @@ For this app that trade is backwards. The whole point is answering *what changed
 
 ## Append-Only
 
-So [`Change.cs`](../../src/FifaPressApp/Models/Change.cs) is **append-only** ([Glossary.md](../Glossary.md#append-only)): you can add a change, and that is the only thing you can do. Nothing edits one. Nothing deletes one.
+So [`Change.cs`](../../src/frontend/Models/Change.cs) is **append-only** ([Glossary.md](../Glossary.md#append-only)): you can add a change, and that is the only thing you can do. Nothing edits one. Nothing deletes one.
 
 That sounds like a restriction you'd have to keep reminding yourself about. It isn't, because the class is built so the restriction is the only option available:
 
@@ -26,7 +26,7 @@ Reasoning about the record gets noticeably simpler.
 
 Any question about the past is just a matter of reading. "What did this say last Tuesday?" is answered by ignoring everything effective after last Tuesday — no separate history table, no audit log, because the record *is* the history.
 
-[`EventDetails.razor`](../../src/FifaPressApp/Pages/EventDetails.razor) uses precisely this. Its simulated gate check needs two answers: what the app believes, and what a venue's list — running a day behind — would believe. Both come from folding the same changes with two different cut-off dates. There is no second data source. One record, read twice, at two moments.
+[`EventDetails.razor`](../../src/frontend/Pages/EventDetails.razor) uses precisely this. Its simulated gate check needs two answers: what the app believes, and what a venue's list — running a day behind — would believe. Both come from folding the same changes with two different cut-off dates. There is no second data source. One record, read twice, at two moments.
 
 And there is no state where two places disagree, because there aren't two places. A status is never stored; it's worked out from the changes every time it's needed. It can be out of date, but it cannot contradict the log it came from.
 
@@ -42,7 +42,7 @@ One more decision, and it's the one most visible on screen.
 
 A change carries four things that always matter: what changed, why, what to do next, and when. The first three are text someone has to write. It would be easy to allow them to be empty and let the screen deal with it.
 
-[`Change.cs`](../../src/FifaPressApp/Models/Change.cs) refuses instead. Its constructor throws if any of the three is missing or blank:
+[`Change.cs`](../../src/frontend/Models/Change.cs) refuses instead. Its constructor throws if any of the three is missing or blank:
 
 ```csharp
 Require(whatChanged, nameof(whatChanged));
@@ -50,7 +50,7 @@ Require(reason, nameof(reason));
 Require(nextStep, nameof(nextStep));
 ```
 
-The effect is that an incomplete change never becomes an object at all. It isn't stored, isn't passed around, and never reaches a screen — so [`ChangeRow.razor`](../../src/FifaPressApp/Components/ChangeRow.razor) renders all four fields with no `if` guarding any of them. There is no "reason missing" case in the display code because there is no way to build one.
+The effect is that an incomplete change never becomes an object at all. It isn't stored, isn't passed around, and never reaches a screen — so [`ChangeRow.razor`](../../src/frontend/Components/ChangeRow.razor) renders all four fields with no `if` guarding any of them. There is no "reason missing" case in the display code because there is no way to build one.
 
 There's a fourth check that's less obvious. It also rejects a reason that merely restates what changed:
 

@@ -20,9 +20,9 @@ That works. It also quietly welds every page to that one class. Right now the da
 
 An **interface** is a list of what something can do, with none of the how. It says "anything calling itself a data provider must be able to fetch a credential, fetch the changes on it, fetch fixtures, and record a request" — and stops there. It contains no code that does any of those things.
 
-[`IAccessDataProvider.cs`](../../src/FifaPressApp/Services/IAccessDataProvider.cs) is that list. Six operations, and a description of what each one returns. Nothing else.
+[`IAccessDataProvider.cs`](../../src/frontend/Services/IAccessDataProvider.cs) is that list. Six operations, and a description of what each one returns. Nothing else.
 
-Then a separate class *implements* it — promises to actually provide all six. [`MockAccessDataProvider.cs`](../../src/FifaPressApp/Services/MockAccessDataProvider.cs) is this version's implementation, holding everything in memory.
+Then a separate class *implements* it — promises to actually provide all six. [`MockAccessDataProvider.cs`](../../src/frontend/Services/MockAccessDataProvider.cs) is this version's implementation, holding everything in memory.
 
 The pages ask for the interface, never the class:
 
@@ -32,7 +32,7 @@ The pages ask for the interface, never the class:
 
 ## What That Buys
 
-One line in [`Program.cs`](../../src/FifaPressApp/Program.cs) is the only place in the entire app that names the concrete class. It's the line that says "when something asks for the interface, hand it this" ([Glossary.md](../Glossary.md#dependency-injection)).
+One line in [`Program.cs`](../../src/frontend/Program.cs) is the only place in the entire app that names the concrete class. It's the line that says "when something asks for the interface, hand it this" ([Glossary.md](../Glossary.md#dependency-injection)).
 
 Swapping in a version that talks to a real service means writing a new class that implements the same six operations, and changing that one line. Not one page changes. Not one component. The pages never knew which class they were talking to, so they can't notice when it becomes a different one.
 
@@ -50,7 +50,7 @@ So `MockAccessDataProvider` holds a simulated "now" — a moment partway through
 
 The important part is *where* that rule lives. It could have been a rule in the pages: "remember not to show team names for future matches." That kind of rule survives exactly as long as everyone remembers it, and the first person to add a new screen months from now has no way of knowing it exists. Putting it inside the provider means a page can't get a team name for an unplayed match even if it asks — there simply isn't one on what it's handed.
 
-[`Fixture.cs`](../../src/FifaPressApp/Models/Fixture.cs) takes it one step further. The importer that reads the file never puts team names onto a fixture at all; it hands them back separately, in a lookup the provider keeps to itself. So a fixture object carrying a name it shouldn't have isn't something the code can produce by accident — only deliberately, in one method, in one file.
+[`Fixture.cs`](../../src/frontend/Models/Fixture.cs) takes it one step further. The importer that reads the file never puts team names onto a fixture at all; it hands them back separately, in a lookup the provider keeps to itself. So a fixture object carrying a name it shouldn't have isn't something the code can produce by accident — only deliberately, in one method, in one file.
 
 ## The Shape of a Read
 

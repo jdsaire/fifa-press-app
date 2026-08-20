@@ -16,7 +16,7 @@ The difference is subtle in code and large on screen. Network-first with a fallb
 
 ## How the Provider Does It
 
-The reads in [`MockAccessDataProvider.cs`](../../src/FifaPressApp/Services/MockAccessDataProvider.cs) come back from local state, and — this is the part that matters — they come back *without yielding*:
+The reads in [`MockAccessDataProvider.cs`](../../src/frontend/Services/MockAccessDataProvider.cs) come back from local state, and — this is the part that matters — they come back *without yielding*:
 
 ```csharp
 public Task<AccessResponse<Accreditation?>> GetAccreditationAsync(string credentialId)
@@ -30,7 +30,7 @@ public Task<AccessResponse<Accreditation?>> GetAccreditationAsync(string credent
 
 That's what removes the spinner, and it's worth being precise about why. When a Blazor component's `OnInitializedAsync` hits an `await` that hasn't completed, the component renders once *without* the data — which is the moment a spinner appears — and again later when it arrives. If nothing actually pauses, that first data-less render never happens. The component's first appearance already has everything.
 
-So there is no spinner over the headline on [`MyAccess.razor`](../../src/FifaPressApp/Pages/MyAccess.razor) — not because one was hidden, but because there is no in-between state for it to occupy.
+So there is no spinner over the headline on [`MyAccess.razor`](../../src/frontend/Pages/MyAccess.razor) — not because one was hidden, but because there is no in-between state for it to occupy.
 
 ## What Still Has to Be Fetched
 
@@ -46,7 +46,7 @@ Cache-first creates a problem it has to solve. If the screen always shows someth
 
 That's why every read returns an `AccessResponse` carrying `LastSyncedUtc` alongside the value. The page doesn't work out how old its data is or track it separately — it arrives attached.
 
-[`StaleIndicator.razor`](../../src/FifaPressApp/Components/StaleIndicator.razor) turns that into a sentence, and it renders **always**, including when the data is seconds old:
+[`StaleIndicator.razor`](../../src/frontend/Components/StaleIndicator.razor) turns that into a sentence, and it renders **always**, including when the data is seconds old:
 
 > Last updated 3 hours ago. Your access may have changed since.
 
