@@ -287,6 +287,19 @@ main > .top-row {
     font-weight: 600;
 }
 
+/* The count line and the control that changes it. The count is a statement
+   about the list, so it reads quietly; the button is the only thing below the
+   grid, so it does not compete with the cards above it. */
+.matches__count {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+    margin-bottom: var(--space-2);
+}
+
+.matches__show-more {
+    margin-bottom: var(--space-4);
+}
+
 /* ==========================================================================
    Settings fields
    ========================================================================== */

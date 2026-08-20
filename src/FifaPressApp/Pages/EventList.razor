@@ -96,7 +96,7 @@ else
            multi-column layout costs nothing here — unlike the access record,
            which is sequential and stays a single column. *@
         <div class="row">
-            @foreach (var fixture in PagedFixtures)
+            @foreach (var fixture in VisibleFixtures)
             {
                 <div class="col-12 col-md-6" @key="fixture.MatchNumber">
                     <div class="matches__item">
@@ -119,20 +119,24 @@ else
         </div>
     }
 
-    @if (TotalPages > 1)
+    @if (loaded && FilteredFixtures.Count > 0)
     {
-        <nav aria-label="@L[Locale, "matches.pagesLabel"]" class="mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageNumber = i;
-                <button type="button"
-                        class="btn btn-sm me-1 mb-1 @(pageNumber == currentPage ? "btn-primary" : "btn-outline-primary")"
-                        aria-current="@(pageNumber == currentPage ? "page" : null)"
-                        @onclick="() => currentPage = pageNumber">
-                    @pageNumber
-                </button>
-            }
-        </nav>
+        @* The count is announced rather than only shown. Pressing "Show more"
+           moves nothing that was already on screen and adds twelve rows below
+           the fold, so a screen-reader user gets no notification at all unless
+           the count says what just happened — which is the whole reason this
+           line is polite rather than decorative. *@
+        <p class="matches__count" aria-live="polite">
+            @L.Format(Locale, "matches.showingCount",
+                ("shown", VisibleFixtures.Count), ("total", FilteredFixtures.Count))
+        </p>
+
+        @if (VisibleFixtures.Count < FilteredFixtures.Count)
+        {
+            <button type="button" class="btn btn-outline-primary matches__show-more" @onclick="ShowMore">
+                @L[Locale, "matches.showMore"]
+            </button>
+        }
     }
 }
 
@@ -140,13 +144,26 @@ else
     [CascadingParameter]
     public AppLocale Locale { get; set; }
 
-    private const int PageSize = 10;
+    /// <summary>
+    /// How many more fixtures each press reveals — and, since nothing is ever
+    /// hidden again, how many are on screen to begin with.
+    ///
+    /// <para>
+    /// Twelve rather than ShopEase's six, because that list holds twelve
+    /// products and this one holds a hundred and four fixtures, and twelve is
+    /// one row-pair at the existing col-md-6 breakpoint. Nine presses reach the
+    /// end, which is deliberate friction: the intent is to make filtering more
+    /// attractive than paging, and a show-all button would remove the reason to
+    /// filter at all.
+    /// </para>
+    /// </summary>
+    private const int PageSize = 12;
 
     private IReadOnlyList<Fixture> allFixtures = [];
     private string searchTerm = string.Empty;
     private string groupSelection = FixtureQuery.AllGroups;
     private MatchStatusFilter statusFilter = MatchStatusFilter.All;
-    private int currentPage = 1;
+    private int visibleCount = PageSize;
     private DateTime lastSyncedUtc;
     private bool loaded;
     private bool loadFailed;
@@ -192,24 +209,24 @@ else
     private List<Fixture> FilteredFixtures =>
         FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale);
 
-    private int TotalPages => Math.Max(1, (int)Math.Ceiling(FilteredFixtures.Count / (double)PageSize));
+    private List<Fixture> VisibleFixtures => FilteredFixtures.Take(visibleCount).ToList();
 
-    private List<Fixture> PagedFixtures =>
-        FilteredFixtures.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+    private void ShowMore() => visibleCount += PageSize;
 
     private void OnSearchInput(ChangeEventArgs e)
     {
         searchTerm = e.Value?.ToString() ?? string.Empty;
-        currentPage = 1;
+        visibleCount = PageSize;
     }
 
-    // Every control resets to the first page, for the same reason search always
-    // did: page 4 of a list that now has one page is a blank screen that looks
-    // like a bug.
+    // Every control resets the visible count, for the same reason each used to
+    // reset the page: a narrowed list that inherited an expanded count would
+    // show everything it has and hide the control that says so, leaving no
+    // sign that the list is complete.
     private void OnGroupChanged(ChangeEventArgs e)
     {
         groupSelection = e.Value?.ToString() ?? FixtureQuery.AllGroups;
-        currentPage = 1;
+        visibleCount = PageSize;
     }
 
     private void OnStatusChanged(ChangeEventArgs e)
@@ -217,7 +234,7 @@ else
         statusFilter = Enum.TryParse<MatchStatusFilter>(e.Value?.ToString(), out var parsed)
             ? parsed
             : MatchStatusFilter.All;
-        currentPage = 1;
+        visibleCount = PageSize;
     }
 
     /// <summary>
