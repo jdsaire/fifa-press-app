@@ -77,8 +77,13 @@ public class SignInScreenTests
     }
 
     [Fact]
-    public void BothAccountsArePublishedWithIdentifierPasswordAndWhatDiffers()
+    public void BothAccountsArePublishedWithHolderIdentifierAndPassword()
     {
+        // What a person needs in order to sign in, and nothing else. The
+        // per-account description this used to assert is retired with the keys
+        // that backed it: what the two records demonstrate is shown on the
+        // screen where they are actually compared, not explained in advance to
+        // somebody who has seen neither.
         using var context = NewContext();
 
         var page = context.Render<SignIn>();
@@ -92,8 +97,39 @@ public class SignInScreenTests
             Assert.Contains(account.Identifier, markup);
             Assert.Contains(account.Password, markup);
             Assert.Contains(account.HolderName, markup);
-            Assert.Contains(LocaleTestData.Loaded()[AppLocale.En, account.DescriptionKey], markup);
         }
+    }
+
+    [Fact]
+    public void ThePublishedIdentifierIsTypeableAndIsNotTheCredentialNumber()
+    {
+        // The rename's whole point. The credential number is still what the
+        // record is keyed by — it is simply no longer what a person is asked to
+        // type from memory.
+        foreach (var account in new DemoAccountStore().Published)
+        {
+            Assert.StartsWith("demo_staff", account.Identifier);
+            Assert.NotEqual(account.CredentialId, account.Identifier);
+
+            // And the allow-list the form validates against accepts it: an
+            // underscore is in the permitted set, and there is no "@" in it to
+            // trip the email input-mode nudge either way.
+            Assert.Matches(@"^[\p{L}\p{N} .\-'_@]+$", account.Identifier);
+            Assert.DoesNotContain("@", account.Identifier);
+        }
+    }
+
+    [Fact]
+    public void TheCredentialNumbersStillKeyTheRecordsTheyAlwaysDid()
+    {
+        // The half of the rename that must NOT have moved. Every stored change,
+        // every seeded accreditation, and MockAccessDataProvider's own two
+        // constants are keyed by these values.
+        Assert.Equal("MP-2026-04817", DemoAccountStore.Amina.CredentialId);
+        Assert.Equal("RH-2026-00219", DemoAccountStore.Tomas.CredentialId);
+
+        Assert.Equal(MockAccessDataProvider.AminaCredentialId, DemoAccountStore.Amina.CredentialId);
+        Assert.Equal(MockAccessDataProvider.TomasCredentialId, DemoAccountStore.Tomas.CredentialId);
     }
 
     [Fact]
@@ -185,7 +221,7 @@ public class SignInScreenTests
     public async Task SomeoneAlreadySignedInIsSentToTheirRecord()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         using var context = NewContext(session);
         var navigation = context.Services.GetRequiredService<NavigationManager>();

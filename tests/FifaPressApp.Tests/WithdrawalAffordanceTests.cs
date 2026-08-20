@@ -28,7 +28,7 @@ public class WithdrawalAffordanceTests
     private static async Task<SimulatedSessionProvider> AsAminaAsync()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "amina-demo-2026");
         return session;
     }
 

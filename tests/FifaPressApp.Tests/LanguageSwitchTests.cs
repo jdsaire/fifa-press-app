@@ -173,7 +173,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         // The holder indicator reads from the session bar now rather than the
         // sidebar; the guarantee is unchanged — a switch leaves the session,
@@ -196,7 +196,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         var navigation = context.Services.GetRequiredService<NavigationManager>();
         var before = navigation.Uri;
@@ -236,7 +236,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         var page = RenderThenSwitch<MyAccess>(harness, locale);
 
@@ -296,7 +296,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         var page = context.Render<MyAccess>();
         Assert.Contains("Match 1", page.Markup);
@@ -320,7 +320,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("RH-2026-00219", "tomas-demo-2026");
+        await harness.Session.SignInAsync("demo_staff2", "tomas-demo-2026");
 
         var page = context.Render<MyAccess>();
         Assert.Contains("Broadcast position confirmed", page.Markup);
@@ -339,7 +339,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         var page = context.Render<MyAccess>();
         var before = page.FindAll("article.change-row").Count;
@@ -359,7 +359,7 @@ public class LanguageSwitchTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("RH-2026-00219", "tomas-demo-2026");
+        await harness.Session.SignInAsync("demo_staff2", "tomas-demo-2026");
 
         var markup = RenderThenSwitch<MyAccess>(harness, locale).Markup;
 

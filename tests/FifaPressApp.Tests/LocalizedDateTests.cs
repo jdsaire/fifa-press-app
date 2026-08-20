@@ -71,7 +71,7 @@ public class LocalizedDateTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         var markup = RenderThenSwitch<MyAccess>(harness, locale).Markup;
 
@@ -87,7 +87,7 @@ public class LocalizedDateTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         Assert.Contains(
             expected,
@@ -107,7 +107,7 @@ public class LocalizedDateTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
 
         Assert.Contains(
             expected,

@@ -27,7 +27,7 @@ public class SignOutTests
     private static async Task<SimulatedSessionProvider> AsAminaAsync()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("MP-2026-04817", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "amina-demo-2026");
         return session;
     }
 
@@ -178,7 +178,7 @@ public class SignOutTests
         var bar = context.Render<SessionBar>();
         Assert.Empty(bar.FindAll(".session-bar__holder"));
 
-        await bar.InvokeAsync(() => session.SignInAsync("RH-2026-00219", "tomas-demo-2026"));
+        await bar.InvokeAsync(() => session.SignInAsync("demo_staff2", "tomas-demo-2026"));
 
         Assert.Contains("Tomás L.", bar.Find(".session-bar__holder").TextContent);
     }

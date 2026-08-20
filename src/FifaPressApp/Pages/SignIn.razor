@@ -54,32 +54,37 @@
     @L[Locale, "signIn.noticeBody"]
 </p>
 
-@* Adjacent to the form, not behind a disclosure. Each account says whose
-   record it opens and what makes that record worth looking at — a person who
-   signs in as one and then the other should be told, beforehand, that the
-   difference is the point. *@
-<section class="signin__accounts">
+@* Adjacent to the form, not behind a disclosure. Published in plain text,
+   because they are not secrets and pretending otherwise would be the interface
+   lying about itself.
+
+   ONE LINE PER ACCOUNT. This used to be a definition list per account plus a
+   biography paragraph explaining what made each record worth looking at, plus a
+   closing hint suggesting you sign in as one and then the other. All three are
+   gone. What a person needs here is what to type; what the two records
+   demonstrate is a thing the records themselves show, on the screen where they
+   are actually compared, and explaining it in advance on the sign-in form asked
+   somebody to remember a distinction before they had seen either side of it.
+
+   The holder's name stays. It is not persona prose — it is how you tell which
+   of the two lines you are about to type. *@
+<section class="signin__accounts" aria-label="@L[Locale, "signIn.accountsHeading"]">
     <h2>@L[Locale, "signIn.accountsHeading"]</h2>
+    <p>@L[Locale, "signIn.accountsIntro"]</p>
 
     <ul class="signin__account-list">
         @foreach (var account in Accounts.Published)
         {
+            @* Keyed by the credential, which is the value that identifies the
+               record and is not what this rename touched. *@
             <li class="signin__account" @key="account.CredentialId">
-                <h3>@account.HolderName</h3>
-                <dl>
-                    @* The identifier is never translated or reformatted in any
-                       locale — it is an identifier, not language content. *@
-                    <dt>@L[Locale, "signIn.identifierLabel"]</dt>
-                    <dd><code>@account.Identifier</code></dd>
-                    <dt>@L[Locale, "signIn.passwordLabel"]</dt>
-                    <dd><code>@account.Password</code></dd>
-                </dl>
-                <p class="signin__account-note">@L[Locale, account.DescriptionKey]</p>
+                @* Neither value is ever translated or reformatted in any
+                   locale — they are things to type, not language content. *@
+                <strong>@account.HolderName</strong> —
+                <code>@account.Identifier</code> / <code>@account.Password</code>
             </li>
         }
     </ul>
-
-    <p class="signin__account-hint">@L[Locale, "signIn.accountsHint"]</p>
 </section>
 
 <EditForm EditContext="editContext" OnValidSubmit="HandleSubmitAsync" class="signin__form">
