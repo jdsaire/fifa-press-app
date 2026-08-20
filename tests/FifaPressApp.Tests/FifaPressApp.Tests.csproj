@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/FifaPressApp/FifaPressApp.csproj" />
+    <ProjectReference Include="../../src/frontend/FifaPressApp.csproj" />
   </ItemGroup>
 
   <!-- The real, tracked schedule, copied to the test output rather than
@@ -27,7 +27,7 @@
        the one the app actually reads, at which point these tests would be
        proving something about a file nobody ships. -->
   <ItemGroup>
-    <Content Include="../../src/FifaPressApp/wwwroot/data/2026_World_Cup_Schedule.csv"
+    <Content Include="../../src/frontend/wwwroot/data/2026_World_Cup_Schedule.csv"
              Link="data/2026_World_Cup_Schedule.csv"
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

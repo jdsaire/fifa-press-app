@@ -35,7 +35,7 @@ public class InteropTests
         File.ReadAllText(Path.Combine(RepoRoot(), "src", "interop", "src", name));
 
     private static string Compiled(string name) =>
-        File.ReadAllText(Path.Combine(RepoRoot(), "src", "FifaPressApp", "wwwroot", "js", name));
+        File.ReadAllText(Path.Combine(RepoRoot(), "src", "frontend", "wwwroot", "js", name));
 
     private static IReadOnlyList<string> ExportedFunctions(string code) =>
         Regex.Matches(code, @"export function (\w+)")
@@ -66,14 +66,14 @@ public class InteropTests
 
         foreach (var name in sources)
         {
-            var path = Path.Combine(RepoRoot(), "src", "FifaPressApp", "wwwroot", "js", $"{name}.js");
+            var path = Path.Combine(RepoRoot(), "src", "frontend", "wwwroot", "js", $"{name}.js");
             Assert.True(File.Exists(path), $"{name}.ts has no committed {name}.js beside it");
         }
 
         // And nothing in wwwroot/js is orphaned — a .js with no .ts would be a
         // file nobody can safely regenerate.
         foreach (var emitted in Directory.EnumerateFiles(
-                     Path.Combine(RepoRoot(), "src", "FifaPressApp", "wwwroot", "js"), "*.js"))
+                     Path.Combine(RepoRoot(), "src", "frontend", "wwwroot", "js"), "*.js"))
         {
             Assert.Contains(Path.GetFileNameWithoutExtension(emitted), sources);
         }
@@ -222,7 +222,7 @@ public class InteropTests
     public void TheToolchainIsDevelopmentOnlyAndOutsideTheAppProject()
     {
         var csproj = File.ReadAllText(
-            Path.Combine(RepoRoot(), "src", "FifaPressApp", "FifaPressApp.csproj"));
+            Path.Combine(RepoRoot(), "src", "frontend", "FifaPressApp.csproj"));
 
         // The app project does not know this folder exists.
         Assert.DoesNotContain("interop", csproj, StringComparison.OrdinalIgnoreCase);
@@ -272,7 +272,7 @@ public class InteropTests
     {
         var tsconfig = File.ReadAllText(Path.Combine(RepoRoot(), "src", "interop", "tsconfig.json"));
 
-        Assert.Contains("\"outDir\": \"../FifaPressApp/wwwroot/js\"", tsconfig);
+        Assert.Contains("\"outDir\": \"../frontend/wwwroot/js\"", tsconfig);
     }
 
     [Fact]

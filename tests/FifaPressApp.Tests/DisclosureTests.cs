@@ -345,5 +345,5 @@ public class DisclosureTests
 
     private static string SourceRoot([CallerFilePath] string thisFile = "")
         => Path.GetFullPath(Path.Combine(
-            Path.GetDirectoryName(thisFile)!, "..", "..", "src", "FifaPressApp"));
+            Path.GetDirectoryName(thisFile)!, "..", "..", "src", "frontend"));
 }

@@ -33,7 +33,7 @@ namespace FifaPressApp.Tests;
 public class ThemeTriggerPlacementTests
 {
     private static string SourceRoot([CallerFilePath] string thisFile = "")
-        => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisFile)!, "..", "..", "src", "FifaPressApp"));
+        => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(thisFile)!, "..", "..", "src", "frontend"));
 
     private static string Read(params string[] parts)
         => File.ReadAllText(Path.Combine(SourceRoot(), Path.Combine(parts)));

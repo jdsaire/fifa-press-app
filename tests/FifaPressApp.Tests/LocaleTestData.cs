@@ -21,7 +21,7 @@ internal static class LocaleTestData
 {
     public static string ResourceDirectory([CallerFilePath] string thisFile = "") =>
         Path.GetFullPath(Path.Combine(
-            Path.GetDirectoryName(thisFile)!, "..", "..", "src", "FifaPressApp", "wwwroot", "i18n"));
+            Path.GetDirectoryName(thisFile)!, "..", "..", "src", "frontend", "wwwroot", "i18n"));
 
     public static LocaleService Loaded()
     {

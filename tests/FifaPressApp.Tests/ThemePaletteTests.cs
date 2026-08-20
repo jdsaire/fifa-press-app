@@ -22,7 +22,7 @@ public class ThemePaletteTests
 {
     private static string AppCss()
     {
-        var css = Path.Combine(RepoRoot(), "src", "FifaPressApp", "wwwroot", "css", "app.css");
+        var css = Path.Combine(RepoRoot(), "src", "frontend", "wwwroot", "css", "app.css");
         Assert.True(File.Exists(css), $"app.css not found at {css}");
         return File.ReadAllText(css);
     }

@@ -30,7 +30,7 @@
     "declaration": false,
     "sourceMap": false,
 
-    "outDir": "../FifaPressApp/wwwroot/js",
+    "outDir": "../frontend/wwwroot/js",
     "rootDir": "src"
   },
   "include": ["src/**/*.ts"]
