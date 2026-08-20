@@ -218,9 +218,15 @@ main > .top-row {
     border-bottom: 1px solid var(--color-stale-text);
 }
 
-/* First in the row and pushed hard left, so the control that gives the content
-   column its width back sits at the edge the sidebar occupies. Hidden below the
-   breakpoint, where NavMenu's own toggle already owns this job. */
+/* DISABLED, ON PURPOSE, AFTER VISUAL REVIEW — not deleted. The sidebar stays
+   fixed at desktop and tablet widths per the principal's own inspection; the
+   toggle is kept out of view rather than torn out so the feature can return
+   later without rebuilding it. The button, its click handler, the
+   sidebarHidden state, aria-expanded wiring, and both tests in
+   ThemeTriggerPlacementTests all still exist and still work — only visibility
+   changed. To bring it back: restore the `display: inline-flex` rule inside
+   the min-width: 641px media query directly below this comment, matching what
+   this block looked like before this note was added. */
 .top-row__sidebar-toggle {
     display: none;
     margin-right: auto;
@@ -248,9 +254,8 @@ main > .top-row {
 }
 
 @media (min-width: 641px) {
-    .top-row__sidebar-toggle {
-        display: inline-flex;
-    }
+    /* .top-row__sidebar-toggle { display: inline-flex; } — commented out
+       rather than removed; see the note above the base rule. */
 }
 
 .session-bar {
