@@ -60,5 +60,15 @@ Records of each build run against this repo: the plan approved before the work s
   non-personal demo credentials; a real sign-in crash root-caused to one line and fixed, plus a
   regression it had been masking; a ShopEase-parity layout pass; and a final round of surgical
   fixes. Frontend, locale files, and documentation only. Tests: 421 → 512.
+- [`v15/`](v15/) — the first run to add a server. Moves the Blazor app to `src/frontend/`
+  and its tests to `tests/frontend/` as a path-only change — no namespace, assembly or
+  project filename touched — then builds an ASP.NET Core Web API at `src/backend/`: CRUD
+  over the accreditation record and its change log, validation carrying the frontend's own
+  domain rules, three middleware components in the documented order, and one SignalR hub.
+  The frontend gains an API-backed provider behind the `IAccessDataProvider` interface it
+  has used since v9, **off by default**, so the deployed site is unchanged. Adds `backend/`
+  (documentation, parallel to `ux-ui/`) and `learning-mode/04-backend-and-integration/`.
+  The published output is 320 of 329 files byte-identical, every difference a commit SHA or
+  a build path. Tests: 512 → 512 frontend + 33 backend.
 
 Each version folder has its own README with more detail on what that run covered.
