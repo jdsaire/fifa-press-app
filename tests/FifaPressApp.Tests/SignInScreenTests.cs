@@ -171,6 +171,46 @@ public class SignInScreenTests
     }
 
     [Fact]
+    public void TheIdentifierFieldCarriesNoInvalidDomEventOverride()
+    {
+        // The regression guard for the defect that made sign-in unusable in a
+        // browser while every test still passed: nothing in this suite had ever
+        // fired an input event on this field.
+        //
+        // `@bind-Value:event="oninput"` was set on <InputText>, which is a
+        // component rather than an element. On a component that syntax names an
+        // EventCallback *parameter*, and InputText has none called `oninput` —
+        // so it fell through AdditionalAttributes onto the underlying <input>
+        // as a DOM handler, bound to a delegate typed `string`. Browsers invoke
+        // DOM handlers with ChangeEventArgs, so the first keystroke threw
+        // ArgumentException and took the whole renderer down with it.
+        //
+        // Asserted at the cause. An `oninput` handler on this element can only
+        // be that splatted delegate — InputText never wires one itself — so its
+        // absence is the guarantee, and its presence is the bug.
+        using var context = NewContext();
+
+        var page = context.Render<SignInForm>();
+
+        Assert.Throws<Bunit.MissingEventHandlerException>(
+            () => page.Find("#signin-identifier").Input("demo_staff1"));
+    }
+
+    [Fact]
+    public void BothFieldsBindOnChange_TheWayShopEasesOwnLoginFormDoes()
+    {
+        // The contract that has to keep working: what a person types reaches the
+        // model. InputText's own change event does it, with no override.
+        using var context = NewContext();
+
+        var page = context.Render<SignInForm>();
+        page.Find("#signin-identifier").Change("demo_staff1");
+        page.Find("#signin-password").Change("Demo#2026Staff1");
+
+        Assert.Equal("demo_staff1", page.Find("#signin-identifier").GetAttribute("value"));
+    }
+
+    [Fact]
     public void EachFieldsErrorAnnouncesItselfPolitely()
     {
         // ValidationMessage renders nothing until there is something to say, so
