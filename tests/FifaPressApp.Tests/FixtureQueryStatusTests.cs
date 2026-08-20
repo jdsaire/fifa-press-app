@@ -127,6 +127,11 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        // EventList reads the session to decide whether a request control is
+        // offered at all, so the provider has to be registered even where the
+        // test is about a filter rather than about who is signed in.
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 
@@ -149,6 +154,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider([upcoming, played]));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
         Assert.Contains("Estadio Azteca", page.Markup);
@@ -174,6 +181,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 
@@ -198,6 +207,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider(fixtures));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
         page.Find("input[type=search]").Input("Azteca");
@@ -218,6 +229,8 @@ public class FixtureQueryStatusTests
         using var context = new BunitContext();
         context.WithLocale();
         context.Services.AddSingleton<IAccessDataProvider>(new StubAccessDataProvider([]));
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
 
         var page = context.Render<FifaPressApp.Pages.EventList>();
 

@@ -164,11 +164,40 @@ public class GatingTests
     [Fact]
     public void TheMatchListIsPublic()
     {
+        // Public means it renders, in full, with no session — not that the word
+        // "sign in" never appears on it. Since the request control became
+        // session-gated, an unplayed fixture offers a signed-out visitor a way
+        // in where the request button would be, which is the opposite of
+        // gating: the page states the offer rather than hiding the fixture.
+        //
+        // The old assertion — no "Sign in" anywhere in the markup — would now
+        // pass or fail depending on whether the first page happened to hold
+        // played fixtures, which is not something this test means to be about.
         using var context = NewContext(SignedOut());
 
         var page = context.Render<EventList>();
 
-        Assert.DoesNotContain("Sign in", page.Markup);
+        Assert.NotEmpty(page.FindAll(".matches__item"));
+        Assert.Empty(page.FindAll(".my-access__signed-out"));
+
+        // No personal state leaks onto a public surface.
+        Assert.DoesNotContain("Amina Bello", page.Markup);
+        Assert.DoesNotContain("MP-2026-04817", page.Markup);
+    }
+
+    [Fact]
+    public void TheMatchListOffersAWayInRatherThanARequestWhenSignedOut()
+    {
+        // The replacement for what the assertion above used to imply, asserted
+        // where it is actually true: on an unplayed fixture, which is the only
+        // kind that has a request path to gate.
+        using var context = NewContext(SignedOut());
+
+        var page = context.Render<EventList>();
+        page.Find("select#matches-status").Change(nameof(MatchStatusFilter.NotYetPlayed));
+
+        Assert.Empty(page.FindAll("a[href^='request/']"));
+        Assert.NotEmpty(page.FindAll("a[href='record']"));
     }
 
     [Fact]

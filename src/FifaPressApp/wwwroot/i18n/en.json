@@ -226,6 +226,7 @@
     "notFound.body": "That address does not match anything in this app.",
     "matches.viewDetails": "View details",
     "matches.requestAccess": "Request access",
+    "matches.signInToRequest": "Sign in to request access",
     "matches.pagesLabel": "Match list pages",
     "matches.emptyNone": "No matches to show.",
     "matches.emptyNarrowed": "No matches found. Narrowing this list right now: {controls}.",

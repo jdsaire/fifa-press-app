@@ -1,0 +1,131 @@
+@inject LocaleService L
+
+@* One fixture, on the match list.
+   ------------------------------------------------------------------------
+   Purpose-built, and that is the point of it existing at all. This list used to
+   render EventCard — the app's original generic card — which meant a World Cup
+   fixture was passed into a parameter called EventName and sat beside an inline
+   Edit toggle and the line "Changes here aren't saved." None of that is true of
+   a fixture: it is not the reader's to change, and an edit box over a match
+   whose teams are deliberately withheld would invite someone to type in the
+   very names the data layer refuses to hand out.
+
+   EventCard is not deleted. It stays in the repository as the app's only
+   demonstration of the X/XChanged + @@bind + EventCallback pairing, rendered by
+   its own tests. Its being unreferenced by this page is the deliberate outcome,
+   not an oversight waiting to be tidied up.
+
+   THIS CARD KNOWS NOTHING ABOUT THE SESSION, AND MUST NOT LEARN. It injects no
+   session provider and asks no question about who is signed in; the calling
+   page computes a plain bool and passes it down. A card that could answer "may
+   this person request access" would be a second place where that question is
+   decided, and the answer would eventually differ from the record's. Every
+   parameter below is a fact about the fixture or a decision already made
+   elsewhere. *@
+
+<div class="card match-card mb-3">
+    <div class="card-body">
+        <h3 class="match-card__name">@Name</h3>
+
+        <p class="match-card__when mb-1">
+            <Icon Name="date" />
+            <time datetime="@Kickoff.ToString("yyyy-MM-dd")">@L.Date(Locale, Kickoff, "monthDayYear")</time>
+        </p>
+
+        <p class="match-card__where mb-1"><Icon Name="location" />@Venue, @City</p>
+
+        <p class="match-card__meta mb-2">
+            <Icon Name="phase" />@Phase ·
+            <time datetime="@Kickoff.ToString("o")">@Kickoff.ToString("HH:mm")</time>
+            @TimeZoneLabel
+        </p>
+
+        @* Capacity renders only where it can mean something. A played fixture
+           has no slots to have run out of, and it is also the only kind of
+           fixture that carries team names — so this line and a matchup can
+           never appear on the same card. *@
+        @if (!IsPlayed && SlotsRemaining is int slots)
+        {
+            <p class="match-card__slots @(slots == 0 ? "match-card__slots--none" : null) mb-2">
+                @(slots == 0
+                    ? L[Locale, "matches.soldOut"]
+                    : L.Format(Locale, "matches.slotsRemaining", ("count", slots)))
+            </p>
+        }
+
+        @* Details are always reachable: this list is the only route into a
+           fixture's own page, for played and unplayed alike. What varies is the
+           request path, which is the thing a played fixture genuinely does not
+           have. *@
+        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{MatchNumber}")">
+            @L[Locale, "matches.viewDetails"]
+        </NavLink>
+
+        @if (!IsPlayed)
+        {
+            @if (!CanRequest)
+            {
+                @* Stated as an offer rather than hidden or disabled: a control
+                   that does nothing invites the question "why", and here there
+                   is a plain answer worth giving. *@
+                <NavLink class="btn btn-primary btn-sm" href="record">
+                    @L[Locale, "matches.signInToRequest"]
+                </NavLink>
+            }
+            else if (SlotsRemaining > 0)
+            {
+                <NavLink class="btn btn-primary btn-sm" href="@($"request/{MatchNumber}")">
+                    @L[Locale, "matches.requestAccess"]
+                </NavLink>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public AppLocale Locale { get; set; }
+
+    [Parameter]
+    public int MatchNumber { get; set; }
+
+    /// <summary>
+    /// How the fixture is named on screen — already resolved through the
+    /// withholding rule and the locale by the time it arrives here.
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public DateTime Kickoff { get; set; }
+
+    [Parameter]
+    public string TimeZoneLabel { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Venue { get; set; } = string.Empty;
+
+    [Parameter]
+    public string City { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Phase { get; set; } = string.Empty;
+
+    /// <summary>Whether the fixture has already kicked off.</summary>
+    [Parameter]
+    public bool IsPlayed { get; set; }
+
+    /// <summary>
+    /// Slots left, or <c>null</c> where the concept does not apply.
+    /// </summary>
+    [Parameter]
+    public int? SlotsRemaining { get; set; }
+
+    /// <summary>
+    /// Whether the person looking at this card is in a position to request
+    /// access at all — a plain bool, computed by the calling page. This
+    /// component neither knows nor asks what makes it true.
+    /// </summary>
+    [Parameter]
+    public bool CanRequest { get; set; }
+}

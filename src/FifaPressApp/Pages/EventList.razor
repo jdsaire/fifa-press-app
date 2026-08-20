@@ -6,11 +6,18 @@
    the front door.
 
    Note what is deliberately absent: no access status, no request count. Access
-   belongs to the person and lives on My Access; scattering it across as many
+   belongs to the person and lives on the record; scattering it across as many
    screens as there are fixtures is precisely how the old app made "what changed
    about my access" unanswerable. A count of other people's requests tells the
    reader nothing about their own entitlement and implies a competition they
    cannot act on.
+
+   THE ONE THING THIS PAGE NOW READS FROM THE SESSION is whether there is one,
+   and it reads it here rather than in the card. A signed-out visitor cannot
+   request access to anything, so offering the control and failing on the far
+   side of it would be a dead end dressed as an affordance; a played fixture
+   cannot be requested by anyone, because it is over. Both of those are the
+   page's decisions to make, and each reaches the card as a plain bool.
 
    Fixtures whose kickoff has not passed arrive here with no team names on
    them — the data layer withholds them — so this page renders whatever label it
@@ -18,6 +25,7 @@
 
 @page "/matches"
 @inject IAccessDataProvider Access
+@inject SimulatedSessionProvider Session
 @inject LocaleService L
 
 <PageTitle>@L[Locale, "matches.title"]</PageTitle>
@@ -92,18 +100,19 @@ else
             {
                 <div class="col-12 col-md-6" @key="fixture.MatchNumber">
                     <div class="matches__item">
-                        <EventCard EventName="@FixtureLabels.Display(L, Locale, fixture)"
-                                   EventDate="fixture.KickoffLocal"
-                                   Location="@($"{fixture.Venue}, {fixture.City}")"
-                                   ReadOnly="true"
-                                   AllowEdit="false" />
-                        <p class="matches__meta">
-                            <Icon Name="phase" />@FixtureLabels.Phase(L, Locale, fixture) ·
-                            <time datetime="@fixture.KickoffLocal.ToString("o")">@fixture.KickoffLocal.ToString("HH:mm")</time>
-                            @fixture.TimeZoneLabel
-                        </p>
-                        <NavLink class="btn btn-outline-primary btn-sm me-2" href="@($"events/{fixture.MatchNumber}")">@L[Locale, "matches.viewDetails"]</NavLink>
-                        <NavLink class="btn btn-primary btn-sm" href="@($"request/{fixture.MatchNumber}")">@L[Locale, "matches.requestAccess"]</NavLink>
+                        @* The gate is computed here and handed down as a plain
+                           bool. MatchCard is deliberately unable to work it out
+                           for itself — see its own note. *@
+                        <MatchCard MatchNumber="fixture.MatchNumber"
+                                   Name="@FixtureLabels.Display(L, Locale, fixture)"
+                                   Kickoff="fixture.KickoffLocal"
+                                   TimeZoneLabel="@fixture.TimeZoneLabel"
+                                   Venue="@fixture.Venue"
+                                   City="@fixture.City"
+                                   Phase="@FixtureLabels.Phase(L, Locale, fixture)"
+                                   IsPlayed="fixture.IsResolved"
+                                   SlotsRemaining="fixture.SlotsRemaining"
+                                   CanRequest="Session.IsSignedIn" />
                     </div>
                 </div>
             }

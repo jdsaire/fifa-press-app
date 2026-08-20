@@ -226,6 +226,7 @@
     "notFound.body": "Esa dirección no corresponde a nada en esta aplicación.",
     "matches.viewDetails": "Ver detalles",
     "matches.requestAccess": "Solicitar acceso",
+    "matches.signInToRequest": "Inicia sesión para solicitar acceso",
     "matches.pagesLabel": "Páginas de la lista de partidos",
     "matches.emptyNone": "No hay partidos que mostrar.",
     "matches.emptyNarrowed": "No se encontraron partidos. Ahora mismo esta lista está filtrada por: {controls}.",

@@ -1,6 +1,7 @@
 using Bunit;
 using FifaPressApp.Components;
 using FifaPressApp.Models;
+using FifaPressApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -102,6 +103,11 @@ public class IconTests
 
         using var context = new BunitContext();
         context.WithLocale();
+        // EventList reads the session to decide whether a request control is
+        // offered at all, so the provider has to be registered even where the
+        // test is about an icon.
+        context.Services.AddSingleton(new DemoAccountStore());
+        context.Services.AddSingleton(new SimulatedSessionProvider(new DemoAccountStore()));
         context.Services.AddSingleton<FifaPressApp.Services.IAccessDataProvider>(
             new StubAccessDataProvider([fixture]));
 

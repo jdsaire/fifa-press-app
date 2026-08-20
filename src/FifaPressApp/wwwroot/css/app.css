@@ -260,6 +260,34 @@ main > .top-row {
 }
 
 /* ==========================================================================
+   The match card
+   ========================================================================== */
+
+.match-card__name {
+    font-size: var(--font-size-heading-3);
+}
+
+.match-card__meta,
+.match-card__where,
+.match-card__when {
+    font-size: var(--font-size-small);
+}
+
+/* Capacity reads as a fact about the fixture, not as an alarm. Sold out is the
+   one state worth a colour, and it is the app's danger token rather than a new
+   one, because "you cannot get in" is the same category of news the record
+   already uses that colour for. */
+.match-card__slots {
+    font-size: var(--font-size-small);
+    color: var(--color-stale-text);
+}
+
+.match-card__slots--none {
+    color: var(--color-danger-surface);
+    font-weight: 600;
+}
+
+/* ==========================================================================
    Settings fields
    ========================================================================== */
 
