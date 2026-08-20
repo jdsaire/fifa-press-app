@@ -8,7 +8,17 @@
    compiled `.signin__form[b-xxxxx]` therefore matched nothing, the rule never
    applied, and Bootstrap's `.form-control { width: 100% }` let every input run
    the full width of the content column. A <section> this file owns gets the
-   attribute, so the cap actually binds. */
+   attribute, so the cap actually binds.
+
+   THE SAME DEFECT, FOUND A SECOND TIME. `.signin__form`'s flex layout and its
+   `button:disabled` rule were dead for the identical reason — declared against
+   a class on <EditForm> itself, never against an element this file actually
+   owns. It went unnoticed because a form with no gap between its children
+   still LOOKS like a form; it takes a specific "why is the button glued to the
+   password field" report to notice the gap that should be there isn't. Both
+   rules now target `.signin__form-fields`, a <div> this file writes directly
+   inside <EditForm>'s content — which does receive the scope attribute,
+   because it is authored here rather than inside a child component. *@
 .signin {
     max-width: 32rem;
     margin: 0 auto;
@@ -27,8 +37,11 @@
     margin-bottom: 0;
 }
 
-/* The column sizes the form now; the form does not size itself. */
-.signin__form {
+/* The column sizes the form now; the form does not size itself. The class
+   below stays on <EditForm> purely as a query hook for tests — Blazor still
+   applies a plain HTML class via AdditionalAttributes regardless of CSS scoping,
+   so `form.signin__form` is findable even though no *style* here can bind to it. */
+.signin__form-fields {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
@@ -99,7 +112,7 @@
 /* The submitting state has no spinner. The button says what is happening and
    the fields stop accepting input, which is the whole of it — a spinner over a
    600ms simulated wait would be decoration. */
-.signin__form button:disabled {
+.signin__form-fields button:disabled {
     opacity: 0.7;
     cursor: default;
 }

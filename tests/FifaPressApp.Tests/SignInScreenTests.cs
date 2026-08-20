@@ -228,6 +228,25 @@ public class SignInScreenTests
     }
 
     [Fact]
+    public void TheSubmitButtonIsInsideTheLayoutWrapperThatCarriesTheSpacing()
+    {
+        // The button was rendered directly against the password field's div
+        // with no vertical space between them — a second instance of the same
+        // defect class as the width bug: `.signin__form`'s flex/gap declaration
+        // was scoped to <EditForm>, a component, so it never bound to anything.
+        // The fix moved the layout onto a real <div> this file owns; this pins
+        // that both the wrapper exists and the button is inside it, so the CSS
+        // rule that gives it breathing room actually has something to apply to.
+        using var context = NewContext();
+
+        var page = context.Render<SignInForm>();
+        var wrapper = page.Find(".signin__form-fields");
+
+        Assert.NotEmpty(wrapper.QuerySelectorAll(".signin__field"));
+        Assert.NotEmpty(wrapper.QuerySelectorAll("button[type='submit']"));
+    }
+
+    [Fact]
     public void BothFieldsBindOnChange_TheWayShopEasesOwnLoginFormDoes()
     {
         // The contract that has to keep working: what a person types reaches the

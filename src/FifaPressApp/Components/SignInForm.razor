@@ -44,64 +44,73 @@
     <EditForm EditContext="editContext" OnValidSubmit="HandleSubmitAsync" class="signin__form">
         <DataAnnotationsValidator />
 
-        <div class="signin__field">
-            <label for="signin-identifier">@L[Locale, "signIn.identifierLabel"]</label>
-            @* Bound on InputText's own change event, with no `:event` override.
-               `@bind-Value:event="oninput"` used to sit here, and it was a defect:
-               on an *element* that syntax names a DOM event, but InputText is a
-               component, where it must name an EventCallback parameter — and there
-               is no `oninput` parameter on InputText. It fell through
-               AdditionalAttributes onto the underlying <input> as a DOM handler
-               bound to a delegate typed `string`, so the browser invoked it with
-               ChangeEventArgs and the renderer tore down on the first keystroke.
-               Every test passed throughout, because nothing ever typed here. *@
-            <InputText id="signin-identifier"
-                       class="form-control"
-                       autocomplete="username"
-                       inputmode="@IdentifierInputMode"
-                       disabled="@submitting"
-                       @bind-Value="model.Identifier" />
-            @* Rendered from the EditContext rather than by <ValidationMessage>, and
-               this is the one place v9's structure could not be carried across
-               verbatim. A DataAnnotations ErrorMessage is a fixed string on the
-               attribute, and <ValidationMessage> renders it as-is — so the
-               attributes below carry resource KEYS and this resolves them against
-               the cascading locale. Same markup, same class, same aria-live, same
-               per-field association: only the resolution step is added. *@
-            @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Identifier)))
+        @* The layout wrapper, not <EditForm> itself. EditForm is a component,
+           so the scope attribute CSS isolation relies on never reaches the
+           <form> it renders — the same reason `.signin`'s width constraint had
+           to move onto a real <section> rather than stay on `.signin__form`.
+           This div is authored directly in this file, so it gets the scope
+           attribute correctly and the flex layout it declares actually binds. *@
+        <div class="signin__form-fields">
+
+            <div class="signin__field">
+                <label for="signin-identifier">@L[Locale, "signIn.identifierLabel"]</label>
+                @* Bound on InputText's own change event, with no `:event` override.
+                   `@bind-Value:event="oninput"` used to sit here, and it was a defect:
+                   on an *element* that syntax names a DOM event, but InputText is a
+                   component, where it must name an EventCallback parameter — and there
+                   is no `oninput` parameter on InputText. It fell through
+                   AdditionalAttributes onto the underlying <input> as a DOM handler
+                   bound to a delegate typed `string`, so the browser invoked it with
+                   ChangeEventArgs and the renderer tore down on the first keystroke.
+                   Every test passed throughout, because nothing ever typed here. *@
+                <InputText id="signin-identifier"
+                           class="form-control"
+                           autocomplete="username"
+                           inputmode="@IdentifierInputMode"
+                           disabled="@submitting"
+                           @bind-Value="model.Identifier" />
+                @* Rendered from the EditContext rather than by <ValidationMessage>, and
+                   this is the one place v9's structure could not be carried across
+                   verbatim. A DataAnnotations ErrorMessage is a fixed string on the
+                   attribute, and <ValidationMessage> renders it as-is — so the
+                   attributes below carry resource KEYS and this resolves them against
+                   the cascading locale. Same markup, same class, same aria-live, same
+                   per-field association: only the resolution step is added. *@
+                @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Identifier)))
+                {
+                    <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+                }
+            </div>
+
+            <div class="signin__field">
+                <label for="signin-password">@L[Locale, "signIn.passwordLabel"]</label>
+                @* type="password" and current-password, and nothing else touches this
+                   value: it is never trimmed, pattern-checked, rewritten, logged, or
+                   put in a query string. Allow-list rewriting is right for a username
+                   and wrong for a password, which has to compare byte for byte — and
+                   now that a real comparison happens, that is a tested rule rather
+                   than a stated intention. *@
+                <InputText id="signin-password"
+                           type="password"
+                           class="form-control"
+                           autocomplete="current-password"
+                           disabled="@submitting"
+                           @bind-Value="model.Password" />
+                @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Password)))
+                {
+                    <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+                }
+            </div>
+
+            @if (formError is not null)
             {
-                <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
+                <p class="signin__error" role="alert">@L[Locale, formError]</p>
             }
+
+            <button type="submit" class="btn btn-primary" disabled="@submitting">
+                @L[Locale, submitting ? "signIn.submitting" : "signIn.submit"]
+            </button>
         </div>
-
-        <div class="signin__field">
-            <label for="signin-password">@L[Locale, "signIn.passwordLabel"]</label>
-            @* type="password" and current-password, and nothing else touches this
-               value: it is never trimmed, pattern-checked, rewritten, logged, or
-               put in a query string. Allow-list rewriting is right for a username
-               and wrong for a password, which has to compare byte for byte — and
-               now that a real comparison happens, that is a tested rule rather
-               than a stated intention. *@
-            <InputText id="signin-password"
-                       type="password"
-                       class="form-control"
-                       autocomplete="current-password"
-                       disabled="@submitting"
-                       @bind-Value="model.Password" />
-            @foreach (var message in editContext.GetValidationMessages(FieldFor(() => model.Password)))
-            {
-                <div class="signin__error" aria-live="polite">@L[Locale, message]</div>
-            }
-        </div>
-
-        @if (formError is not null)
-        {
-            <p class="signin__error" role="alert">@L[Locale, formError]</p>
-        }
-
-        <button type="submit" class="btn btn-primary" disabled="@submitting">
-            @L[Locale, submitting ? "signIn.submitting" : "signIn.submit"]
-        </button>
     </EditForm>
 
     @* Directly beneath the form, matching ShopEase's own login screen: the
