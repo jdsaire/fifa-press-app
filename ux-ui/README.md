@@ -26,6 +26,13 @@ came first and which builds on which.
   `00`'s findings dispositioned, five new findings raised, and a four-item remediation scope
   sequencing the fixes this repo builds against next. See its own README for what it can and cannot
   establish.
+- [`05-iteration/`](05-iteration/README.md) — a five-gate design iteration that reads a separate
+  reference app (a course-mate's e-commerce build) and realigns this one's navigation, settings,
+  front door, sign-in and match list against it: six conflicts between the reference's patterns and
+  decisions this codebase argues for in its own comments, each opened as a numbered reversal and
+  closed with the reasoning that resolved it, plus the consolidated i18n table, file manifest and
+  commit sequence the v14 run builds from. Specification and decisions only — see its own README for
+  what it authorizes and what stays provisional.
 
 **From now on, every new UX dossier lands here** as the next numbered folder, rather than as its
 own top-level directory at repo root.
