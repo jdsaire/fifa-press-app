@@ -49,16 +49,48 @@ public class GatingTests
     // ------------------------------------------------------------ the record
 
     [Fact]
-    public void TheRecordIsNotReachableSignedOut_AndOffersSignInInstead()
+    public void TheRecordIsNotReachableSignedOut_AndOffersSignInInPlace()
     {
+        // Rewritten rather than adjusted, because there is no navigation left
+        // to assert. This used to check that a signed-out visitor was sent to
+        // /signin; the record now renders the sign-in experience where the
+        // record would have been. The behaviour it protects — a signed-out
+        // visitor never sees record content — is unchanged and asserted below
+        // and in the test after it.
         using var context = NewContext(SignedOut());
         var navigation = context.Services.GetRequiredService<NavigationManager>();
+        var before = navigation.Uri;
 
         var page = context.Render<MyAccess>();
 
-        Assert.NotEmpty(page.FindAll(".my-access__signed-out"));
-        Assert.NotEmpty(page.FindAll("a[href='signin']"));
-        Assert.EndsWith("/signin", navigation.Uri);
+        // The form is here, in place, and nobody was moved to get to it.
+        Assert.NotEmpty(page.FindAll("form.signin__form"));
+        Assert.NotEmpty(page.FindAll(".signin__notice"));
+        Assert.Equal(before, navigation.Uri);
+
+        // And the retired route is not linked from anywhere on it.
+        Assert.Empty(page.FindAll("a[href='signin']"));
+    }
+
+    [Fact]
+    public void TheSignedOutRecordShowsNoRecordContentAtAll()
+    {
+        // The other half of what the redirect used to guarantee: rendering the
+        // form in place must not mean rendering it *alongside* a record.
+        //
+        // Asserted against the record's own sections rather than against the
+        // holders' names, because the form publishes both demo accounts by
+        // design — "Amina Bello" appearing here is the credentials list doing
+        // its job, not the record leaking.
+        using var context = NewContext(SignedOut());
+
+        var page = context.Render<MyAccess>();
+
+        Assert.Empty(page.FindAll(".access-card"));
+        Assert.Empty(page.FindAll(".my-access__changes-heading"));
+        Assert.Empty(page.FindAll(".my-access__empty"));
+        Assert.Empty(page.FindAll(".my-access__error"));
+        Assert.DoesNotContain("What changed", page.Markup);
     }
 
     [Fact]
@@ -131,7 +163,10 @@ public class GatingTests
 
         Assert.NotEmpty(page.FindAll(".request__signed-out"));
         Assert.Empty(page.FindAll("form"));
-        Assert.EndsWith("/signin", navigation.Uri);
+
+        // Retargeted with the route: /signin no longer exists, and /record is
+        // where the sign-in experience lives now.
+        Assert.EndsWith("/record", navigation.Uri);
     }
 
     [Fact]
@@ -158,7 +193,21 @@ public class GatingTests
         var page = context.Render<Help>();
 
         Assert.Contains("<h1", page.Markup);
-        Assert.DoesNotContain("signin", page.Markup);
+
+        // This used to assert that the string "signin" was absent. That string
+        // now names a route that does not exist, so the check could no longer
+        // fail whatever Help did. The obvious swap — look for "record" instead —
+        // does not work either: Help's own prose uses the word ("an empty record
+        // here means...") and would fail on its copy rather than on its
+        // behaviour.
+        //
+        // So it asserts what it always meant: Help offers no way in and no gate
+        // of its own. It is the terminal route for the offline path and the page
+        // that explains the boundary, and it must never become something you
+        // have to sign in to read.
+        Assert.Empty(page.FindAll("a[href='record']"));
+        Assert.Empty(page.FindAll("form.signin__form"));
+        Assert.Empty(page.FindAll(".signin__notice"));
     }
 
     [Fact]
@@ -222,9 +271,9 @@ public class GatingTests
         var page = context.Render<EventDetails>(parameters => parameters.Add(p => p.Id, 22));
 
         // The section still exists and says what it needs; it is not a hidden
-        // or dead control.
+        // or dead control. Its link retargets with the route.
         Assert.NotEmpty(page.FindAll(".detail__signed-out"));
-        Assert.NotEmpty(page.FindAll("a[href='signin']"));
+        Assert.NotEmpty(page.FindAll("a[href='record']"));
 
         // And no personal state leaks into it.
         Assert.Empty(page.FindAll(".detail__status"));
@@ -274,10 +323,12 @@ public class GatingTests
         using var record = NewContext(SignedOut());
         using var request = NewContext(SignedOut());
 
-        // The record is personal; the request writes to one. Both reasons are
-        // on screen, because a boundary stated without its reason is
-        // indistinguishable from an arbitrary one.
-        Assert.Contains("belongs to a holder", record.Render<MyAccess>().Markup);
+        // The request writes to a holder's record, and says so. The record's own
+        // reason is now the first sentence of the notice inside the form it
+        // renders in place — the sentence that used to say it moved there with
+        // the branch it belonged to, so this asserts the reason a reader
+        // actually meets rather than the wording that used to carry it.
+        Assert.Contains("simulated sign-in", record.Render<MyAccess>().Markup, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(
             "writes to a holder's own record",
             request.Render<Registration>(parameters => parameters.Add(p => p.Id, 42)).Markup);

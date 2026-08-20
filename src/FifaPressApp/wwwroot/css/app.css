@@ -282,6 +282,12 @@ main > .top-row {
     color: var(--color-stale-text);
 }
 
+/* A statement about the reader's own record, so it reads as a link back to it
+   rather than as another control on the card. */
+.match-card__pending {
+    font-size: var(--font-size-small);
+}
+
 .match-card__slots--none {
     color: var(--color-danger-surface);
     font-weight: 600;

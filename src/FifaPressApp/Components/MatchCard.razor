@@ -53,6 +53,17 @@
             </p>
         }
 
+        @* One line of status, never a control. The action that changes it lives
+           on the record, which is the screen that lists what is pending — and
+           surfacing the same action twice would mean this card had to know the
+           session's per-match state, which is exactly what it must not know. *@
+        @if (RequestPending)
+        {
+            <p class="match-card__pending mb-2">
+                <NavLink href="record">@L[Locale, "matches.requestPending"]</NavLink>
+            </p>
+        }
+
         @* Details are always reachable: this list is the only route into a
            fixture's own page, for played and unplayed alike. What varies is the
            request path, which is the thing a played fixture genuinely does not
@@ -128,4 +139,12 @@
     /// </summary>
     [Parameter]
     public bool CanRequest { get; set; }
+
+    /// <summary>
+    /// Whether the person looking at this card already has a request pending
+    /// for this fixture — again a plain bool, computed by the calling page from
+    /// the provider's own fold. This card does not look it up and could not.
+    /// </summary>
+    [Parameter]
+    public bool RequestPending { get; set; }
 }

@@ -111,4 +111,11 @@ internal sealed class StubAccessDataProvider(IReadOnlyList<Fixture> fixtures) : 
 
     public Task<Change> WithdrawRequestAsync(string credentialId, string changeId) =>
         throw new NotSupportedException("The write path is tested against the real provider.");
+
+    /// <summary>
+    /// This stub serves no changes, so nothing has ever been requested against
+    /// it. Tests that need a real pending state use the real provider.
+    /// </summary>
+    public MatchAccessStatus GetMatchAccessStatus(string credentialId, int matchNumber) =>
+        MatchAccessStatus.NotRequested;
 }

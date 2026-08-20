@@ -176,4 +176,43 @@ public class MatchCardGatingTests
         var list = File.ReadAllText(Path.Combine(TestPaths.SourceRoot(), "Pages", "EventList.razor"));
         Assert.DoesNotContain("<EventCard", list);
     }
+
+    // --------------------------------------------------- the pending request
+
+    [Fact]
+    public void APendingRequestIsStatedOnTheCardAndActionedOnTheRecord()
+    {
+        // One affordance, surfaced once. The card says a request is pending and
+        // links to the screen that lists it; withdrawing lives there, where the
+        // person can see what they are withdrawing.
+        using var context = NewContext();
+
+        var card = context.Render<MatchCard>(parameters => parameters
+            .Add(component => component.MatchNumber, 92)
+            .Add(component => component.Name, "Round of 16 — teams not yet decided")
+            .Add(component => component.Kickoff, new DateTime(2026, 7, 4, 16, 0, 0))
+            .Add(component => component.Phase, "Round of 16")
+            .Add(component => component.IsPlayed, false)
+            .Add(component => component.SlotsRemaining, 7)
+            .Add(component => component.CanRequest, true)
+            .Add(component => component.RequestPending, true));
+
+        var pending = card.Find(".match-card__pending");
+
+        Assert.Contains("Request pending", pending.TextContent);
+        Assert.Equal("record", pending.QuerySelector("a")!.GetAttribute("href"));
+
+        // A line, not a second control: no withdraw button here.
+        Assert.Empty(card.FindAll("button"));
+    }
+
+    [Fact]
+    public void NoPendingLineAppearsWhenNothingIsPending()
+    {
+        using var context = NewContext();
+
+        var card = Card(context, isPlayed: false, slots: 7, canRequest: true);
+
+        Assert.Empty(card.FindAll(".match-card__pending"));
+    }
 }

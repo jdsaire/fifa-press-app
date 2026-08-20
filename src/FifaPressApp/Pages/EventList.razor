@@ -120,7 +120,8 @@ else
                                    Phase="@FixtureLabels.Phase(L, Locale, fixture)"
                                    IsPlayed="fixture.IsResolved"
                                    SlotsRemaining="fixture.SlotsRemaining"
-                                   CanRequest="Session.IsSignedIn" />
+                                   CanRequest="Session.IsSignedIn"
+                                   RequestPending="pendingMatches.Contains(fixture.MatchNumber)" />
                     </div>
                 </div>
             }
@@ -172,6 +173,26 @@ else
     private string groupSelection = FixtureQuery.AllGroups;
     private MatchStatusFilter statusFilter = MatchStatusFilter.All;
     private SlotAvailabilityFilter availabilityFilter = SlotAvailabilityFilter.All;
+
+    /// <summary>
+    /// Which fixtures the signed-in holder already has a request pending for.
+    ///
+    /// <para>
+    /// Computed once, here, and handed down as a plain bool per card — the card
+    /// itself gains no session awareness for this, exactly as it gained none
+    /// for the request gate. And the answer comes from the provider's own fold
+    /// rather than from a second one written on this page: a match list that
+    /// disagreed with the record about what somebody had asked for would be the
+    /// precise failure the record exists to prevent.
+    /// </para>
+    ///
+    /// <para>
+    /// It is a line of status, not a control. Withdrawing stays a single
+    /// affordance on the record, which is the screen that lists what is pending
+    /// and the only one where the action makes sense.
+    /// </para>
+    /// </summary>
+    private HashSet<int> pendingMatches = [];
     private int visibleCount = PageSize;
     private DateTime lastSyncedUtc;
     private bool loaded;
@@ -192,6 +213,12 @@ else
             // is a load that did not work, and saying so is more useful than
             // rendering a blank list.
             loadFailed = allFixtures.Count == 0;
+
+            pendingMatches = Session.CredentialId is string credentialId
+                ? [.. allFixtures
+                    .Select(fixture => fixture.MatchNumber)
+                    .Where(number => Access.GetMatchAccessStatus(credentialId, number) == MatchAccessStatus.Requested)]
+                : [];
         }
         catch (Exception)
         {

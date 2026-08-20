@@ -28,34 +28,37 @@
 @page "/record"
 @inject IAccessDataProvider Access
 @inject SimulatedSessionProvider Session
-@inject NavigationManager Navigation
 @inject ChangeArrivalTracker Arrivals
 @inject LocaleService L
 
-<PageTitle>@L[Locale, "record.title"]</PageTitle>
-
-<h1>@L[Locale, "record.title"]</h1>
-
 @if (!Session.IsSignedIn)
 {
-    @* Gated, and stated as what it is. An access record is personal by
-       definition, and one anybody can read without identifying themselves is
-       not the person's own state — which is the app's whole premise.
+    @* Gated, and the gate renders rather than redirects.
+
+       This branch used to be a sentence pointing at /signin, and
+       OnInitializedAsync used to navigate there before anyone could read it —
+       "this moves the person to the screen that explains what signing in here
+       does and does not mean." The goal was right and the mechanism was one
+       screen too many: the explanation has come here instead, so the same
+       person reaches the same words without being moved anywhere. There is now
+       one answer to "where do I sign in", and it is wherever you already were.
 
        Never a 403, never "access denied", never anything borrowed from the
        vocabulary of a real authorization system: there is no security here to
-       describe. The person is on their way to the sign-in screen, where the
-       full simulation notice explains what this is. *@
-    <p class="my-access__signed-out">
-        @L[Locale, "record.signedOut"]
-        <a href="signin">@L[Locale, "record.signedOutLink"]</a>
-        @L[Locale, "record.signedOutAfter"]
-    </p>
+       describe, and the notice inside the form says so in its first sentence.
+
+       The form brings its own title and heading, which is why this branch has
+       none: two headings, one saying "My Requests" over a sign-in form, would
+       describe a screen the reader is not looking at. *@
+    <SignInForm />
 }
 else if (loadFailed && record is null)
 {
     @* Error — fetch failed, no cache. A dead end with no way out is not an
        acceptable end state, so this routes somewhere a person can act. *@
+    <PageTitle>@L[Locale, "record.title"]</PageTitle>
+    <h1>@L[Locale, "record.title"]</h1>
+
     <div class="my-access__error" role="alert">
         <h2>@L[Locale, "record.errorHeading"]</h2>
         <p>@L[Locale, "record.errorBody1"]</p>
@@ -69,6 +72,9 @@ else if (record is null)
        "we have no record of you" and "nothing has changed" are different
        facts, and a person who confuses them will wait for a notification that
        is never coming. *@
+    <PageTitle>@L[Locale, "record.title"]</PageTitle>
+    <h1>@L[Locale, "record.title"]</h1>
+
     <div class="my-access__empty">
         <h2>@L[Locale, "record.emptyHeading"]</h2>
         <p>@L[Locale, "record.emptyBody"]</p>
@@ -77,6 +83,9 @@ else if (record is null)
 }
 else
 {
+    <PageTitle>@L[Locale, "record.title"]</PageTitle>
+    <h1>@L[Locale, "record.title"]</h1>
+
     @* 1. The headline, straight from cache. *@
     <AccessCard Accreditation="record">
         <MatchAccess>
@@ -251,12 +260,12 @@ else
     {
         arrivedChangeId = Arrivals.Consume();
 
-        // Signed out, there is no record to read and nothing below applies. The
-        // markup above has already rendered the offer; this moves the person to
-        // the screen that explains what signing in here does and does not mean.
+        // Signed out, there is nothing to read and nothing below applies. The
+        // markup above has already rendered the form, so there is nowhere to
+        // send anybody: the screen that explains what signing in here means is
+        // this one.
         if (Session.CredentialId is not string credentialId)
         {
-            Navigation.NavigateTo("signin", replace: true);
             return;
         }
 

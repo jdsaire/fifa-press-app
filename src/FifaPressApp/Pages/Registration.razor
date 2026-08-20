@@ -38,7 +38,7 @@
        are worse than asking who you are first. *@
     <p class="request__signed-out">
         @L[Locale, "request.signedOut"]
-        <a href="signin">@L[Locale, "request.signedOutLink"]</a>
+        <a href="record">@L[Locale, "request.signedOutLink"]</a>
         @L[Locale, "request.signedOutAfter"]
     </p>
 }
@@ -104,7 +104,7 @@ else
         {
             // The offer is already rendered above. Nothing is fetched for a
             // visitor who cannot submit the form the fetch is for.
-            Navigation.NavigateTo("signin", replace: true);
+            Navigation.NavigateTo("record", replace: true);
             return;
         }
 

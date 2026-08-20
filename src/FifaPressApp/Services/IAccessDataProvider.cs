@@ -89,4 +89,23 @@ public interface IAccessDataProvider
     /// unwriting the one it follows.
     /// </summary>
     Task<Change> WithdrawRequestAsync(string credentialId, string changeId);
+
+    /// <summary>
+    /// Where access to one fixture currently stands, folded from the changes
+    /// that name it.
+    ///
+    /// <para>
+    /// On the interface rather than on the one implementation because a second
+    /// surface now needs the answer: the match list says which fixtures a
+    /// signed-in holder already has a request pending for. Asking the provider
+    /// is the whole point — the alternative is a second fold, in a page, that
+    /// can disagree with the record about what a person has asked for, which is
+    /// exactly the failure the record exists to prevent.
+    /// </para>
+    ///
+    /// <para>
+    /// Never stored, so it cannot drift from the log it came from.
+    /// </para>
+    /// </summary>
+    MatchAccessStatus GetMatchAccessStatus(string credentialId, int matchNumber);
 }
