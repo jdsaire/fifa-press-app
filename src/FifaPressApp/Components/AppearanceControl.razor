@@ -46,6 +46,22 @@
                     aria-pressed="@(value == current ? "true" : "false")"
                     disabled="@(!isReady)"
                     @onclick="() => SetAsync(value)">
+                @* Decorative, like every glyph in this app: the label beside it
+                   already says which state this is. "System" carries two — a
+                   laptop and a phone — and shows whichever matches the device
+                   being read on, because "follow the system" means a different
+                   machine depending on where you are. Both are in the markup and
+                   the stylesheet picks; a JS breakpoint read would be a second
+                   source of truth about the same media query. *@
+                @if (value == "system")
+                {
+                    <span class="appearance-option__icon appearance-option__icon--wide"><Icon Name="system" /></span>
+                    <span class="appearance-option__icon appearance-option__icon--narrow"><Icon Name="phone" /></span>
+                }
+                else
+                {
+                    <span class="appearance-option__icon"><Icon Name="@(value == "light" ? "sun" : "moon")" /></span>
+                }
                 @L[Locale, key]
             </button>
         }

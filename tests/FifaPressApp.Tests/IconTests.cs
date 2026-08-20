@@ -23,6 +23,10 @@ public class IconTests
     [InlineData("record")]
     [InlineData("help")]
     [InlineData("settings")]
+    [InlineData("system")]
+    [InlineData("phone")]
+    [InlineData("sun")]
+    [InlineData("moon")]
     public void EveryIconIsDecorativeAndInheritsItsColour(string name)
     {
         using var context = new BunitContext();

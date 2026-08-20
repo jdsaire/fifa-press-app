@@ -390,6 +390,9 @@ main > .top-row {
    has the same shape and a screen reader is told which is active instead of
    inferring it from what is missing. */
 .appearance-option {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
     padding: var(--space-2) var(--space-3);
     border: 1px solid var(--color-stale-text);
     border-radius: var(--radius-default);
@@ -397,6 +400,28 @@ main > .top-row {
     color: var(--color-text);
     font-size: var(--font-size-small);
     cursor: pointer;
+}
+
+/* The glyph beside each option's label. "System" ships both a laptop and a
+   phone and the breakpoint decides which is true for the device in hand — the
+   same 641px the rest of the app turns on, so there is one answer to "is this a
+   phone" rather than a CSS one and a JavaScript one that can disagree. */
+.appearance-option__icon {
+    display: inline-flex;
+}
+
+.appearance-option__icon--wide {
+    display: none;
+}
+
+@media (min-width: 641px) {
+    .appearance-option__icon--wide {
+        display: inline-flex;
+    }
+
+    .appearance-option__icon--narrow {
+        display: none;
+    }
 }
 
 .appearance-option--current {

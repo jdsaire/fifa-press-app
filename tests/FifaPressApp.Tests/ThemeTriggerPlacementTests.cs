@@ -279,6 +279,45 @@ public class ThemeTriggerPlacementTests
     }
 
     [Fact]
+    public void EachAppearanceOptionCarriesAGlyphAndKeepsItsWord()
+    {
+        // The icon is added beside the label, never in place of it — the same
+        // rule Icon.razor holds every other glyph to. A screen reader still
+        // hears "System", "Light", "Dark".
+        using var context = NewContext();
+
+        var options = context.Render<AppearanceControl>().FindAll(".appearance-option");
+
+        Assert.Equal(["System", "Light", "Dark"], options.Select(option => option.TextContent.Trim()));
+        Assert.All(options, option => Assert.NotEmpty(option.QuerySelectorAll("svg.icon")));
+        Assert.All(options, option => Assert.All(
+            option.QuerySelectorAll("svg.icon"),
+            icon => Assert.Equal("true", icon.GetAttribute("aria-hidden"))));
+    }
+
+    [Fact]
+    public void SystemCarriesBothADesktopAndAPhoneGlyphForTheBreakpointToChoose()
+    {
+        // "Follow the system" means a different machine depending on where the
+        // app is being read, so both are rendered and the stylesheet picks —
+        // rather than a JavaScript breakpoint read that could disagree with the
+        // media query already deciding everything else.
+        using var context = NewContext();
+
+        var control = context.Render<AppearanceControl>();
+        var system = control.FindAll(".appearance-option")[0];
+
+        Assert.Single(system.QuerySelectorAll(".appearance-option__icon--wide"));
+        Assert.Single(system.QuerySelectorAll(".appearance-option__icon--narrow"));
+
+        // Light and Dark carry exactly one each.
+        foreach (var option in control.FindAll(".appearance-option").Skip(1))
+        {
+            Assert.Single(option.QuerySelectorAll("svg.icon"));
+        }
+    }
+
+    [Fact]
     public void TheControlLivesOnTheSettingsScreen()
     {
         // Where it went, asserted where it can actually be observed: rendered
