@@ -33,7 +33,10 @@ namespace FifaPressApp.Api.Middleware;
 /// the server-side half of that same commitment.
 /// </para>
 /// </summary>
-public sealed class TokenAuthenticationMiddleware(RequestDelegate next, IConfiguration configuration)
+public sealed class TokenAuthenticationMiddleware(
+    RequestDelegate next,
+    IConfiguration configuration,
+    ILogger<TokenAuthenticationMiddleware> logger)
 {
     private const string BearerPrefix = "Bearer ";
 
@@ -67,6 +70,14 @@ public sealed class TokenAuthenticationMiddleware(RequestDelegate next, IConfigu
 
         if (!IsValid(context.Request))
         {
+            // Logged here rather than by the logging middleware, which sits
+            // inside this one and therefore never sees a request refused at this
+            // point. Without this line a 401 would leave no trace at all.
+            // Never logs the supplied value: a log of rejected tokens is a log
+            // of near-misses, and one typo away from recording the real one.
+            logger.LogInformation("{Method} {Path} -> 401 (no valid token)",
+                context.Request.Method, context.Request.Path.Value);
+
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             context.Response.ContentType = "application/json";
 

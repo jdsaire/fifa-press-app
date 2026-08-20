@@ -45,8 +45,12 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
         }
         catch (Exception exception)
         {
-            logger.LogError(exception, "Unhandled exception for {Method} {Path}.",
-                context.Request.Method, context.Request.Path);
+            // Same "METHOD path -> status" shape the logging middleware uses, so
+            // every outcome greps the same way. Logged here because a request
+            // that throws never returns through the logging middleware below
+            // this one — the await propagates the exception straight past it.
+            logger.LogError(exception, "{Method} {Path} -> 500 (unhandled exception)",
+                context.Request.Method, context.Request.Path.Value);
 
             // If the response has already started, the status line and some of
             // the body are on the wire and cannot be recalled. Overwriting them

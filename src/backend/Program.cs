@@ -48,6 +48,10 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 // else, so no endpoint runs for a request that failed the check.
 app.UseMiddleware<TokenAuthenticationMiddleware>();
 
+// LAST. Innermost, so it observes the status code the endpoint actually
+// returned rather than one that later middleware might still change.
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 // The generated document, served at /openapi/v1.json.
 app.MapOpenApi();
 
