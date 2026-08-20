@@ -27,11 +27,11 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Publish Blazor WebAssembly app
-        run: dotnet publish src/FifaPressApp -c Release -o publish --nologo
+        run: dotnet publish src/frontend -c Release -o publish --nologo
 
       # GitHub Pages project sites serve under /fifa-press-app/,
       # not "/". This rewrites <base href> only in the CI-produced publish
-      # output — the tracked source at src/FifaPressApp/wwwroot/index.html is
+      # output — the tracked source at src/frontend/wwwroot/index.html is
       # never touched, so local `dotnet run` and Codespaces keep working
       # against base href "/".
       - name: Fix base href for GitHub Pages subpath
