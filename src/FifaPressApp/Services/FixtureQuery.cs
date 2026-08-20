@@ -37,6 +37,15 @@ public enum MatchStatusFilter
 /// unresolved fixture to leak.
 /// </para>
 /// </summary>
+/// <summary>
+/// Whether the list is narrowed to fixtures that still have accreditation slots.
+/// </summary>
+public enum SlotAvailabilityFilter
+{
+    All,
+    WithSlotsAvailable,
+}
+
 public static class FixtureQuery
 {
     /// <summary>
@@ -180,6 +189,29 @@ public static class FixtureQuery
         };
 
     /// <summary>
+    /// Narrowed to fixtures that still have slots, or left alone.
+    ///
+    /// <para>
+    /// A played fixture is excluded from the positive case by definition rather
+    /// than by an extra clause: it carries no slot count at all, because a match
+    /// that is over has no capacity to have left. So "with slots available"
+    /// implies "not yet played" without having to say so, and the two controls
+    /// still compose as AND without contradicting each other.
+    /// </para>
+    ///
+    /// <para>
+    /// Reads <see cref="Fixture.SlotsRemaining"/> and nothing else, for the same
+    /// reason <see cref="WithStatus"/> reads only <c>IsResolved</c>: the rule
+    /// belongs to the provider, and re-deriving it here would put a second
+    /// definition of capacity in the app.
+    /// </para>
+    /// </summary>
+    public static List<Fixture> WithSlots(IEnumerable<Fixture> fixtures, SlotAvailabilityFilter availability) =>
+        availability == SlotAvailabilityFilter.WithSlotsAvailable
+            ? fixtures.Where(fixture => !fixture.IsResolved && fixture.SlotsRemaining > 0).ToList()
+            : fixtures.ToList();
+
+    /// <summary>
     /// Every active control applied together.
     ///
     /// <para>
@@ -193,8 +225,9 @@ public static class FixtureQuery
         IEnumerable<Fixture> fixtures,
         string? searchTerm,
         string? groupSelection,
-        MatchStatusFilter status) =>
-        WithStatus(InGroup(Search(fixtures, searchTerm), groupSelection), status);
+        MatchStatusFilter status,
+        SlotAvailabilityFilter availability = SlotAvailabilityFilter.All) =>
+        WithSlots(WithStatus(InGroup(Search(fixtures, searchTerm), groupSelection), status), availability);
 
     /// <summary>
     /// The same composition, searching in the reader's language as well as the
@@ -206,6 +239,9 @@ public static class FixtureQuery
         string? groupSelection,
         MatchStatusFilter status,
         LocaleService locale,
-        AppLocale which) =>
-        WithStatus(InGroup(Search(fixtures, searchTerm, locale, which), groupSelection), status);
+        AppLocale which,
+        SlotAvailabilityFilter availability = SlotAvailabilityFilter.All) =>
+        WithSlots(
+            WithStatus(InGroup(Search(fixtures, searchTerm, locale, which), groupSelection), status),
+            availability);
 }

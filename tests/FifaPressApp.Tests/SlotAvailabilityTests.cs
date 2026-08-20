@@ -1,4 +1,5 @@
 using FifaPressApp.Models;
+using FifaPressApp.Services;
 using Xunit;
 
 namespace FifaPressApp.Tests;
@@ -127,7 +128,7 @@ public class SlotAvailabilityTests
         // The provider owns the rule; the importer stays a pure CSV reader. A
         // fixture straight out of the importer has no capacity on it, and only
         // acquires one by passing through the read path.
-        var imported = FifaPressApp.Services.FixtureImporter.Parse(TestData.ScheduleCsv());
+        var imported = FixtureImporter.Parse(TestData.ScheduleCsv());
 
         Assert.All(imported.Fixtures, fixture => Assert.Null(fixture.SlotsRemaining));
     }
@@ -146,5 +147,70 @@ public class SlotAvailabilityTests
 
         Assert.Equal(listed.SlotsRemaining, one!.SlotsRemaining);
         Assert.Equal(0, one.SlotsRemaining);
+    }
+
+    // ------------------------------------------------------------ the filter
+
+    [Fact]
+    public async Task TheFilterNarrowsToFixturesThatStillHaveSlots()
+    {
+        var fixtures = await FixturesAsync();
+
+        var withSlots = FixtureQuery.WithSlots(
+            fixtures, SlotAvailabilityFilter.WithSlotsAvailable);
+
+        // Twelve of the sixteen unplayed fixtures; the four sold-out ones are
+        // excluded because zero slots is not "available".
+        Assert.Equal(12, withSlots.Count);
+        Assert.All(withSlots, fixture =>
+        {
+            Assert.False(fixture.IsResolved);
+            Assert.True(fixture.SlotsRemaining > 0);
+        });
+    }
+
+    [Fact]
+    public async Task APlayedFixtureIsExcludedByDefinitionRatherThanByAnExtraClause()
+    {
+        // It carries no slot count at all, so "with slots available" implies
+        // "not yet played" without having to say so.
+        var fixtures = await FixturesAsync();
+
+        var withSlots = FixtureQuery.WithSlots(
+            fixtures, SlotAvailabilityFilter.WithSlotsAvailable);
+
+        Assert.DoesNotContain(withSlots, fixture => fixture.IsResolved);
+    }
+
+    [Fact]
+    public async Task TheDefaultLeavesTheListExactlyAsItWas()
+    {
+        // The whole reason the new Apply parameter carries a default: every
+        // existing caller and every existing test keeps its behaviour.
+        var fixtures = await FixturesAsync();
+
+        Assert.Equal(
+            fixtures.Count,
+            FixtureQuery.WithSlots(
+                fixtures, SlotAvailabilityFilter.All).Count);
+
+        Assert.Equal(
+            fixtures.Count,
+            FixtureQuery.Apply(fixtures, null, null, MatchStatusFilter.All).Count);
+    }
+
+    [Fact]
+    public async Task TheFilterComposesWithTheOthersAsAnd()
+    {
+        // Asking for played fixtures that still have slots is a contradiction,
+        // and the composition answers it as one rather than resolving it in
+        // either control's favour.
+        var fixtures = await FixturesAsync();
+
+        var contradiction = FixtureQuery.Apply(
+            fixtures, null, null, MatchStatusFilter.Played,
+            SlotAvailabilityFilter.WithSlotsAvailable);
+
+        Assert.Empty(contradiction);
     }
 }

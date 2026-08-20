@@ -79,6 +79,14 @@ else
                 <option value="@MatchStatusFilter.NotYetPlayed">@L[Locale, "matches.notYetPlayed"]</option>
             </select>
         </div>
+
+        <div class="matches__filter">
+            <label for="matches-availability">@L[Locale, "matches.availabilityLabel"]</label>
+            <select id="matches-availability" class="form-select" value="@availabilityFilter" @onchange="OnAvailabilityChanged">
+                <option value="@SlotAvailabilityFilter.All">@L[Locale, "matches.allAvailability"]</option>
+                <option value="@SlotAvailabilityFilter.WithSlotsAvailable">@L[Locale, "matches.withSlots"]</option>
+            </select>
+        </div>
     </div>
 
     @if (!loaded)
@@ -163,6 +171,7 @@ else
     private string searchTerm = string.Empty;
     private string groupSelection = FixtureQuery.AllGroups;
     private MatchStatusFilter statusFilter = MatchStatusFilter.All;
+    private SlotAvailabilityFilter availabilityFilter = SlotAvailabilityFilter.All;
     private int visibleCount = PageSize;
     private DateTime lastSyncedUtc;
     private bool loaded;
@@ -207,7 +216,7 @@ else
     // about how it matches was reconsidered. The filters narrow what it
     // returns; they never alter what it matches.
     private List<Fixture> FilteredFixtures =>
-        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale);
+        FixtureQuery.Apply(allFixtures, searchTerm, groupSelection, statusFilter, L, Locale, availabilityFilter);
 
     private List<Fixture> VisibleFixtures => FilteredFixtures.Take(visibleCount).ToList();
 
@@ -234,6 +243,14 @@ else
         statusFilter = Enum.TryParse<MatchStatusFilter>(e.Value?.ToString(), out var parsed)
             ? parsed
             : MatchStatusFilter.All;
+        visibleCount = PageSize;
+    }
+
+    private void OnAvailabilityChanged(ChangeEventArgs e)
+    {
+        availabilityFilter = Enum.TryParse<SlotAvailabilityFilter>(e.Value?.ToString(), out var parsed)
+            ? parsed
+            : SlotAvailabilityFilter.All;
         visibleCount = PageSize;
     }
 
@@ -268,6 +285,14 @@ else
             else if (statusFilter == MatchStatusFilter.NotYetPlayed)
             {
                 active.Add(L[Locale, "matches.controlNotPlayed"]);
+            }
+
+            // The empty state enumerates what is narrowing the list, so a
+            // control missing from here would leave a reader looking at an
+            // empty screen with one of the reasons for it unnamed.
+            if (availabilityFilter == SlotAvailabilityFilter.WithSlotsAvailable)
+            {
+                active.Add(L[Locale, "matches.controlWithSlots"]);
             }
 
             return active;
