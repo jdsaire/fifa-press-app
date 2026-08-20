@@ -9,7 +9,7 @@
            a person is looking at translates. *@
         <a class="navbar-brand" href="">@L[Locale, "app.name"]</a>
         <button title="@MenuTitle" class="navbar-toggler" @onclick="ToggleNavMenu"
-                aria-expanded="@(!collapseNavMenu)" aria-controls="nav-menu">
+                aria-expanded="@MenuExpanded" aria-controls="nav-menu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
@@ -85,6 +85,13 @@
     // quoted key inside a quoted attribute value is a parse the Razor
     // compiler should not have to be trusted with.
     private string MenuTitle => L[Locale, "nav.menu"];
+
+    /// <summary>
+    /// The literal word rather than a bool, for the same reason MenuTitle is a
+    /// property: Blazor renders a bool attribute present-and-empty, so
+    /// aria-expanded carried no value a screen reader could read.
+    /// </summary>
+    private string MenuExpanded => collapseNavMenu ? "false" : "true";
 
     protected override void OnInitialized() => Session.OnChanged += Refresh;
 

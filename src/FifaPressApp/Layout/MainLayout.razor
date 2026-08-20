@@ -11,7 +11,7 @@
    directly and subscribes for the re-render — the exception that proves
    the rule, and the only place in the app allowed to do it. *@
 <a href="#main-content" class="skip-link">@L[L.Current, "nav.skipToContent"]</a>
-<div class="page">
+<div class="page @(sidebarHidden ? "page--sidebar-hidden" : null)">
     <div class="sidebar">
         <NavMenu />
     </div>
@@ -25,6 +25,25 @@
            deleted rather than repurposed, and nothing about appearance lives
            here. *@
         <div class="top-row px-4">
+            @* The sidebar was fixed in place at every width above the phone
+               breakpoint: the nav list is the app's own furniture, and a person
+               reading a hundred-and-four-row match list has no way to give the
+               content column that 200px back. This gives it back.
+
+               The control lives here rather than in the sidebar because it has
+               to be reachable in both states, and a button inside the thing it
+               hides cannot bring it back. Below the breakpoint the sidebar
+               already collapses behind NavMenu's own toggle, so this one stays
+               out of the way there rather than competing with it. *@
+            <button type="button"
+                    class="top-row__sidebar-toggle"
+                    aria-expanded="@SidebarExpanded"
+                    aria-controls="nav-menu"
+                    title="@SidebarToggleLabel"
+                    @onclick="ToggleSidebar">
+                <span class="top-row__sidebar-toggle-icon" aria-hidden="true">@(sidebarHidden ? "»" : "«")</span>
+                <span class="visually-hidden">@SidebarToggleLabel</span>
+            </button>
             <SessionBar />
         </div>
         <article class="content px-4" id="main-content" tabindex="-1">
@@ -35,6 +54,23 @@
 </LocaleProvider>
 
 @code {
+    private bool sidebarHidden;
+
+    /// <summary>
+    /// The literal word, not a bool. Blazor renders a bool attribute the HTML
+    /// way — present-and-empty for true, absent for false — and aria-expanded
+    /// needs "true"/"false" to mean anything to a screen reader. Pulled out of
+    /// the attribute for the reason NavMenu's own MenuTitle is: a quoted string
+    /// inside a quoted attribute value is a parse the Razor compiler should not
+    /// have to be trusted with, and it silently produced an empty value here.
+    /// </summary>
+    private string SidebarExpanded => sidebarHidden ? "false" : "true";
+
+    private string SidebarToggleLabel =>
+        L[L.Current, sidebarHidden ? "nav.showMenu" : "nav.hideMenu"];
+
+    private void ToggleSidebar() => sidebarHidden = !sidebarHidden;
+
     protected override void OnInitialized() => L.OnChanged += Refresh;
 
     public void Dispose() => L.OnChanged -= Refresh;

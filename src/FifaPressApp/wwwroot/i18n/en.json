@@ -48,6 +48,8 @@
     "nav.language": "Language",
     "nav.signedInAs": "Signed in as",
     "nav.menu": "Navigation menu",
+    "nav.hideMenu": "Hide menu",
+    "nav.showMenu": "Show menu",
     "nav.skipToContent": "Skip to main content",
     "settings.title": "Settings",
     "settings.appearance": "Appearance",

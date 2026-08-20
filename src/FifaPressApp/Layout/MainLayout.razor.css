@@ -36,6 +36,14 @@ main {
         top: 0;
     }
 
+    /* Hidden completely rather than narrowed to a rail: a rail would need its
+       own icon-only affordances and tooltips to stay readable, which is a
+       second navigation to keep correct. The content column simply takes the
+       width back. */
+    .page--sidebar-hidden .sidebar {
+        display: none;
+    }
+
     article {
         max-width: 60rem;
         padding-left: var(--space-4) !important;

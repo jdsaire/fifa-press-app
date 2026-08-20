@@ -227,8 +227,55 @@ public class ThemeTriggerPlacementTests
         var body = Regex.Replace(main.Groups[1].Value, @"@\*.*?\*@", "", RegexOptions.Singleline);
         var elements = Regex.Matches(body, @"<(\w+)").Select(match => match.Groups[1].Value).ToList();
 
-        Assert.Equal(["div", "SessionBar", "article"], elements);
+        // div (the session row) → the sidebar toggle and its two spans inside
+        // it → SessionBar → article. The toggle lives in the row rather than in
+        // the sidebar because a control inside the thing it hides cannot bring
+        // it back.
+        Assert.Equal(["div", "button", "span", "span", "SessionBar", "article"], elements);
         Assert.Contains("class=\"top-row", body);
+    }
+
+    [Fact]
+    public void TheSidebarCanBeHiddenAndBroughtBack()
+    {
+        // The sidebar was fixed at every width above the phone breakpoint. The
+        // toggle is what gives the content column those 200px back, and it has
+        // to survive its own press — a control inside the thing it hides could
+        // not bring it back.
+        using var context = NewContext();
+
+        var layout = context.Render<FifaPressApp.Layout.MainLayout>();
+        var toggle = layout.Find(".top-row__sidebar-toggle");
+
+        Assert.Equal("true", toggle.GetAttribute("aria-expanded"));
+        Assert.Equal("nav-menu", toggle.GetAttribute("aria-controls"));
+        Assert.Empty(layout.FindAll(".page--sidebar-hidden"));
+
+        toggle.Click();
+
+        Assert.NotEmpty(layout.FindAll(".page--sidebar-hidden"));
+        Assert.Equal("false", layout.Find(".top-row__sidebar-toggle").GetAttribute("aria-expanded"));
+
+        layout.Find(".top-row__sidebar-toggle").Click();
+
+        Assert.Empty(layout.FindAll(".page--sidebar-hidden"));
+    }
+
+    [Fact]
+    public void TheSidebarToggleAlwaysCarriesAWordAndNotOnlyAGlyph()
+    {
+        // The chevron is decorative; the label is what a screen reader gets,
+        // and it says which way the press goes rather than naming the widget.
+        using var context = NewContext();
+
+        var layout = context.Render<FifaPressApp.Layout.MainLayout>();
+
+        Assert.Equal("true", layout.Find(".top-row__sidebar-toggle-icon").GetAttribute("aria-hidden"));
+        Assert.Equal("Hide menu", layout.Find(".top-row__sidebar-toggle .visually-hidden").TextContent.Trim());
+
+        layout.Find(".top-row__sidebar-toggle").Click();
+
+        Assert.Equal("Show menu", layout.Find(".top-row__sidebar-toggle .visually-hidden").TextContent.Trim());
     }
 
     [Fact]

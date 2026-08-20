@@ -48,6 +48,8 @@
     "nav.language": "Idioma",
     "nav.signedInAs": "Sessão iniciada como",
     "nav.menu": "Menu de navegação",
+    "nav.hideMenu": "Ocultar menu",
+    "nav.showMenu": "Mostrar menu",
     "nav.skipToContent": "Saltar para o conteúdo principal",
     "settings.title": "Definições",
     "settings.appearance": "Aparência",
