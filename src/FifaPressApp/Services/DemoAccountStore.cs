@@ -68,7 +68,7 @@ public sealed class DemoAccountStore
     /// </summary>
     public static readonly DemoAccount Amina = new(
         Identifier: "demo_staff1",
-        Password: "amina-demo-2026",
+        Password: "Demo#2026Staff1",
         CredentialId: "MP-2026-04817",
         HolderName: "Amina Bello");
 
@@ -79,7 +79,7 @@ public sealed class DemoAccountStore
     /// </summary>
     public static readonly DemoAccount Tomas = new(
         Identifier: "demo_staff2",
-        Password: "tomas-demo-2026",
+        Password: "Demo#2026Staff2",
         CredentialId: "RH-2026-00219",
         HolderName: "Tomás L.");
 

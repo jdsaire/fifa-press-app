@@ -264,7 +264,7 @@ public class DisclosureTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         var provider = context.Services.GetRequiredService<IAccessDataProvider>();
         var written = await provider.RequestMatchAccessAsync("MP-2026-04817", 42);
@@ -285,7 +285,7 @@ public class DisclosureTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         harness.Arrivals.Announce("ch-001");
 
         Assert.Single(context.Render<MyAccess>().FindAll("article.change-row--arriving"));
@@ -298,7 +298,7 @@ public class DisclosureTests
         var harness = NewHarness();
         using var context = harness.Context;
 
-        await harness.Session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await harness.Session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         Assert.Empty(context.Render<MyAccess>().FindAll("article.change-row--arriving"));
     }

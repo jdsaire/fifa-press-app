@@ -35,7 +35,7 @@ public class SettingsScreenTests
     private static async Task<SimulatedSessionProvider> AsAminaAsync()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         return session;
     }
 
@@ -98,7 +98,7 @@ public class SettingsScreenTests
         // The field reads the session rather than a constant, which is the
         // whole reason two demo records exist.
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("demo_staff2", "tomas-demo-2026");
+        await session.SignInAsync("demo_staff2", "Demo#2026Staff2");
         using var context = NewContext(session);
 
         Assert.Equal("Tomás L.", context.Render<Settings>().Find(".settings-field__value").TextContent.Trim());

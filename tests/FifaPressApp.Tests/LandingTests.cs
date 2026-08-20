@@ -148,7 +148,7 @@ public class LandingTests
     public async Task ASignedInVisitorIsSentToTheirRecordRatherThanTheFrontDoor()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         using var context = NewContext(session);
         var navigation = context.Services.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();

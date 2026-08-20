@@ -41,10 +41,10 @@ public class GatingTests
     }
 
     private static Task<SimulatedSessionProvider> AsAminaAsync() =>
-        SignedInAsync("demo_staff1", "amina-demo-2026");
+        SignedInAsync("demo_staff1", "Demo#2026Staff1");
 
     private static Task<SimulatedSessionProvider> AsTomasAsync() =>
-        SignedInAsync("demo_staff2", "tomas-demo-2026");
+        SignedInAsync("demo_staff2", "Demo#2026Staff2");
 
     // ------------------------------------------------------------ the record
 

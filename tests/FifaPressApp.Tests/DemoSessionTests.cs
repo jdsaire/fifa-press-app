@@ -40,8 +40,8 @@ public class DemoSessionTests
     }
 
     [Theory]
-    [InlineData("demo_staff1", "amina-demo-2026", "MP-2026-04817")]
-    [InlineData("demo_staff2", "tomas-demo-2026", "RH-2026-00219")]
+    [InlineData("demo_staff1", "Demo#2026Staff1", "MP-2026-04817")]
+    [InlineData("demo_staff2", "Demo#2026Staff2", "RH-2026-00219")]
     public void APublishedCredentialOpensItsOwnRecord(string identifier, string password, string credentialId)
     {
         var account = new DemoAccountStore().Match(identifier, password);
@@ -51,8 +51,8 @@ public class DemoSessionTests
     }
 
     [Theory]
-    [InlineData("DEMO_STAFF1", "amina-demo-2026")]     // case
-    [InlineData("  demo_staff1  ", "amina-demo-2026")] // pasted with whitespace
+    [InlineData("DEMO_STAFF1", "Demo#2026Staff1")]     // case
+    [InlineData("  demo_staff1  ", "Demo#2026Staff1")] // pasted with whitespace
     public void TheIdentifierIsForgivingAboutCaseAndSurroundingSpace(string identifier, string password)
     {
         // A value copied off a screen arrives with a trailing space more often
@@ -62,10 +62,10 @@ public class DemoSessionTests
     }
 
     [Theory]
-    [InlineData("Amina-Demo-2026")]      // case-folded
-    [InlineData(" amina-demo-2026")]     // leading space
-    [InlineData("amina-demo-2026 ")]     // trailing space
-    [InlineData("amina-demo-202")]       // truncated
+    [InlineData("DEMO#2026STAFF1")]      // case-folded
+    [InlineData(" Demo#2026Staff1")]     // leading space
+    [InlineData("Demo#2026Staff1 ")]     // trailing space
+    [InlineData("Demo#2026Staff")]       // truncated
     public void ThePasswordIsComparedByteForByte(string password)
     {
         // Never trimmed, never case-folded, never rewritten. The identifier gets
@@ -77,7 +77,7 @@ public class DemoSessionTests
     [Fact]
     public void OneAccountsPasswordDoesNotOpenTheOthersRecord()
     {
-        Assert.Null(new DemoAccountStore().Match("demo_staff2", "amina-demo-2026"));
+        Assert.Null(new DemoAccountStore().Match("demo_staff2", "Demo#2026Staff1"));
     }
 
     [Theory]
@@ -106,7 +106,7 @@ public class DemoSessionTests
     {
         var session = NewSession();
 
-        Assert.True(await session.SignInAsync("demo_staff2", "tomas-demo-2026"));
+        Assert.True(await session.SignInAsync("demo_staff2", "Demo#2026Staff2"));
         Assert.True(session.IsSignedIn);
         Assert.Equal("RH-2026-00219", session.CredentialId);
         Assert.Equal("Tomás L.", session.Current!.HolderName);
@@ -116,7 +116,7 @@ public class DemoSessionTests
     public async Task AFailedSignInLeavesTheSessionExactlyAsItWas()
     {
         var session = NewSession();
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         Assert.False(await session.SignInAsync("demo_staff1", "wrong"));
 
@@ -128,7 +128,7 @@ public class DemoSessionTests
     public async Task SigningOutEndsTheSession()
     {
         var session = NewSession();
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         session.SignOut();
 
@@ -143,7 +143,7 @@ public class DemoSessionTests
         var announcements = 0;
         session.OnChanged += () => announcements++;
 
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         session.SignOut();
 
         Assert.Equal(2, announcements);
@@ -175,7 +175,7 @@ public class DemoSessionTests
         // "Signing in…" label would never reach the screen.
         var session = NewSession();
 
-        var pending = session.SignInAsync("demo_staff1", "amina-demo-2026");
+        var pending = session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         Assert.False(pending.IsCompleted);
     }
@@ -186,7 +186,7 @@ public class DemoSessionTests
         var session = NewSession();
         var clock = Stopwatch.StartNew();
 
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
         clock.Stop();
 
         // Deliberately loose: this asserts the delay is real, not that it is

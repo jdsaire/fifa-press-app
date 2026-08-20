@@ -228,7 +228,7 @@ public class SignInScreenTests
     public async Task SomeoneAlreadySignedInIsSentToTheirRecord()
     {
         var session = new SimulatedSessionProvider(new DemoAccountStore());
-        await session.SignInAsync("demo_staff1", "amina-demo-2026");
+        await session.SignInAsync("demo_staff1", "Demo#2026Staff1");
 
         using var context = NewContext(session);
         var navigation = context.Services.GetRequiredService<NavigationManager>();
