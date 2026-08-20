@@ -2,6 +2,8 @@
 
 Project documentation — planning, setup, grading, and running the FIFA Press App. For a plain-language explanation of how the app itself works, see [`learning-mode/`](../learning-mode/) instead; these files are more reference-oriented.
 
+For the backend specifically — the API reference, the middleware pipeline, how to deploy it — see [`backend/`](../backend/README.md), which is documentation rather than code.
+
 | File | Who it's for |
 |---|---|
 | [`project-plan.md`](project-plan.md) | Anyone wanting the requirements, objectives, and design outline this app was built against. |

@@ -1,7 +1,7 @@
 # `src/interop` — the TypeScript sources for the app's JavaScript interop
 
 This folder holds the TypeScript that compiles to the two modules in
-`src/FifaPressApp/wwwroot/js/`. It sits **outside** the app project on purpose:
+`src/frontend/wwwroot/js/`. It sits **outside** the app project on purpose:
 `FifaPressApp.csproj` does not reference it, does not build it, and does not know
 it exists.
 

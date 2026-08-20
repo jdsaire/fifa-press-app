@@ -25,7 +25,7 @@ Codespaces gives you a full copy of Visual Studio Code running in your browser, 
    ```
 4. Run the app:
    ```
-   dotnet run --project src/FifaPressApp
+   dotnet run --project src/frontend
    ```
 5. A notification should appear offering to open the forwarded port. If it doesn't, open the **Ports** panel (next to the terminal) and look for port `5126`, then click its globe icon to open it in a browser tab. You may need to set that port's visibility to "Public" if you want to share the link with someone else.
 
@@ -44,7 +44,7 @@ For a fuller beginner walkthrough of this same path, including installing an edi
 3. Download this repo (green **Code** button → **Download ZIP**, then unzip — or `git clone` if you have Git installed) and open a terminal inside the unzipped/cloned folder.
 4. Run:
    ```
-   dotnet run --project src/FifaPressApp
+   dotnet run --project src/frontend
    ```
 5. Open `http://localhost:5126` in any browser.
 
@@ -59,13 +59,30 @@ Application started. Press Ctrl+C to shut down.
 
 That's your cue to open the URL. To stop the app, go back to the terminal and press **Ctrl+C**.
 
+## Running the API as well (optional)
+
+Everything above runs the app on its own, reading from an in-memory mock. That is the default and it needs no server.
+
+This project also has an ASP.NET Core Web API at [`src/backend/`](../src/backend/). The app does not need it — it is off unless you configure it — but you can run it alongside:
+
+```
+dotnet run --project src/backend
+```
+
+It listens on `http://localhost:5226` and describes its own routes at `/openapi/v1.json`. To have the app read from it instead of the mock, follow [`backend/05_RUNNING-AND-DEPLOYING.md`](../backend/05_RUNNING-AND-DEPLOYING.md), which is three short steps.
+
+If you want to know what difference the API actually makes, [`backend/07_BEFORE-AND-AFTER.md`](../backend/07_BEFORE-AND-AFTER.md) walks through it with commands you can paste.
+
 ## Running the Tests
 
-The repository's automated test suite lives in [`tests/FifaPressApp.Tests/`](../tests/README.md). With the .NET 10 SDK installed (Path 2 or 3 above), run it from the repository root:
+There are two suites, one per project, both under [`tests/`](../tests/README.md). With the .NET 10 SDK installed (Path 2 or 3 above), run them from the repository root:
 
 ```
-dotnet test tests/FifaPressApp.Tests
+dotnet test tests/frontend
+dotnet test tests/backend
 ```
+
+512 and 33. Neither needs anything running first — the backend suite starts the API in-process for each test.
 
 ### Troubleshooting
 

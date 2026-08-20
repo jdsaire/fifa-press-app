@@ -6,7 +6,7 @@ By the end of file 02, the app did everything it originally set out to do, and d
 
 ## The Registration Form, and How It Refuses Bad Input
 
-[`Registration.razor`](../../src/FifaPressApp/Pages/Registration.razor) now has a real form asking for a name and an email address. The rules for what counts as valid live in a separate, plain class, [`RegistrationModel.cs`](../../src/FifaPressApp/Models/RegistrationModel.cs), attached directly to each property:
+[`Registration.razor`](../../src/frontend/Pages/Registration.razor) now has a real form asking for a name and an email address. The rules for what counts as valid live in a separate, plain class, [`RegistrationModel.cs`](../../src/frontend/Models/RegistrationModel.cs), attached directly to each property:
 
 ```csharp
 [Required(ErrorMessage = "Name is required.")]
@@ -25,11 +25,11 @@ The form itself is built with `EditForm`, Blazor's built-in form component ([Glo
 
 Requesting facility access for a match raises two different questions, and this app answers them with two separate, independent pieces:
 
-**[`SessionTracker.cs`](../../src/FifaPressApp/Services/SessionTracker.cs)** answers *"which matches has this visitor requested access to?"* — a per-person question.
+**[`SessionTracker.cs`](../../src/frontend/Services/SessionTracker.cs)** answers *"which matches has this visitor requested access to?"* — a per-person question.
 
-**[`AttendanceTracker.cs`](../../src/FifaPressApp/Services/AttendanceTracker.cs)** answers *"how many people, and who, have requested access to this specific match?"* — a per-match question, and one that would make sense to show to anyone looking at that match, not just the person who just submitted a request.
+**[`AttendanceTracker.cs`](../../src/frontend/Services/AttendanceTracker.cs)** answers *"how many people, and who, have requested access to this specific match?"* — a per-match question, and one that would make sense to show to anyone looking at that match, not just the person who just submitted a request.
 
-Both are what Blazor calls **services** ([Glossary.md](../Glossary.md#service)): ordinary C# classes that aren't tied to any single page, created once, and shared by whichever pages need them. [`Program.cs`](../../src/FifaPressApp/Program.cs) sets both up when the app starts:
+Both are what Blazor calls **services** ([Glossary.md](../Glossary.md#service)): ordinary C# classes that aren't tied to any single page, created once, and shared by whichever pages need them. [`Program.cs`](../../src/frontend/Program.cs) sets both up when the app starts:
 
 ```csharp
 builder.Services.AddSingleton<SessionTracker>();
@@ -52,7 +52,7 @@ private void HandleValidSubmit()
 }
 ```
 
-Because both trackers are shared services rather than page-local values, what they remember counts as **state** ([Glossary.md](../Glossary.md#state)) — information that outlives any single page visit, for as long as the browser tab stays open. That's why a "Registered" badge shows up on both [`EventList.razor`](../../src/FifaPressApp/Pages/EventList.razor) and [`EventDetails.razor`](../../src/FifaPressApp/Pages/EventDetails.razor) after you request access, even after navigating away and back — both pages ask `Session.IsRegistered(...)` fresh, every time. The same page also shows `Attendance.GetAttendeeCount(...)` — a number that has nothing to do with which matches *you* requested access to, because it isn't that tracker's job to know.
+Because both trackers are shared services rather than page-local values, what they remember counts as **state** ([Glossary.md](../Glossary.md#state)) — information that outlives any single page visit, for as long as the browser tab stays open. That's why a "Registered" badge shows up on both [`EventList.razor`](../../src/frontend/Pages/EventList.razor) and [`EventDetails.razor`](../../src/frontend/Pages/EventDetails.razor) after you request access, even after navigating away and back — both pages ask `Session.IsRegistered(...)` fresh, every time. The same page also shows `Attendance.GetAttendeeCount(...)` — a number that has nothing to do with which matches *you* requested access to, because it isn't that tracker's job to know.
 
 ## See It for Yourself — and Where to Look Up a Word
 

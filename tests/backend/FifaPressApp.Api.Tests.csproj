@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>FifaPressApp.Api.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <!-- The same test stack the frontend suite already uses — xUnit, at the same
+       versions — plus one addition.
+
+       Microsoft.AspNetCore.Mvc.Testing is a package outside this run's stated
+       technical ceiling, added deliberately and recorded as reversal R14. What
+       it buys is the difference between asserting that the middleware pipeline
+       is registered in the right order and actually exercising it: these tests
+       start the real application in-process and send real HTTP through the real
+       pipeline, so a 401 is a 401 the token middleware produced and a 500 body
+       is what the error handler actually wrote. Testing the handlers as plain
+       classes would have avoided the package and proved considerably less. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/backend/FifaPressApp.Api.csproj" />
+  </ItemGroup>
+
+  <!-- The real seed file, copied to the test output rather than duplicated into
+       this folder. A second copy could drift from the one the API actually
+       reads, at which point these tests would be proving something about data
+       nobody serves. Same rule the frontend suite follows for the schedule CSV. -->
+  <ItemGroup>
+    <Content Include="../../src/backend/Data/seed.json"
+             Link="Data/seed.json"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

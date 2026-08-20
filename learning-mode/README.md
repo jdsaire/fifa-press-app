@@ -34,6 +34,15 @@ The walkthroughs are grouped into numbered folders, one per stretch of work. Rea
 | [`04-Why-Two-Files-Got-Their-Own-Language.md`](03-addendum-implementation/04-Why-Two-Files-Got-Their-Own-Language.md) | For a reader who's never touched TypeScript: why an all-C# app still needs two small JavaScript files, why those two are written in TypeScript instead of plain JavaScript or C#, and what TypeScript actually buys over each. |
 | [`05-Rows-That-Open-And-Sections-That-Dont-Fight-Each-Other.md`](03-addendum-implementation/05-Rows-That-Open-And-Sections-That-Dont-Fight-Each-Other.md) | The `<details>`/`<summary>` HTML elements, why they needed no JavaScript at all, and the rule that decided what stays visible when a row collapses. |
 
+### [`04-backend-and-integration/`](04-backend-and-integration/) — giving it a server
+
+| File | Covers |
+|---|---|
+| [`01-The-First-Server-This-Project-Has-Ever-Had.md`](04-backend-and-integration/01-The-First-Server-This-Project-Has-Ever-Had.md) | What a web API actually is, the five lines that make one, why there is no database, and why the two programs deliberately share no code. |
+| [`02-What-Middleware-Is-And-Why-Order-Matters.md`](04-backend-and-integration/02-What-Middleware-Is-And-Why-Order-Matters.md) | Middleware as nested envelopes rather than a queue, the three components here, why their order is what it is — and the real cost that order carries. |
+| [`03-A-Connection-That-Stays-Open.md`](04-backend-and-integration/03-A-Connection-That-Stays-Open.md) | Why an ordinary request can't tell you anything you didn't ask for, why polling was rejected, and what a connection that stays open changed about the concept this app is built on. |
+| [`04-Swapping-A-Mock-For-The-Real-Thing.md`](04-backend-and-integration/04-Swapping-A-Mock-For-The-Real-Thing.md) | The interface written three runs early, what the swap actually cost, and the three places the abstraction didn't fit cleanly. |
+
 ### Reference
 
 | File | Covers |
@@ -42,11 +51,11 @@ The walkthroughs are grouped into numbered folders, one per stretch of work. Rea
 
 ## How to read this
 
-Start at `01-architecture-foundation/` and read its three files in order — each picks up where the last left off. Then `02-access-record-frontend/`, whose five chapters are shorter and can be read in any order once you have the first folder behind you. `03-addendum-implementation/`'s five chapters can also be read in any order; chapter 4 is written for a reader with no prior TypeScript experience at all and stands on its own even if you skip everything else in the folder.
+Start at `01-architecture-foundation/` and read its three files in order — each picks up where the last left off. Then `02-access-record-frontend/`, whose five chapters are shorter and can be read in any order once you have the first folder behind you. `03-addendum-implementation/`'s five chapters can also be read in any order; chapter 4 is written for a reader with no prior TypeScript experience at all and stands on its own even if you skip everything else in the folder. `04-backend-and-integration/` is the one folder to read in order — its four chapters build on each other, and the last one refers back to all three.
 
 `Glossary.md` isn't part of that sequence; it's a reference to dip into whenever a word doesn't ring a bell, not something to read start to finish.
 
-Reading everything straight through takes roughly 30–40 minutes.
+Reading everything straight through takes roughly 45–55 minutes.
 
 ## Want to see the app itself?
 
